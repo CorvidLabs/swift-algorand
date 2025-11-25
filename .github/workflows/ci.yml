@@ -1,0 +1,39 @@
+name: CI
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  macOS:
+    runs-on: macos-latest
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Select Xcode
+      run: sudo xcode-select -s /Applications/Xcode_16.0.app/Contents/Developer
+
+    - name: Build
+      run: swift build -v
+
+    - name: Run tests (unit tests only, skip integration tests)
+      run: swift test --filter 'AccountTests|AddressTests|ApplicationTransactionTests|AssetManagementTests|AssetTests|AtomicTransactionGroupTests|KeyRegistrationTests|MicroAlgosTests|MnemonicTests' -v
+
+  linux:
+    runs-on: ubuntu-latest
+    container: swift:6.0
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Fix git permissions
+      run: git config --global --add safe.directory /__w/swift-algorand/swift-algorand
+
+    - name: Build
+      run: swift build -v
+
+    - name: Run tests (unit tests only, skip integration tests)
+      run: swift test --filter 'AccountTests|AddressTests|ApplicationTransactionTests|AssetManagementTests|AssetTests|AtomicTransactionGroupTests|KeyRegistrationTests|MicroAlgosTests|MnemonicTests' -v
