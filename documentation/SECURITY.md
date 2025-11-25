@@ -187,6 +187,5 @@ Before deploying to production:
 
 ## Additional Resources
 
-- [Algorand Security Best Practices](https://developer.algorand.org/docs/get-details/security/)
 - [OWASP Mobile Security](https://owasp.org/www-project-mobile-security/)
 - [Apple Security Documentation](https://developer.apple.com/documentation/security)
