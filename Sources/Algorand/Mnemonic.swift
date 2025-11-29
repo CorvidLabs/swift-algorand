@@ -25,36 +25,48 @@ public enum Mnemonic {
             throw AlgorandError.encodingError("Key data must be 32 bytes")
         }
 
-        var words: [String] = []
         let wordlist = BIP39Wordlist.english
 
-        // Convert key data to bits
-        var bits = ""
-        for byte in keyData {
-            bits += String(byte, radix: 2).leftPadding(toLength: 8, withPad: "0")
-        }
+        // Convert key data to 11-bit words using little-endian bit packing
+        // This matches the Algorand SDK implementation
+        let keyWords = toElevenBit(Array(keyData))
 
-        // Algorand uses first 8 bits of SHA512/256 as checksum (not SHA256!)
-        let checksum = SHA512_256.hash(data: keyData)
-        let checksumByte = Array(checksum)[0]
-        bits += String(checksumByte, radix: 2).leftPadding(toLength: 8, withPad: "0")
+        // Compute checksum: first 11 bits of SHA512/256 hash (little-endian)
+        let checksumHash = SHA512_256.hash(data: keyData)
+        let checksumWords = toElevenBit(Array(checksumHash.prefix(2)))
+        let checksumWord = checksumWords[0]
 
-        // Now we have 264 bits (256 + 8), which gives us 24 words
-        // We need exactly 25 words, so the last word encodes the remaining bits (0-padded)
-        // 264 bits / 11 = 24 words, with 0 bits remaining
-        // To get 25 words: 25 * 11 = 275 bits needed
-        // Pad with zeros to get 275 bits
-        bits += String(repeating: "0", count: 275 - bits.count)
+        // Build the 25-word mnemonic: 24 key words + 1 checksum word
+        var words = keyWords.map { wordlist[$0] }
+        words.append(wordlist[checksumWord])
 
-        // Convert to 25 words (11 bits each)
-        for i in stride(from: 0, to: 275, by: 11) {
-            let chunk = bits[bits.index(bits.startIndex, offsetBy: i)..<bits.index(bits.startIndex, offsetBy: i + 11)]
-            if let index = Int(chunk, radix: 2) {
-                words.append(wordlist[index])
+        return words.joined(separator: " ")
+    }
+
+    /// Converts bytes to 11-bit numbers using little-endian bit packing
+    /// This matches the Algorand SDK's _to_11_bit function
+    private static func toElevenBit(_ data: [UInt8]) -> [Int] {
+        var buffer: UInt32 = 0
+        var numBits = 0
+        var output: [Int] = []
+
+        for byte in data {
+            buffer |= UInt32(byte) << numBits
+            numBits += 8
+
+            if numBits >= 11 {
+                output.append(Int(buffer & 0x7FF))
+                buffer >>= 11
+                numBits -= 11
             }
         }
 
-        return words.joined(separator: " ")
+        // Handle remaining bits
+        if numBits > 0 {
+            output.append(Int(buffer & 0x7FF))
+        }
+
+        return output
     }
 
     /// Decodes a 25-word mnemonic into key data
@@ -68,42 +80,59 @@ public enum Mnemonic {
         }
 
         let wordlist = BIP39Wordlist.english
-        var bits = ""
 
+        // Convert words to 11-bit indices
+        var indices: [Int] = []
         for word in words {
             guard let index = wordlist.firstIndex(of: word.lowercased()) else {
                 throw AlgorandError.invalidMnemonic("Invalid word in mnemonic: \(word)")
             }
-            bits += String(index, radix: 2).leftPadding(toLength: 11, withPad: "0")
+            indices.append(index)
         }
 
-        // Extract key data (first 256 bits)
-        let keyBits = bits.prefix(256)
-        var keyData = Data()
-        for i in stride(from: 0, to: 256, by: 8) {
-            let byte = keyBits[keyBits.index(keyBits.startIndex, offsetBy: i)..<keyBits.index(keyBits.startIndex, offsetBy: i + 8)]
-            if let byteValue = UInt8(byte, radix: 2) {
-                keyData.append(byteValue)
-            }
-        }
+        // First 24 words encode the key, last word is checksum
+        let keyIndices = Array(indices.prefix(24))
+        let checksumIndex = indices[24]
 
-        // Verify checksum (8 bits at position 256-263)
-        let checksumBits = String(bits[bits.index(bits.startIndex, offsetBy: 256)..<bits.index(bits.startIndex, offsetBy: 264)])
-        let computedChecksum = SHA512_256.hash(data: keyData)
-        let computedChecksumByte = Array(computedChecksum)[0]
-        let computedChecksumBits = String(computedChecksumByte, radix: 2).leftPadding(toLength: 8, withPad: "0")
+        // Convert 11-bit indices back to bytes using little-endian unpacking
+        let keyData = fromElevenBit(keyIndices, byteCount: 32)
 
-        guard checksumBits == computedChecksumBits else {
+        // Verify checksum
+        let checksumHash = SHA512_256.hash(data: keyData)
+        let expectedChecksumWords = toElevenBit(Array(checksumHash.prefix(2)))
+        let expectedChecksum = expectedChecksumWords[0]
+
+        guard checksumIndex == expectedChecksum else {
             throw AlgorandError.invalidMnemonic("Invalid checksum")
         }
 
-        // Verify padding bits (264-274) are all zeros
-        let paddingBits = String(bits[bits.index(bits.startIndex, offsetBy: 264)..<bits.index(bits.startIndex, offsetBy: 275)])
-        guard paddingBits == String(repeating: "0", count: 11) else {
-            throw AlgorandError.invalidMnemonic("Invalid padding")
+        return keyData
+    }
+
+    /// Converts 11-bit numbers back to bytes using little-endian bit unpacking
+    /// This is the inverse of toElevenBit
+    private static func fromElevenBit(_ indices: [Int], byteCount: Int) -> Data {
+        var buffer: UInt32 = 0
+        var numBits = 0
+        var output: [UInt8] = []
+
+        for index in indices {
+            buffer |= UInt32(index) << numBits
+            numBits += 11
+
+            while numBits >= 8 && output.count < byteCount {
+                output.append(UInt8(buffer & 0xFF))
+                buffer >>= 8
+                numBits -= 8
+            }
         }
 
-        return keyData
+        // Pad with zeros if needed (shouldn't be necessary for valid input)
+        while output.count < byteCount {
+            output.append(0)
+        }
+
+        return Data(output)
     }
 
     /// Validates a mnemonic
