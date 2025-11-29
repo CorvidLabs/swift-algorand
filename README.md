@@ -28,6 +28,17 @@ dependencies: [
 ]
 ```
 
+Then add the dependency to your target:
+
+```swift
+.target(
+    name: "YourApp",
+    dependencies: [
+        .product(name: "Algorand", package: "swift-algorand")
+    ]
+)
+```
+
 Or add it via Xcode:
 1. File > Add Package Dependencies
 2. Enter: `https://github.com/CorvidLabs/swift-algorand.git`

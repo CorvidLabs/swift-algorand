@@ -2,7 +2,7 @@
 import PackageDescription
 
 let package = Package(
-    name: "Algorand",
+    name: "swift-algorand",
     platforms: [
         .iOS(.v15),
         .macOS(.v11),
