@@ -4,10 +4,10 @@ import PackageDescription
 let package = Package(
     name: "swift-algorand",
     platforms: [
-        .iOS(.v15),
-        .macOS(.v11),
-        .tvOS(.v15),
-        .watchOS(.v8),
+        .iOS(.v16),
+        .macOS(.v13),
+        .tvOS(.v16),
+        .watchOS(.v9),
         .visionOS(.v1)
     ],
     products: [
@@ -22,23 +22,32 @@ let package = Package(
     ],
     dependencies: [
         .package(url: "https://github.com/apple/swift-crypto.git", from: "3.0.0"),
-        .package(url: "https://github.com/swiftlang/swift-docc-plugin", from: "1.4.0")
+        .package(url: "https://github.com/swiftlang/swift-docc-plugin", from: "1.4.3")
     ],
     targets: [
         .target(
             name: "Algorand",
             dependencies: [
                 .product(name: "Crypto", package: "swift-crypto"),
+            ],
+            swiftSettings: [
+                .enableUpcomingFeature("StrictConcurrency")
             ]
         ),
         .executableTarget(
             name: "AlgorandExample",
             dependencies: ["Algorand"],
-            path: "Sources/AlgorandExample"
+            path: "Sources/AlgorandExample",
+            swiftSettings: [
+                .enableUpcomingFeature("StrictConcurrency")
+            ]
         ),
         .testTarget(
             name: "AlgorandTests",
-            dependencies: ["Algorand"]
+            dependencies: ["Algorand"],
+            swiftSettings: [
+                .enableUpcomingFeature("StrictConcurrency")
+            ]
         ),
     ]
 )
