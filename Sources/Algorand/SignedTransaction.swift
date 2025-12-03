@@ -11,8 +11,11 @@ public struct SignedTransaction: Sendable {
     /// Optional group ID for atomic transaction groups
     public let groupID: Data?
 
-    /// The transaction ID
-    /// - Throws: `AlgorandError.encodingError` if encoding fails
+    /**
+     The transaction ID
+
+     - Throws: `AlgorandError.encodingError` if encoding fails
+     */
     public func id() throws -> String {
         try transaction.id()
     }
@@ -23,12 +26,15 @@ public struct SignedTransaction: Sendable {
         self.groupID = groupID
     }
 
-    /// Signs a transaction with an account
-    /// - Parameters:
-    ///   - transaction: The transaction to sign
-    ///   - account: The account to sign with
-    ///   - groupID: Optional group ID for atomic transaction groups
-    /// - Returns: A signed transaction
+    /**
+     Signs a transaction with an account
+
+     - Parameters:
+       - transaction: The transaction to sign
+       - account: The account to sign with
+       - groupID: Optional group ID for atomic transaction groups
+     - Returns: A signed transaction
+     */
     public static func sign(_ transaction: any Transaction, with account: Account, groupID: Data? = nil) throws -> SignedTransaction {
         let encoded = try transaction.encode(groupID: groupID)
         let prefixed = Data("TX".utf8) + encoded

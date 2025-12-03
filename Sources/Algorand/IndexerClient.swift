@@ -9,20 +9,26 @@ public actor IndexerClient {
     private let apiToken: String?
     private let session: URLSession
 
-    /// Creates a new Indexer client
-    /// - Parameters:
-    ///   - baseURL: The base URL of the indexer (e.g., "https://testnet-idx.algonode.cloud")
-    ///   - apiToken: Optional API token for authentication
+    /**
+     Creates a new Indexer client
+
+     - Parameters:
+       - baseURL: The base URL of the indexer (e.g., "https://testnet-idx.algonode.cloud")
+       - apiToken: Optional API token for authentication
+     */
     public init(baseURL: URL, apiToken: String? = nil) {
         self.baseURL = baseURL
         self.apiToken = apiToken
         self.session = URLSession.shared
     }
 
-    /// Creates a new Indexer client
-    /// - Parameters:
-    ///   - baseURL: The base URL string of the indexer
-    ///   - apiToken: Optional API token for authentication
+    /**
+     Creates a new Indexer client
+
+     - Parameters:
+       - baseURL: The base URL string of the indexer
+       - apiToken: Optional API token for authentication
+     */
     public init(baseURL: String, apiToken: String? = nil) throws {
         guard let url = URL(string: baseURL) else {
             throw AlgorandError.invalidAddress("Invalid base URL")
@@ -39,12 +45,15 @@ public actor IndexerClient {
 
     // MARK: - Accounts
 
-    /// Searches for accounts
-    /// - Parameters:
-    ///   - limit: Maximum number of results (default: 100)
-    ///   - next: Token for pagination
-    ///   - currencyGreaterThan: Filter by minimum balance
-    ///   - currencyLessThan: Filter by maximum balance
+    /**
+     Searches for accounts
+
+     - Parameters:
+       - limit: Maximum number of results (default: 100)
+       - next: Token for pagination
+       - currencyGreaterThan: Filter by minimum balance
+       - currencyLessThan: Filter by maximum balance
+     */
     public func searchAccounts(
         limit: Int = 100,
         next: String? = nil,
@@ -82,13 +91,16 @@ public actor IndexerClient {
 
     // MARK: - Transactions
 
-    /// Searches for transactions
-    /// - Parameters:
-    ///   - address: Filter by address
-    ///   - limit: Maximum number of results (default: 100)
-    ///   - next: Token for pagination
-    ///   - minRound: Minimum round
-    ///   - maxRound: Maximum round
+    /**
+     Searches for transactions
+
+     - Parameters:
+       - address: Filter by address
+       - limit: Maximum number of results (default: 100)
+       - next: Token for pagination
+       - minRound: Minimum round
+       - maxRound: Maximum round
+     */
     public func searchTransactions(
         address: Address? = nil,
         limit: Int = 100,
@@ -132,12 +144,15 @@ public actor IndexerClient {
 
     // MARK: - Assets
 
-    /// Searches for assets
-    /// - Parameters:
-    ///   - limit: Maximum number of results (default: 100)
-    ///   - next: Token for pagination
-    ///   - name: Filter by name
-    ///   - unit: Filter by unit name
+    /**
+     Searches for assets
+
+     - Parameters:
+       - limit: Maximum number of results (default: 100)
+       - next: Token for pagination
+       - name: Filter by name
+       - unit: Filter by unit name
+     */
     public func searchAssets(
         limit: Int = 100,
         next: String? = nil,
@@ -183,11 +198,14 @@ public actor IndexerClient {
         try await get(path: "/v2/applications/\(appID)")
     }
 
-    /// Searches for applications
-    /// - Parameters:
-    ///   - limit: Maximum number of results (default: 100)
-    ///   - next: Token for pagination
-    ///   - applicationID: Filter by application ID
+    /**
+     Searches for applications
+
+     - Parameters:
+       - limit: Maximum number of results (default: 100)
+       - next: Token for pagination
+       - applicationID: Filter by application ID
+     */
     public func searchApplications(
         limit: Int = 100,
         next: String? = nil,

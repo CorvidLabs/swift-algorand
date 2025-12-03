@@ -3,9 +3,12 @@ import Crypto
 
 /// Generates and validates BIP-39 mnemonics for Algorand accounts
 public enum Mnemonic {
-    /// Generates a random 25-word mnemonic
-    /// - Returns: A 25-word mnemonic string
-    /// - Throws: `AlgorandError.encodingError` if key data is invalid
+    /**
+     Generates a random 25-word mnemonic
+
+     - Returns: A 25-word mnemonic string
+     - Throws: `AlgorandError.encodingError` if key data is invalid
+     */
     public static func generate() throws -> String {
         // Generate 32 random bytes using system RNG
         var keyData = Data(count: 32)
@@ -16,10 +19,13 @@ public enum Mnemonic {
         return try encode(keyData)
     }
 
-    /// Encodes key data into a 25-word mnemonic
-    /// - Parameter keyData: 32 bytes of key data
-    /// - Returns: A 25-word mnemonic string
-    /// - Throws: `AlgorandError.encodingError` if key data is not 32 bytes
+    /**
+     Encodes key data into a 25-word mnemonic
+
+     - Parameter keyData: 32 bytes of key data
+     - Returns: A 25-word mnemonic string
+     - Throws: `AlgorandError.encodingError` if key data is not 32 bytes
+     */
     public static func encode(_ keyData: Data) throws -> String {
         guard keyData.count == 32 else {
             throw AlgorandError.encodingError("Key data must be 32 bytes")
@@ -69,10 +75,13 @@ public enum Mnemonic {
         return output
     }
 
-    /// Decodes a 25-word mnemonic into key data
-    /// - Parameter mnemonic: The 25-word mnemonic string
-    /// - Returns: 32 bytes of key data
-    /// - Throws: `AlgorandError.invalidMnemonic` if the mnemonic is invalid
+    /**
+     Decodes a 25-word mnemonic into key data
+
+     - Parameter mnemonic: The 25-word mnemonic string
+     - Returns: 32 bytes of key data
+     - Throws: `AlgorandError.invalidMnemonic` if the mnemonic is invalid
+     */
     public static func decode(_ mnemonic: String) throws -> Data {
         let words = mnemonic.components(separatedBy: " ")
         guard words.count == 25 else {
