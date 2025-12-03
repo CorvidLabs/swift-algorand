@@ -14,11 +14,7 @@ let package = Package(
         .library(
             name: "Algorand",
             targets: ["Algorand"]
-        ),
-        .executable(
-            name: "algorand-example",
-            targets: ["AlgorandExample"]
-        ),
+        )
     ],
     dependencies: [
         .package(url: "https://github.com/apple/swift-crypto.git", from: "3.0.0"),
@@ -30,11 +26,6 @@ let package = Package(
             dependencies: [
                 .product(name: "Crypto", package: "swift-crypto"),
             ]
-        ),
-        .executableTarget(
-            name: "AlgorandExample",
-            dependencies: ["Algorand"],
-            path: "Sources/AlgorandExample"
         ),
         .testTarget(
             name: "AlgorandTests",
