@@ -75,8 +75,11 @@ public protocol Transaction: Sendable {
     /// Optional rekey address
     var rekeyTo: Address? { get }
 
-    /// Encodes the transaction to MessagePack format for signing
-    /// - Parameter groupID: Optional group ID for atomic transaction groups
+    /**
+     Encodes the transaction to MessagePack format for signing
+
+     - Parameter groupID: Optional group ID for atomic transaction groups
+     */
     func encode(groupID: Data?) throws -> Data
 
     /// Returns the transaction ID

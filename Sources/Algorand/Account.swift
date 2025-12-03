@@ -35,13 +35,7 @@ public struct Account: Sendable {
     /// The public key (32 bytes)
     public let publicKey: Data
 
-    /**
-     Creates a new random account.
-
-     This initializer generates cryptographically random keys.
-
-     - Throws: `AlgorandError.encodingError` if key derivation fails
-     */
+    /// Creates a new random account
     public init() throws {
         // Generate 32 random bytes for the private key using system RNG
         var privateKeyData = Data(count: 32)
@@ -57,9 +51,12 @@ public struct Account: Sendable {
         self.address = try Address(bytes: publicKeyData)
     }
 
-    /// Creates an account from a mnemonic
-    /// - Parameter mnemonic: The 25-word mnemonic
-    /// - Throws: `AlgorandError.invalidMnemonic` if the mnemonic is invalid
+    /**
+     Creates an account from a mnemonic
+
+     - Parameter mnemonic: The 25-word mnemonic
+     - Throws: `AlgorandError.invalidMnemonic` if the mnemonic is invalid
+     */
     public init(mnemonic: String) throws {
         let privateKeyData = try Mnemonic.decode(mnemonic)
         let publicKeyData = try Self.derivePublicKey(from: privateKeyData)
@@ -69,9 +66,12 @@ public struct Account: Sendable {
         self.address = try Address(bytes: publicKeyData)
     }
 
-    /// Creates an account from a private key
-    /// - Parameter privateKey: The 32-byte private key
-    /// - Throws: `AlgorandError.encodingError` if the key is invalid
+    /**
+     Creates an account from a private key
+
+     - Parameter privateKey: The 32-byte private key
+     - Throws: `AlgorandError.encodingError` if the key is invalid
+     */
     public init(privateKey: Data) throws {
         guard privateKey.count == 32 else {
             throw AlgorandError.encodingError("Private key must be 32 bytes")
@@ -84,15 +84,21 @@ public struct Account: Sendable {
         self.address = try Address(bytes: publicKeyData)
     }
 
-    /// The account's mnemonic
-    /// - Throws: `AlgorandError.encodingError` if encoding fails
+    /**
+     The account's mnemonic
+
+     - Throws: `AlgorandError.encodingError` if encoding fails
+     */
     public func mnemonic() throws -> String {
         try Mnemonic.encode(privateKeyContainer.data)
     }
 
-    /// Signs data with the account's private key
-    /// - Parameter data: The data to sign
-    /// - Returns: The signature (64 bytes)
+    /**
+     Signs data with the account's private key
+
+     - Parameter data: The data to sign
+     - Returns: The signature (64 bytes)
+     */
     public func sign(_ data: Data) throws -> Data {
         guard let signingKey = try? Curve25519.Signing.PrivateKey(rawRepresentation: privateKeyContainer.data) else {
             throw AlgorandError.encodingError("Failed to create signing key")
@@ -101,11 +107,14 @@ public struct Account: Sendable {
         return try Data(signingKey.signature(for: data))
     }
 
-    /// Verifies a signature
-    /// - Parameters:
-    ///   - signature: The signature to verify
-    ///   - data: The data that was signed
-    /// - Returns: `true` if the signature is valid
+    /**
+     Verifies a signature
+
+     - Parameters:
+       - signature: The signature to verify
+       - data: The data that was signed
+     - Returns: `true` if the signature is valid
+     */
     public func verify(signature: Data, for data: Data) -> Bool {
         guard let publicKey = try? Curve25519.Signing.PublicKey(rawRepresentation: self.publicKey) else {
             return false
@@ -116,10 +125,13 @@ public struct Account: Sendable {
 
     // MARK: - Private
 
-    /// Derives the public key from a private key using Ed25519
-    /// - Parameter privateKey: The 32-byte private key
-    /// - Returns: The derived public key
-    /// - Throws: `AlgorandError.encodingError` if key derivation fails
+    /**
+     Derives the public key from a private key using Ed25519
+
+     - Parameter privateKey: The 32-byte private key
+     - Returns: The derived public key
+     - Throws: `AlgorandError.encodingError` if key derivation fails
+     */
     private static func derivePublicKey(from privateKey: Data) throws -> Data {
         guard let signingKey = try? Curve25519.Signing.PrivateKey(rawRepresentation: privateKey) else {
             throw AlgorandError.encodingError("Failed to create Ed25519 signing key from private key")

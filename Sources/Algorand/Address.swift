@@ -9,9 +9,12 @@ public struct Address: Sendable {
     /// The string representation of the address
     public let description: String
 
-    /// Creates an address from a base32-encoded string
-    /// - Parameter string: The base32-encoded address string (58 characters)
-    /// - Throws: `AlgorandError.invalidAddress` if the string is invalid
+    /**
+     Creates an address from a base32-encoded string
+
+     - Parameter string: The base32-encoded address string (58 characters)
+     - Throws: `AlgorandError.invalidAddress` if the string is invalid
+     */
     public init(string: String) throws {
         guard string.count == 58 else {
             throw AlgorandError.invalidAddress("Address must be 58 characters")
@@ -40,9 +43,12 @@ public struct Address: Sendable {
         self.description = string
     }
 
-    /// Creates an address from raw bytes
-    /// - Parameter bytes: The 32-byte address
-    /// - Throws: `AlgorandError.invalidAddress` if bytes are not 32 bytes
+    /**
+     Creates an address from raw bytes
+
+     - Parameter bytes: The 32-byte address
+     - Throws: `AlgorandError.invalidAddress` if bytes are not 32 bytes
+     */
     public init(bytes: Data) throws {
         guard bytes.count == 32 else {
             throw AlgorandError.invalidAddress("Address bytes must be exactly 32 bytes")

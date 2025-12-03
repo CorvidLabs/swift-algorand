@@ -16,10 +16,13 @@ public struct AlgorandConfiguration: Sendable {
     /// Optional API token for authentication
     public let apiToken: String?
 
-    /// Creates a configuration for the specified network
-    /// - Parameters:
-    ///   - network: The network to connect to
-    ///   - apiToken: Optional API token for authentication
+    /**
+     Creates a configuration for the specified network
+
+     - Parameters:
+       - network: The network to connect to
+       - apiToken: Optional API token for authentication
+     */
     public init(network: Network, apiToken: String? = nil) {
         self.network = network
         self.apiToken = apiToken
@@ -43,11 +46,14 @@ public struct AlgorandConfiguration: Sendable {
         AlgorandConfiguration(network: .mainnet)
     }
 
-    /// Creates a configuration for custom endpoints
-    /// - Parameters:
-    ///   - algodURL: The URL of the algod node
-    ///   - indexerURL: Optional URL of the indexer
-    ///   - apiToken: Optional API token for authentication
+    /**
+     Creates a configuration for custom endpoints
+
+     - Parameters:
+       - algodURL: The URL of the algod node
+       - indexerURL: Optional URL of the indexer
+       - apiToken: Optional API token for authentication
+     */
     public static func custom(algodURL: URL, indexerURL: URL? = nil, apiToken: String? = nil) -> AlgorandConfiguration {
         AlgorandConfiguration(network: .custom(algodURL: algodURL, indexerURL: indexerURL), apiToken: apiToken)
     }

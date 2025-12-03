@@ -9,20 +9,26 @@ public actor AlgodClient {
     private let apiToken: String?
     private let session: URLSession
 
-    /// Creates a new Algod client
-    /// - Parameters:
-    ///   - baseURL: The base URL of the algod node (e.g., "https://testnet-api.algonode.cloud")
-    ///   - apiToken: Optional API token for authentication
+    /**
+     Creates a new Algod client
+
+     - Parameters:
+       - baseURL: The base URL of the algod node (e.g., "https://testnet-api.algonode.cloud")
+       - apiToken: Optional API token for authentication
+     */
     public init(baseURL: URL, apiToken: String? = nil) {
         self.baseURL = baseURL
         self.apiToken = apiToken
         self.session = URLSession.shared
     }
 
-    /// Creates a new Algod client
-    /// - Parameters:
-    ///   - baseURL: The base URL string of the algod node
-    ///   - apiToken: Optional API token for authentication
+    /**
+     Creates a new Algod client
+
+     - Parameters:
+       - baseURL: The base URL string of the algod node
+       - apiToken: Optional API token for authentication
+     */
     public init(baseURL: String, apiToken: String? = nil) throws {
         guard let url = URL(string: baseURL) else {
             throw AlgorandError.invalidAddress("Invalid base URL")
@@ -52,9 +58,12 @@ public actor AlgodClient {
 
     // MARK: - Transactions
 
-    /// Submits a signed transaction to the network
-    /// - Parameter signedTransaction: The signed transaction to submit
-    /// - Returns: The transaction ID
+    /**
+     Submits a signed transaction to the network
+
+     - Parameter signedTransaction: The signed transaction to submit
+     - Returns: The transaction ID
+     */
     public func sendTransaction(_ signedTransaction: SignedTransaction) async throws -> String {
         let encoded = try signedTransaction.encode()
 
@@ -86,9 +95,12 @@ public actor AlgodClient {
         return decoded.txId
     }
 
-    /// Sends an atomic transaction group
-    /// - Parameter group: The signed atomic transaction group
-    /// - Returns: The transaction ID of the first transaction in the group
+    /**
+     Sends an atomic transaction group
+
+     - Parameter group: The signed atomic transaction group
+     - Returns: The transaction ID of the first transaction in the group
+     */
     public func sendTransactionGroup(_ group: SignedAtomicTransactionGroup) async throws -> String {
         let encoded = try group.encode()
 
@@ -125,11 +137,14 @@ public actor AlgodClient {
         try await get(path: "/v2/transactions/pending/\(transactionID)")
     }
 
-    /// Waits for a transaction to be confirmed
-    /// - Parameters:
-    ///   - transactionID: The transaction ID
-    ///   - timeout: Maximum number of rounds to wait (default: 10)
-    /// - Returns: The confirmed transaction
+    /**
+     Waits for a transaction to be confirmed
+
+     - Parameters:
+       - transactionID: The transaction ID
+       - timeout: Maximum number of rounds to wait (default: 10)
+     - Returns: The confirmed transaction
+     */
     public func waitForConfirmation(
         transactionID: String,
         timeout: UInt64 = 10
@@ -169,10 +184,13 @@ public actor AlgodClient {
         try await get(path: "/v2/applications/\(applicationID)")
     }
 
-    /// Gets application local state for an account
-    /// - Parameters:
-    ///   - address: The account address
-    ///   - applicationID: The application ID
+    /**
+     Gets application local state for an account
+
+     - Parameters:
+       - address: The account address
+       - applicationID: The application ID
+     */
     public func accountApplicationInfo(_ address: Address, applicationID: UInt64) async throws -> AccountApplicationInfo {
         try await get(path: "/v2/accounts/\(address.description)/applications/\(applicationID)")
     }
@@ -186,10 +204,13 @@ public actor AlgodClient {
         try await get(path: "/v2/applications/\(applicationID)/boxes")
     }
 
-    /// Gets a specific box by name
-    /// - Parameters:
-    ///   - applicationID: The application ID
-    ///   - name: The box name (base64 encoded)
+    /**
+     Gets a specific box by name
+
+     - Parameters:
+       - applicationID: The application ID
+       - name: The box name (base64 encoded)
+     */
     public func applicationBox(_ applicationID: UInt64, name: String) async throws -> BoxResponse {
         // URL encode the box name for the query
         let encodedName = name.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) ?? name

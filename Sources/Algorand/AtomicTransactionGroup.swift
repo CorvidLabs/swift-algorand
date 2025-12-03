@@ -24,8 +24,11 @@ public struct AtomicTransactionGroup: Sendable {
         self.groupID = try Self.computeGroupID(transactions: transactions)
     }
 
-    /// Computes the group ID from transaction hashes
-    /// The group ID is SHA512-256("TG" + msgpack({"txlist": [hash1, hash2, ...]}))
+    /**
+     Computes the group ID from transaction hashes
+
+     The group ID is SHA512-256("TG" + msgpack({"txlist": [hash1, hash2, ...]}))
+     */
     private static func computeGroupID(transactions: [any Transaction]) throws -> Data {
         // Compute the hash of each transaction
         var txHashes: [MessagePackValue] = []
@@ -66,11 +69,14 @@ public struct SignedAtomicTransactionGroup: Sendable {
         self.groupID = groupID
     }
 
-    /// Signs all transactions in a group with the provided accounts
-    /// - Parameters:
-    ///   - group: The transaction group to sign
-    ///   - accounts: Dictionary mapping transaction index to signing account
-    /// - Returns: A signed atomic transaction group
+    /**
+     Signs all transactions in a group with the provided accounts
+
+     - Parameters:
+       - group: The transaction group to sign
+       - accounts: Dictionary mapping transaction index to signing account
+     - Returns: A signed atomic transaction group
+     */
     public static func sign(
         _ group: AtomicTransactionGroup,
         with accounts: [Int: Account]
@@ -93,8 +99,11 @@ public struct SignedAtomicTransactionGroup: Sendable {
         )
     }
 
-    /// Encodes the signed transaction group for submission
-    /// The format is simply concatenated encoded signed transactions (not wrapped in an array)
+    /**
+     Encodes the signed transaction group for submission
+
+     The format is simply concatenated encoded signed transactions (not wrapped in an array)
+     */
     public func encode() throws -> Data {
         var output = Data()
 
@@ -114,27 +123,36 @@ public struct AtomicTransactionGroupBuilder {
 
     public init() {}
 
-    /// Adds a transaction to the group
-    /// - Parameter transaction: The transaction to add
-    /// - Returns: Self for method chaining
+    /**
+     Adds a transaction to the group
+
+     - Parameter transaction: The transaction to add
+     - Returns: Self for method chaining
+     */
     public func add(_ transaction: any Transaction) -> Self {
         var builder = self
         builder.transactions.append(transaction)
         return builder
     }
 
-    /// Adds multiple transactions to the group
-    /// - Parameter transactions: The transactions to add
-    /// - Returns: Self for method chaining
+    /**
+     Adds multiple transactions to the group
+
+     - Parameter transactions: The transactions to add
+     - Returns: Self for method chaining
+     */
     public func add(_ transactions: [any Transaction]) -> Self {
         var builder = self
         builder.transactions.append(contentsOf: transactions)
         return builder
     }
 
-    /// Builds the atomic transaction group
-    /// - Returns: The constructed atomic transaction group
-    /// - Throws: `AlgorandError.invalidTransaction` if the group is invalid
+    /**
+     Builds the atomic transaction group
+
+     - Returns: The constructed atomic transaction group
+     - Throws: `AlgorandError.invalidTransaction` if the group is invalid
+     */
     public func build() throws -> AtomicTransactionGroup {
         try AtomicTransactionGroup(transactions: transactions)
     }

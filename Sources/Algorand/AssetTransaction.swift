@@ -61,15 +61,21 @@ public struct AssetParams: Sendable {
         self.clawback = clawback
     }
 
-    /// Converts a decimal amount to base units
-    /// Example: 10.5 with 2 decimals = 1050 base units
+    /**
+     Converts a decimal amount to base units
+
+     Example: 10.5 with 2 decimals = 1050 base units
+     */
     public func toBaseUnits(_ decimalAmount: Double) -> UInt64 {
         let multiplier = pow(10.0, Double(decimals))
         return UInt64(decimalAmount * multiplier)
     }
 
-    /// Converts base units to decimal amount
-    /// Example: 1050 base units with 2 decimals = 10.5
+    /**
+     Converts base units to decimal amount
+
+     Example: 1050 base units with 2 decimals = 10.5
+     */
     public func toDecimal(_ baseUnits: UInt64) -> Double {
         let divisor = pow(10.0, Double(decimals))
         return Double(baseUnits) / divisor
@@ -434,7 +440,9 @@ public struct AssetConfigTransaction: Transaction {
 }
 
 extension AssetConfigTransaction {
-    /// Destroys an asset (sender must be manager and hold all units)
+    /**
+     Destroys an asset (sender must be manager and hold all units)
+     */
     public static func destroy(
         sender: Address,
         assetID: UInt64,
@@ -461,7 +469,9 @@ extension AssetConfigTransaction {
         )
     }
 
-    /// Updates asset configuration addresses
+    /**
+     Updates asset configuration addresses
+     */
     public static func update(
         sender: Address,
         assetID: UInt64,
