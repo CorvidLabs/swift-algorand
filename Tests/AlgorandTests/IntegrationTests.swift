@@ -14,6 +14,11 @@ final class IntegrationTests: XCTestCase {
     override func setUp() async throws {
         try await super.setUp()
 
+        // Skip integration tests on CI - they require Docker and local Algorand node
+        guard ProcessInfo.processInfo.environment["CI"] == nil else {
+            throw XCTSkip("Integration tests require local Algorand node - skipping on CI")
+        }
+
         let network = ProcessInfo.processInfo.environment["ALGORAND_NETWORK"] ?? "localnet"
         isLocalNet = network == "localnet"
 
