@@ -1,10 +1,11 @@
 # swift-algorand
 
-[![CI](https://img.shields.io/github/actions/workflow/status/CorvidLabs/swift-algorand/ci.yml?label=CI&branch=main)](https://github.com/CorvidLabs/swift-algorand/actions/workflows/ci.yml)
+[![macOS](https://img.shields.io/github/actions/workflow/status/CorvidLabs/swift-algorand/macOS.yml?label=macOS&branch=main)](https://github.com/CorvidLabs/swift-algorand/actions/workflows/macOS.yml)
+[![Ubuntu](https://img.shields.io/github/actions/workflow/status/CorvidLabs/swift-algorand/ubuntu.yml?label=Ubuntu&branch=main)](https://github.com/CorvidLabs/swift-algorand/actions/workflows/ubuntu.yml)
 [![License](https://img.shields.io/github/license/CorvidLabs/swift-algorand)](https://github.com/CorvidLabs/swift-algorand/blob/main/LICENSE)
 [![Version](https://img.shields.io/github/v/release/CorvidLabs/swift-algorand)](https://github.com/CorvidLabs/swift-algorand/releases)
 
-> **Pre-1.0 Notice**: This SDK is under active development. The API may change between minor versions until 1.0. Not yet audited by a third-party security firm.
+> **Pre-1.0 Notice**: This SDK is under active development. The API may change between minor versions until 1.0.
 
 A modern Swift SDK for the Algorand blockchain. Built with Swift 6 and async/await.
 

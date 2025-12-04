@@ -134,13 +134,13 @@ public struct AssetCreateTransaction: Transaction {
             apar["df"] = .bool(true)
         }
 
-        if let unitName = assetParams.unitName {
+        if let unitName = assetParams.unitName, !unitName.isEmpty {
             apar["un"] = .string(unitName)
         }
-        if let assetName = assetParams.assetName {
+        if let assetName = assetParams.assetName, !assetName.isEmpty {
             apar["an"] = .string(assetName)
         }
-        if let url = assetParams.url {
+        if let url = assetParams.url, !url.isEmpty {
             apar["au"] = .string(url)
         }
         if let metadataHash = assetParams.metadataHash {
