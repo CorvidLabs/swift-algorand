@@ -47,8 +47,10 @@ public struct PaymentTransaction: Transaction {
         // Build transaction map with Algorand's canonical field names
         var map: [String: MessagePackValue] = [:]
 
-        // Required fields
-        map["amt"] = .uint(amount.value)
+        // Required fields (omit zero values per Algorand canonical encoding)
+        if amount.value > 0 {
+            map["amt"] = .uint(amount.value)
+        }
         map["fee"] = .uint(fee.value)
         map["fv"] = .uint(firstValid)
         map["gen"] = .string(genesisID)
