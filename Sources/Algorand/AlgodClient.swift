@@ -197,9 +197,12 @@ public actor AlgodClient {
 
     // MARK: - Box Storage
 
-    /// Gets all box names for an application
-    /// - Parameter applicationID: The application ID
-    /// - Returns: List of box names
+    /**
+     Gets all box names for an application
+
+     - Parameter applicationID: The application ID
+     - Returns: List of box names
+     */
     public func applicationBoxes(_ applicationID: UInt64) async throws -> BoxesResponse {
         try await get(path: "/v2/applications/\(applicationID)/boxes")
     }
@@ -219,9 +222,12 @@ public actor AlgodClient {
 
     // MARK: - Transaction Simulation
 
-    /// Simulates a transaction or group of transactions
-    /// - Parameter request: The simulation request
-    /// - Returns: Simulation result
+    /**
+     Simulates a transaction or group of transactions
+
+     - Parameter request: The simulation request
+     - Returns: Simulation result
+     */
     public func simulateTransaction(_ request: SimulateRequest) async throws -> SimulateResponse {
         let encoder = JSONEncoder()
         let data = try encoder.encode(request)

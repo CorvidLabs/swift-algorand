@@ -144,9 +144,12 @@ public enum Mnemonic {
         return Data(output)
     }
 
-    /// Validates a mnemonic
-    /// - Parameter mnemonic: The mnemonic to validate
-    /// - Returns: `true` if the mnemonic is valid
+    /**
+     Validates a mnemonic
+
+     - Parameter mnemonic: The mnemonic to validate
+     - Returns: `true` if the mnemonic is valid
+     */
     public static func isValid(_ mnemonic: String) -> Bool {
         do {
             _ = try decode(mnemonic)

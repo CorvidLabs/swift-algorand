@@ -1,8 +1,11 @@
 @preconcurrency import Foundation
 
-/// SHA-512/256 hash function
-/// Note: SHA-512/256 is NOT just truncated SHA-512, it uses different initialization vectors
-/// This is a complete implementation of SHA-512/256 as specified in FIPS 180-4
+/**
+ SHA-512/256 hash function
+
+ Note: SHA-512/256 is NOT just truncated SHA-512, it uses different initialization vectors.
+ This is a complete implementation of SHA-512/256 as specified in FIPS 180-4.
+ */
 public enum SHA512_256 {
     public static func hash(data: Data) -> Data {
         var hasher = SHA512_256Hasher()
