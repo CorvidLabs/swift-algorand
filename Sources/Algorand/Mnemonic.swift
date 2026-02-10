@@ -10,11 +10,8 @@ public enum Mnemonic {
      - Throws: `AlgorandError.encodingError` if key data is invalid
      */
     public static func generate() throws -> String {
-        // Generate 32 random bytes using system RNG
-        var keyData = Data(count: 32)
-        for i in 0..<32 {
-            keyData[i] = UInt8.random(in: 0...255)
-        }
+        // Generate 32 cryptographically secure random bytes
+        let keyData = try SecureRandom.bytes(count: 32)
 
         return try encode(keyData)
     }

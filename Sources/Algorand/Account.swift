@@ -37,11 +37,8 @@ public struct Account: Sendable {
 
     /// Creates a new random account
     public init() throws {
-        // Generate 32 random bytes for the private key using system RNG
-        var privateKeyData = Data(count: 32)
-        for i in 0..<32 {
-            privateKeyData[i] = UInt8.random(in: 0...255)
-        }
+        // Generate 32 cryptographically secure random bytes for the private key
+        let privateKeyData = try SecureRandom.bytes(count: 32)
 
         // Derive public key from private key (Ed25519)
         let publicKeyData = try Self.derivePublicKey(from: privateKeyData)
