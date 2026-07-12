@@ -1,0 +1,8 @@
+# fledge.toml — project task definitions
+[tasks]
+build = "swift build"
+test = "CI=true swift test"
+
+[lanes.verify]
+description = "Build and test the Swift Algorand SDK without live network mutations"
+steps = ["build", "test"]
