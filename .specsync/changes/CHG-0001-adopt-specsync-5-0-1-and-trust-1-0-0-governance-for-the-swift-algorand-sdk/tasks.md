@@ -6,7 +6,7 @@ artifact: tasks
 # Tasks
 
 - [x] Preserve macOS, Linux, DocC, localnet, and credentialed TestNet surfaces.
-- [x] Add stable requirements and all four integrations.
+- [x] Add 12 stable requirements, cover 19/19 Swift sources and 344/344 exports, and install all four integrations.
 - [x] Add Trust, Augur, Attest, and Fledge governance.
 - [x] Build and run the existing CI-bounded test suite.
-- [ ] Obtain authorized definition and closing approvals.
+- [x] Record the authorized portable definition approval before verification.

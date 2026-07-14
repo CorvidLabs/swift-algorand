@@ -5,4 +5,4 @@ artifact: docs
 
 # Docs
 
-The canonical governance spec records protocol encodings, transaction construction, client error behavior, atomic groups, live-network boundaries, and four stable requirements. Public SDK and DocC documentation remain unchanged.
+The canonical governance spec records every Swift source file and public export, protocol encodings, transaction families, client error behavior, atomic groups, live-network boundaries, and 12 stable requirements. Public SDK and DocC documentation remain unchanged.

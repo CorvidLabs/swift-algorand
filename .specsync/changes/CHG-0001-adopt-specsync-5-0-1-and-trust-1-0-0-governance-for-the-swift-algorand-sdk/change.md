@@ -1,6 +1,6 @@
 ---
 id: CHG-0001-adopt-specsync-5-0-1-and-trust-1-0-0-governance-for-the-swift-algorand-sdk
-state: draft
+state: accepted
 type: migration
 base_commit: 0a792af561f4136451cdd4823f2c6cb8e8f15d25
 ---
@@ -17,11 +17,7 @@ Adopt SpecSync 5.0.1 and Trust 1.0.0 governance for the Swift Algorand SDK
 
 ## Acceptance Criteria
 
-- Strict SpecSync passes at advisory threshold 0; all four agent integrations are installed; Trust doctor passes; Swift build and the existing CI-bounded test suite pass on normal runners; macOS
-- Linux
-- DocC
-- localnet
-- and TestNet boundaries remain intact
+- Strict SpecSync 5.0.1 passes at 100% source and public-export coverage with a 100/100 spec score; all four agent integrations are installed; Trust doctor passes; Swift build and the existing CI-bounded test suite pass on normal runners; macOS, Linux, DocC, localnet, and TestNet boundaries remain intact
 
 ## No-spec Rationale
 
