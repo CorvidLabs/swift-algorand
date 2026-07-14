@@ -1,0 +1,5 @@
+[registry]
+name = "swift-algorand-trust-wave8"
+
+[specs]
+algorand = "specs/algorand/algorand.spec.md"

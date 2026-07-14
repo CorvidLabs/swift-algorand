@@ -1,0 +1,109 @@
+{
+  "approvals": [
+    {
+      "gate": "definition",
+      "actor": "user:0xLeif",
+      "timestamp": 1784023117,
+      "digest": "0d8b45f7c7028bca34c48e31689f3d01bc0c39830dd7f5f242f9fc0a9b863bdd",
+      "note": "Approved organization rollout definition: 100% source and public-export coverage, 12 concrete stable requirements, native verification, and preserved hosted workflows"
+    },
+    {
+      "gate": "definition",
+      "actor": "user:0xLeif",
+      "timestamp": 1784023174,
+      "digest": "e980bd2a8adb160ecf048c0d6d27247723a5d523df58a3b94d58b62effb02e85",
+      "note": "Fresh approval after completing requirement-linked verification evidence for the unchanged migration scope"
+    },
+    {
+      "gate": "definition",
+      "actor": "user:0xLeif",
+      "timestamp": 1784023203,
+      "digest": "89ee3996551ab7728b0a5d6305bd9d1e72aceac02c8dc4c4c971fbeb4be0ee56",
+      "note": "Fresh definition approval after replacing the circular pre-verification task with truthful completed preparation evidence"
+    },
+    {
+      "gate": "definition",
+      "actor": "user:0xLeif",
+      "timestamp": 1784023218,
+      "digest": "89ee3996551ab7728b0a5d6305bd9d1e72aceac02c8dc4c4c971fbeb4be0ee56",
+      "note": "Fresh definition approval after using the portable safe Fledge verification command"
+    },
+    {
+      "gate": "definition",
+      "actor": "user:0xLeif",
+      "timestamp": 1784023326,
+      "digest": "89ee3996551ab7728b0a5d6305bd9d1e72aceac02c8dc4c4c971fbeb4be0ee56",
+      "note": "Fresh approval after normalizing the canonical requirement companion into supported SpecSync requirement blocks"
+    },
+    {
+      "gate": "definition",
+      "actor": "user:0xLeif",
+      "timestamp": 1784023407,
+      "digest": "89ee3996551ab7728b0a5d6305bd9d1e72aceac02c8dc4c4c971fbeb4be0ee56",
+      "note": "Fresh approval after correcting companion requirement headings to the supported canonical form"
+    },
+    {
+      "gate": "acceptance",
+      "actor": "user:0xLeif",
+      "timestamp": 1784023430,
+      "digest": "1fbc266ad3a169bc1ba99bf821dd7184461dffc891e5693f8e098a13f1d2918e",
+      "note": "Closing approval after 100% source and export coverage, 100/100 spec score, four integrations, and successful native verification with 12 requirement evidence entries"
+    },
+    {
+      "gate": "acceptance",
+      "actor": "user:0xLeif",
+      "timestamp": 1784023557,
+      "digest": "225bf05fcf1ddb98d835f1b8741cc9f6b9202830f2d5c3bd2eb16ad540917d2f",
+      "note": "Fresh closing approval after the audited non-semantic Change Log correction and successful native verification"
+    }
+  ],
+  "reopenings": [
+    {
+      "schema_version": 1,
+      "change_id": "CHG-0001-adopt-specsync-5-0-1-and-trust-1-0-0-governance-for-the-swift-algorand-sdk",
+      "actor": "user:0xLeif",
+      "reason": "Correct the generated Change Log row to the canonical three-column table without changing requirements or product behavior",
+      "timestamp": 1784023516,
+      "from_state": "accepted",
+      "to_state": "verifying",
+      "superseded_approval": {
+        "gate": "acceptance",
+        "actor": "user:0xLeif",
+        "timestamp": 1784023430,
+        "digest": "1fbc266ad3a169bc1ba99bf821dd7184461dffc891e5693f8e098a13f1d2918e",
+        "note": "Closing approval after 100% source and export coverage, 100/100 spec score, four integrations, and successful native verification with 12 requirement evidence entries"
+      },
+      "prior_verification": {
+        "timestamp": 1784023423,
+        "commit": "f054cf56d98dbd2b8c552779a5e5d129b83ffbb4",
+        "contract_digest": "89ee3996551ab7728b0a5d6305bd9d1e72aceac02c8dc4c4c971fbeb4be0ee56",
+        "workspace_digest": "7486114af48beec33646f5bce70723f627e43704ee081edba719e4a06410c264",
+        "acceptance_input_digest": "dbe270438dabbf1c5fc6acb791fd032504628d0359ad6fa3b514cfbb3c47d0e5",
+        "passed": true,
+        "commands": [
+          {
+            "command": "fledge lanes run verify",
+            "success": true,
+            "exit_code": 0
+          }
+        ],
+        "requirement_ids": [
+          "REQ-algorand-001",
+          "REQ-algorand-002",
+          "REQ-algorand-003",
+          "REQ-algorand-004",
+          "REQ-algorand-005",
+          "REQ-algorand-006",
+          "REQ-algorand-007",
+          "REQ-algorand-008",
+          "REQ-algorand-009",
+          "REQ-algorand-010",
+          "REQ-algorand-011",
+          "REQ-algorand-012"
+        ]
+      },
+      "stale_acceptance_input_digest": "dbe270438dabbf1c5fc6acb791fd032504628d0359ad6fa3b514cfbb3c47d0e5",
+      "current_acceptance_input_digest": "a26063340a4dbad151893e91154f90b49b400be7d853097fe85424630c4ac615"
+    }
+  ]
+}

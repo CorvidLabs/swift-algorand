@@ -1,0 +1,29 @@
+{
+  "timestamp": 1784023552,
+  "commit": "f054cf56d98dbd2b8c552779a5e5d129b83ffbb4",
+  "contract_digest": "89ee3996551ab7728b0a5d6305bd9d1e72aceac02c8dc4c4c971fbeb4be0ee56",
+  "workspace_digest": "8a74e599bcfe4500705db56c17486a136950c96fbf654633bcb8eadceec2c2a2",
+  "acceptance_input_digest": "a26063340a4dbad151893e91154f90b49b400be7d853097fe85424630c4ac615",
+  "passed": true,
+  "commands": [
+    {
+      "command": "fledge lanes run verify",
+      "success": true,
+      "exit_code": 0
+    }
+  ],
+  "requirement_ids": [
+    "REQ-algorand-001",
+    "REQ-algorand-002",
+    "REQ-algorand-003",
+    "REQ-algorand-004",
+    "REQ-algorand-005",
+    "REQ-algorand-006",
+    "REQ-algorand-007",
+    "REQ-algorand-008",
+    "REQ-algorand-009",
+    "REQ-algorand-010",
+    "REQ-algorand-011",
+    "REQ-algorand-012"
+  ]
+}
