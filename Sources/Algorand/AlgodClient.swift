@@ -60,7 +60,27 @@ public actor AlgodClient {
         let configuration = URLSessionConfiguration.default
         configuration.timeoutIntervalForRequest = requestTimeout
         configuration.timeoutIntervalForResource = resourceTimeout
+        // Only settable on Apple platforms: in swift-corelibs-foundation this
+        // property is get-only and assigning to it does not compile. That is
+        // unfortunate, because Linux is exactly where it would help most - the
+        // default behaviour can wait for a usable network path instead of
+        // failing, which is close to the hang this timeout work exists to kill.
+        // The two timeouts above still bound that wait on every platform.
+        #if canImport(Darwin)
+            configuration.waitsForConnectivity = false
+        #endif
         return URLSession(configuration: configuration)
+    }
+
+    /// Releases the dedicated session when the client goes away.
+    ///
+    /// A custom `URLSession` is not `URLSession.shared`: it holds its connection
+    /// pool and its delegate queue until invalidated, so a caller that creates
+    /// clients repeatedly would accumulate them for the life of the process.
+    /// `invalidateAndCancel()` rather than `finishTasksAndInvalidate()` because
+    /// a discarded client has no one left to receive its responses.
+    deinit {
+        session.invalidateAndCancel()
     }
 
 
