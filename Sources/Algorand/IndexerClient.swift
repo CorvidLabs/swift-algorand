@@ -7,7 +7,22 @@ import FoundationNetworking
 public actor IndexerClient {
     private let baseURL: URL
     private let apiToken: String?
+    /// The session every request on this client uses.
+    ///
+    /// Deliberately NOT `URLSession.shared`. The shared session is process-wide
+    /// and has a bounded connection pool; on Linux, once that pool is saturated
+    /// it *queues* rather than erroring, so an untimed request on it can wait
+    /// indefinitely. A caller doing unrelated bulk work on `URLSession.shared`
+    /// could therefore hang every call made through this client, and a caller
+    /// doing bulk work through this client could hang everything else.
+    ///
+    /// A dedicated session with real deadlines makes a slow or unreachable node
+    /// fail its own request instead of starving the process.
     private let session: URLSession
+
+    /// Applied per-request as well as on the configuration: on Linux the
+    /// per-request value is the one consistently honoured.
+    private let requestTimeout: TimeInterval
 
     /**
      Creates a new Indexer client
@@ -15,12 +30,59 @@ public actor IndexerClient {
      - Parameters:
        - baseURL: The base URL of the indexer (e.g., "https://testnet-idx.algonode.cloud")
        - apiToken: Optional API token for authentication
+       - requestTimeout: Deadline for a single request. Defaults to 30s.
+       - resourceTimeout: Deadline for the whole transfer. Defaults to 60s.
      */
-    public init(baseURL: URL, apiToken: String? = nil) {
+    public init(
+        baseURL: URL,
+        apiToken: String? = nil,
+        requestTimeout: TimeInterval = 30,
+        resourceTimeout: TimeInterval = 60
+    ) {
         self.baseURL = baseURL
         self.apiToken = apiToken
-        self.session = URLSession.shared
+        self.requestTimeout = requestTimeout
+        self.session = Self.makeSession(
+            requestTimeout: requestTimeout,
+            resourceTimeout: resourceTimeout
+        )
     }
+
+    /// Builds the client's dedicated session.
+    ///
+    /// `timeoutIntervalForRequest` bounds the gap between packets;
+    /// `timeoutIntervalForResource` bounds the whole transfer. Both are needed:
+    /// a node that trickles bytes forever satisfies the first and not the second.
+    private static func makeSession(
+        requestTimeout: TimeInterval,
+        resourceTimeout: TimeInterval
+    ) -> URLSession {
+        let configuration = URLSessionConfiguration.default
+        configuration.timeoutIntervalForRequest = requestTimeout
+        configuration.timeoutIntervalForResource = resourceTimeout
+        // Only settable on Apple platforms: in swift-corelibs-foundation this
+        // property is get-only and assigning to it does not compile. That is
+        // unfortunate, because Linux is exactly where it would help most - the
+        // default behaviour can wait for a usable network path instead of
+        // failing, which is close to the hang this timeout work exists to kill.
+        // The two timeouts above still bound that wait on every platform.
+        #if canImport(Darwin)
+            configuration.waitsForConnectivity = false
+        #endif
+        return URLSession(configuration: configuration)
+    }
+
+    /// Releases the dedicated session when the client goes away.
+    ///
+    /// A custom `URLSession` is not `URLSession.shared`: it holds its connection
+    /// pool and its delegate queue until invalidated, so a caller that creates
+    /// clients repeatedly would accumulate them for the life of the process.
+    /// `invalidateAndCancel()` rather than `finishTasksAndInvalidate()` because
+    /// a discarded client has no one left to receive its responses.
+    deinit {
+        session.invalidateAndCancel()
+    }
+
 
     /**
      Creates a new Indexer client
@@ -29,11 +91,21 @@ public actor IndexerClient {
        - baseURL: The base URL string of the indexer
        - apiToken: Optional API token for authentication
      */
-    public init(baseURL: String, apiToken: String? = nil) throws {
+    public init(
+        baseURL: String,
+        apiToken: String? = nil,
+        requestTimeout: TimeInterval = 30,
+        resourceTimeout: TimeInterval = 60
+    ) throws {
         guard let url = URL(string: baseURL) else {
             throw AlgorandError.invalidAddress("Invalid base URL")
         }
-        self.init(baseURL: url, apiToken: apiToken)
+        self.init(
+            baseURL: url,
+            apiToken: apiToken,
+            requestTimeout: requestTimeout,
+            resourceTimeout: resourceTimeout
+        )
     }
 
     // MARK: - Health Check
@@ -249,6 +321,7 @@ public actor IndexerClient {
 
     private func get<T: Decodable>(url: URL) async throws -> T {
         var request = URLRequest(url: url)
+        request.timeoutInterval = requestTimeout
         request.httpMethod = "GET"
 
         if let apiToken = apiToken {
