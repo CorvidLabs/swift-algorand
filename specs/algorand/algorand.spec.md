@@ -1,6 +1,6 @@
 ---
 module: algorand
-version: 2
+version: 3
 status: active
 files:
   - Package.swift
@@ -437,6 +437,7 @@ Then the result preserves the documented Algorand fields and can be submitted by
 |---------|------|---------|
 | 1 | 2026-07-12 | Initial spec |
 | 2 | 2026-07-14 | Adopt SpecSync 5.0.1 and Trust 1.0.0 governance with complete source, export, and requirement coverage. |
+| 3 | 2026-09-05 | CHG-0001-adopt-specsync-5-0-1-and-trust-1-0-0-governance-for-the-swift-algorand-sdk: Adopt SpecSync 5.0.1 and Trust 1.0.0 governance for the Swift Algorand SDK |
 
 ## Complete API and source inventory
 

@@ -1,13 +1,598 @@
 {
-  "timestamp": 1784023552,
-  "commit": "f054cf56d98dbd2b8c552779a5e5d129b83ffbb4",
-  "contract_digest": "89ee3996551ab7728b0a5d6305bd9d1e72aceac02c8dc4c4c971fbeb4be0ee56",
-  "workspace_digest": "8a74e599bcfe4500705db56c17486a136950c96fbf654633bcb8eadceec2c2a2",
-  "acceptance_input_digest": "a26063340a4dbad151893e91154f90b49b400be7d853097fe85424630c4ac615",
+  "timestamp": 1788569172,
+  "commit": "5b620967a07e74b359bff3021be19d2f2b1f7732",
+  "contract_digest": "9f87662e1aaf5a212735ecec5bb2a25461d6ea521622bcc3773f6969929dbbc3",
+  "workspace_digest": "b95a142f43a8e0e886b58ca540333c7fb22c8925059acba5c22c96953bd325c2",
+  "acceptance_input_digest": "7472df25b2a875db793714c9507e0d137059b60c93d10a020fa8fbb0a2001c6b",
+  "acceptance_manifest": {
+    "schema_version": 1,
+    "entries": [
+      {
+        "path": ".attest.json",
+        "kind": "file",
+        "mode": 33188,
+        "payload_digest": "2581fe52873327db0bbac357a5102a0dbb18a1eea5a690b7b75eaa571e50cf65",
+        "entry_digest": "2904a18e18582f191a1d359d16e7bc61a7596ac77f62e55a94de56b3da8c796e",
+        "owners": [
+          "@exact:delivery"
+        ]
+      },
+      {
+        "path": ".augur.toml",
+        "kind": "file",
+        "mode": 33188,
+        "payload_digest": "17f6ad5b84b4db012f0e3f398a96a478c1324fd47e72e1dd2a13c7cf9a432983",
+        "entry_digest": "bac13c952da05292bdd0af5849aad9d9def3ae5afc830fa42b6914b2fd874beb",
+        "owners": [
+          "@exact:delivery"
+        ]
+      },
+      {
+        "path": ".github/workflows/docs.yml",
+        "kind": "file",
+        "mode": 33188,
+        "payload_digest": "e349702f96f4bd9a132b8945539e833c945e01b77780f244143189843191159c",
+        "entry_digest": "90226a28d6a15a77feed7ce718149e9fafc6504d8a1b331dcda56656a0d516eb",
+        "owners": [
+          "@exact:delivery"
+        ]
+      },
+      {
+        "path": ".github/workflows/macOS.yml",
+        "kind": "file",
+        "mode": 33188,
+        "payload_digest": "b1b28c21ec0458b8112160cf54cf70cc1cb0243a6612e85e1ec4084c470fdedc",
+        "entry_digest": "cc28bdd3ded6e6032d4086b8e6e1a1d2ba9462543bc59832e19be147d9a1cf49",
+        "owners": [
+          "@exact:delivery"
+        ]
+      },
+      {
+        "path": ".github/workflows/trust.yml",
+        "kind": "file",
+        "mode": 33188,
+        "payload_digest": "b5664b6710ac554c49f03788e1575441cc74ff94a1e00e2166906fa726ebb281",
+        "entry_digest": "bc4a051aca1908d5323335486fe176296c4130492953d1203c88a4a3a650d6d4",
+        "owners": [
+          "@exact:delivery"
+        ]
+      },
+      {
+        "path": ".github/workflows/ubuntu.yml",
+        "kind": "file",
+        "mode": 33188,
+        "payload_digest": "4687d69ce7b533ec29763c8c705954c9a5136412a10561790ae19a14ad5bdf50",
+        "entry_digest": "6be049c60789fcb05b6c68872ba64127ed748cbbb083e418f9ea05ea41593cdd",
+        "owners": [
+          "@exact:delivery"
+        ]
+      },
+      {
+        "path": ".specsync/.gitignore",
+        "kind": "file",
+        "mode": 33188,
+        "payload_digest": "583d858b65a9117284095db45657a48dd6eb418b1f119ad4fa181967672527dd",
+        "entry_digest": "b9053a1cde601a7e69819cbe9b5dbac4b2636f20647369585408be59e4db710a",
+        "owners": [
+          "@exact:delivery"
+        ]
+      },
+      {
+        "path": ".specsync/adoption-report.json",
+        "kind": "file",
+        "mode": 33188,
+        "payload_digest": "5502ede028b2d3b30fc9ca03381b09eaf4f2f409b42ccac3a08d097f2dad02c5",
+        "entry_digest": "550f6f2c94ed6bafe70c89017664576bbeea4cf52357486489025b43df983f69",
+        "owners": [
+          "@exact:delivery"
+        ]
+      },
+      {
+        "path": ".specsync/agent-artifacts.json",
+        "kind": "file",
+        "mode": 33188,
+        "payload_digest": "2dac8759c38c21b2bf5ce15367ed129eeda721a678a8b8bd61ae6c9e628c83f7",
+        "entry_digest": "1697101a7feb18d25fb3f333cabc7fde7b2f3e42a7e9325c9154fe473f905667",
+        "owners": [
+          "@exact:delivery"
+        ]
+      },
+      {
+        "path": ".specsync/config.toml",
+        "kind": "file",
+        "mode": 33188,
+        "payload_digest": "73de5bc8fdc419a5cd499845e040e3ec687f0ed7eb1dcbaa0777e0caf204e883",
+        "entry_digest": "5ebdc88fc9417e9faf562ad7da3c042f99e8b2808cdf50d99790df44abdfa02f",
+        "owners": [
+          "@exact:delivery"
+        ]
+      },
+      {
+        "path": ".specsync/registry.toml",
+        "kind": "file",
+        "mode": 33188,
+        "payload_digest": "477be7f08f5537a7be1537f83e3565d5dae19c98ce2670a25c3a142d8d9d4f8a",
+        "entry_digest": "68fcddc5a058412dde1b0841103a993b635fe532af250159a61945815a248693",
+        "owners": [
+          "@exact:delivery"
+        ]
+      },
+      {
+        "path": ".specsync/sdd.json",
+        "kind": "file",
+        "mode": 33188,
+        "payload_digest": "6b6f605e6621f4dbac28d6017a83f719973b2267e2780b24193e32d60adfb5bb",
+        "entry_digest": "8688e3185657b2e8ba194e484699a62504e5dd13ac72d2114375504131243a3d",
+        "owners": [
+          "@exact:delivery"
+        ]
+      },
+      {
+        "path": ".specsync/version",
+        "kind": "file",
+        "mode": 33188,
+        "payload_digest": "23b6867924dfeb9cf532753438dc919669bf93ad88215e11c15630a4acbf4299",
+        "entry_digest": "339b5f88be30302336707baa5dab61fd4b324d04e495d3bb772cf893fb4f73bc",
+        "owners": [
+          "@exact:delivery"
+        ]
+      },
+      {
+        "path": ".specsync/workflow-v2-baseline.json",
+        "kind": "file",
+        "mode": 33188,
+        "payload_digest": "ed68b10c46ef5493574d54de4505f09c0605d160c8033d3a81c91973344c6b80",
+        "entry_digest": "9315b6df3cf41d38a0eb95581b41a0f65f1c62b64510d1f0c5b61a1430e97043",
+        "owners": [
+          "@exact:delivery"
+        ]
+      },
+      {
+        "path": ".trust.toml",
+        "kind": "file",
+        "mode": 33188,
+        "payload_digest": "5dca7da62a1750b73b35f350d20d74b8490b14fae6a0bea49922d509d9df43b1",
+        "entry_digest": "d57ac56f4ba0edf2d9bc70180c2d2d71cff6fe7980a363acddea2aa6648b207f",
+        "owners": [
+          "@exact:delivery"
+        ]
+      },
+      {
+        "path": "AGENTS.md",
+        "kind": "file",
+        "mode": 33188,
+        "payload_digest": "d2561f21b1519604865b1ae0c4a6586f5f2bea591c9b3b7d8c4ae0f274b73df5",
+        "entry_digest": "616b86acb3d91a5f9880826f4063978e95d46397de849b7566f3688823302e01",
+        "owners": [
+          "@exact:delivery"
+        ]
+      },
+      {
+        "path": "Package.swift",
+        "kind": "file",
+        "mode": 33188,
+        "payload_digest": "10a36cbc18d4a98ba9e71e3a91385e661daef8e95ea368ca41191be2b8a21137",
+        "entry_digest": "bddaa1e7b507f6a5155fa7ce3b9b352fe41ebc81953f58d3b23026f8248ea523",
+        "owners": [
+          "@exact:delivery"
+        ]
+      },
+      {
+        "path": "Sources/Algorand/Account.swift",
+        "kind": "file",
+        "mode": 33188,
+        "payload_digest": "a59dd1770ac9c83e890b2a692ee8a1d5b5fda1fd5e1e7761a0f2af61610a183d",
+        "entry_digest": "8332f00df35701c7d5b6756dbc1df217f8b544549e2e22031a7bde9e4140513a",
+        "owners": [
+          "algorand"
+        ]
+      },
+      {
+        "path": "Sources/Algorand/Address.swift",
+        "kind": "file",
+        "mode": 33188,
+        "payload_digest": "5c952c4a281d7721dfd200a6f13a18291e183d2db4ff0fe39c799f6d1bec89c5",
+        "entry_digest": "6926b4316063acb417e6d8c6f03128b6d976c9f0e51eac2c485fd3ab0c239eaa",
+        "owners": [
+          "algorand"
+        ]
+      },
+      {
+        "path": "Sources/Algorand/AlgodClient.swift",
+        "kind": "file",
+        "mode": 33188,
+        "payload_digest": "ffc696a6fba11c9460e8bbd48d9938069436f3dba1440c9a61e75b63c2e5d114",
+        "entry_digest": "aea7a77da359da87f6cb2545046f3c037a94be6847565f701d5d286a793c9c15",
+        "owners": [
+          "algorand"
+        ]
+      },
+      {
+        "path": "Sources/Algorand/Algorand.docc/Algorand.md",
+        "kind": "file",
+        "mode": 33188,
+        "payload_digest": "5ea603179b1e755f3ae8bae088197023db33a698dbe2320b43a22bba4557aa6b",
+        "entry_digest": "fe61c9f56e7dedfd23c1945559d592afa69e228274a8e858f9a60383eeb068a5",
+        "owners": [
+          "@exact:delivery"
+        ]
+      },
+      {
+        "path": "Sources/Algorand/Algorand.docc/GettingStarted.md",
+        "kind": "file",
+        "mode": 33188,
+        "payload_digest": "15ee2462bee9172dac73e2b935676adb6e1be953e5fa0935a9f85851c1c655e0",
+        "entry_digest": "70587ca4c468ac177395ce5603069bbf8bf73affac10c69af6e28ad238297bc0",
+        "owners": [
+          "@exact:delivery"
+        ]
+      },
+      {
+        "path": "Sources/Algorand/AlgorandConfiguration.swift",
+        "kind": "file",
+        "mode": 33188,
+        "payload_digest": "97c85c905e9a22f637358de59bcc8ddfe8402f76a80e432972257d8fa2bc633b",
+        "entry_digest": "d222b99a442fc315f44065fe3b91afbb3f61e8c16ed60f84e6937a917c1dc11a",
+        "owners": [
+          "algorand"
+        ]
+      },
+      {
+        "path": "Sources/Algorand/AlgorandError.swift",
+        "kind": "file",
+        "mode": 33188,
+        "payload_digest": "db3e6765a9bcf412d7026cfb3b7aa7ff732ea82f9be2cdd566537b32d6558020",
+        "entry_digest": "43822d8bb65ca64d71a091a6495b04633bc294c2346f4ab66deeadea3b34487b",
+        "owners": [
+          "algorand"
+        ]
+      },
+      {
+        "path": "Sources/Algorand/ApplicationTransaction.swift",
+        "kind": "file",
+        "mode": 33188,
+        "payload_digest": "db37bdc59c0268e4947fd8c8a19a5b81d786855e24130d60441d2f343bda77e1",
+        "entry_digest": "423ff4e6aeb8ebc062fd5a69574c1813077eae3d2e97cb25ae1af466330ec538",
+        "owners": [
+          "algorand"
+        ]
+      },
+      {
+        "path": "Sources/Algorand/AssetTransaction.swift",
+        "kind": "file",
+        "mode": 33188,
+        "payload_digest": "24316cced542efbc22e01103701d462ba1b59aed1c57fc234a616af5b768a9e3",
+        "entry_digest": "5a7fd668094c39f7fd578784338837de935acef3e0d48c33151f65668c5f4b51",
+        "owners": [
+          "algorand"
+        ]
+      },
+      {
+        "path": "Sources/Algorand/AtomicTransactionGroup.swift",
+        "kind": "file",
+        "mode": 33188,
+        "payload_digest": "ad2b03bb9596ac63aee3a3ea385a7ee1e22a4dc42a151d032e96851d2369675f",
+        "entry_digest": "13bfe969cb927f5c26d0b8a61d18b216f8099337aa279b5d527f372b74643b27",
+        "owners": [
+          "algorand"
+        ]
+      },
+      {
+        "path": "Sources/Algorand/BIP39Wordlist.swift",
+        "kind": "file",
+        "mode": 33188,
+        "payload_digest": "fe238a505f049d3e76258f900dff0e812486c04c60a743a4bde47946a0af9fd1",
+        "entry_digest": "f6a9ccf2efeabd89f7c6524dfdfb9c70949977abf8bd1af46e492e4b96a168b3",
+        "owners": [
+          "algorand"
+        ]
+      },
+      {
+        "path": "Sources/Algorand/IndexerClient.swift",
+        "kind": "file",
+        "mode": 33188,
+        "payload_digest": "4c52b5e637aa1834f09f31e1da77dc41a40b2de6bfa514fa46f026ad8da47869",
+        "entry_digest": "d057ead84ee1c58f5f60f9f2906c490d9a728be11bd2dc3e81c3f6e756d361e2",
+        "owners": [
+          "algorand"
+        ]
+      },
+      {
+        "path": "Sources/Algorand/KeyRegistrationTransaction.swift",
+        "kind": "file",
+        "mode": 33188,
+        "payload_digest": "5b7b42999643d45d23d34277e959ea38118c67dbefa90d2a7100ce4ab739448b",
+        "entry_digest": "1f86159a3835d6b0053d115c295073db259de0ef064bdb04d1618de9c5bee7b7",
+        "owners": [
+          "algorand"
+        ]
+      },
+      {
+        "path": "Sources/Algorand/MessagePackWriter.swift",
+        "kind": "file",
+        "mode": 33188,
+        "payload_digest": "40ac1a9650c8fe8b66ff38939a2563f945db9313e6b8c1cba4161bd79c5c84ef",
+        "entry_digest": "cff2b4961db874f37538db4daf8463da87dd9c3b36de67f9462a5b17293807f8",
+        "owners": [
+          "algorand"
+        ]
+      },
+      {
+        "path": "Sources/Algorand/MicroAlgos.swift",
+        "kind": "file",
+        "mode": 33188,
+        "payload_digest": "920d4c38df7a47abb409329c047210064943726784ae18d1abe3df49ce2a8cf9",
+        "entry_digest": "f359463efb86de1ece3fc226852fca17309a47c626637ec4038e9c8ae98cf43f",
+        "owners": [
+          "algorand"
+        ]
+      },
+      {
+        "path": "Sources/Algorand/Mnemonic.swift",
+        "kind": "file",
+        "mode": 33188,
+        "payload_digest": "0a6bb765c32116c86862b86c42853b22f3b2ddb1163ecebc0097a30c4e6554d8",
+        "entry_digest": "f9112eca1194e0b65714b5b7de6bd665b0fcab1992da9f2561eeeeb7571051d3",
+        "owners": [
+          "algorand"
+        ]
+      },
+      {
+        "path": "Sources/Algorand/PaymentTransaction.swift",
+        "kind": "file",
+        "mode": 33188,
+        "payload_digest": "7633aa0b1de98e2727f82514fcfd746ad92a39f0dd8d4f7b2abbdad72c071903",
+        "entry_digest": "b35d89f99ed7786c2cd82b518599c92d6e1e90f678cc6213d31cc4a6ebe0d5cd",
+        "owners": [
+          "algorand"
+        ]
+      },
+      {
+        "path": "Sources/Algorand/SHA512_256.swift",
+        "kind": "file",
+        "mode": 33188,
+        "payload_digest": "902c8b40a9dced44d85fa104d2a76395664b7171072284d3716895e111f62416",
+        "entry_digest": "600cea6902c5af235ccfa244aad40afc6d2d9c350ab833840b3706a8635dc935",
+        "owners": [
+          "algorand"
+        ]
+      },
+      {
+        "path": "Sources/Algorand/SecureRandom.swift",
+        "kind": "file",
+        "mode": 33188,
+        "payload_digest": "a38b4aa4a89e93852da6a2bde3922909297f3f3b28a16d34036828138b595043",
+        "entry_digest": "180abdcb54190cbed547c5621df026172cae085999f61aecde5aa114d61e64a2",
+        "owners": [
+          "algorand"
+        ]
+      },
+      {
+        "path": "Sources/Algorand/SignedTransaction.swift",
+        "kind": "file",
+        "mode": 33188,
+        "payload_digest": "ff7e58ebf1c66e1fb38bfa9237fe1072ee22c3a398b96240e4d401eb2c69be07",
+        "entry_digest": "8d7ed10750ea6c1d6f897cdcd7f7ae7a64a83050a0fc2c30aedacf9ef430fe98",
+        "owners": [
+          "algorand"
+        ]
+      },
+      {
+        "path": "Sources/Algorand/Transaction.swift",
+        "kind": "file",
+        "mode": 33188,
+        "payload_digest": "354d5386b2ac508d0708ccb5c2cc9036ff95448b2faafcbe3191bd92b05cc2e4",
+        "entry_digest": "ccd0d62a91bcb1a37de0844c9eea954203ecb3c65995822bf17a2ea6e4ec7bbb",
+        "owners": [
+          "algorand"
+        ]
+      },
+      {
+        "path": "Tests/AlgorandTests/AccountTests.swift",
+        "kind": "file",
+        "mode": 33188,
+        "payload_digest": "70e228e07d5d717db82f8154d8391fa78dc8de4826463e3d0443a92c1630edd9",
+        "entry_digest": "790cc93d8981779d823e1f87f029cfa307d89d97e05294ae0754b7bca8650e8a",
+        "owners": [
+          "@exact:test"
+        ]
+      },
+      {
+        "path": "Tests/AlgorandTests/AddressTests.swift",
+        "kind": "file",
+        "mode": 33188,
+        "payload_digest": "4838c2287f55f3e96d374a62d8716f2b3aa9aa3c9b2083ec7078544e7c21be58",
+        "entry_digest": "ccb191f41ca1b7336af61025111f2a845462a97e5fcd286937374662a8fb939e",
+        "owners": [
+          "@exact:test"
+        ]
+      },
+      {
+        "path": "Tests/AlgorandTests/ApplicationTransactionTests.swift",
+        "kind": "file",
+        "mode": 33188,
+        "payload_digest": "459d19f2107a5f9bfb51c227ae20d763bdcf876f9af44ee61539ec1ab5d0a1dd",
+        "entry_digest": "e87df2f5f08c43086d31a98892aeb885ecb7498cc55c99faa3ee5d5e22c1d73d",
+        "owners": [
+          "@exact:test"
+        ]
+      },
+      {
+        "path": "Tests/AlgorandTests/AssetManagementTests.swift",
+        "kind": "file",
+        "mode": 33188,
+        "payload_digest": "0e60e34980e05f8c52ce8baa9f09a91b00c639ccc2f385fe4b83522aa6d1a177",
+        "entry_digest": "58c034b9671f9a70ee97dc30f3b6213c10d660c959189bf92372bccee34b0395",
+        "owners": [
+          "@exact:test"
+        ]
+      },
+      {
+        "path": "Tests/AlgorandTests/AssetTests.swift",
+        "kind": "file",
+        "mode": 33188,
+        "payload_digest": "27242a8f19c7d9f0dcc62f0467eb7bed3d1dac62c3625bfcc979a2a16e553da2",
+        "entry_digest": "c088a18284b34c5051e174ae1042889bbb853a34824aeada21310671e5cba48f",
+        "owners": [
+          "@exact:test"
+        ]
+      },
+      {
+        "path": "Tests/AlgorandTests/AtomicTransactionGroupTests.swift",
+        "kind": "file",
+        "mode": 33188,
+        "payload_digest": "c3fd1a18948007af3e3f4adf9748fdf08e7f9a816043903cd0b04a288c5112b4",
+        "entry_digest": "3e8db94aee93464860e80a9268418cebbb5e6b7cba71992b9db1759dc6a993c2",
+        "owners": [
+          "@exact:test"
+        ]
+      },
+      {
+        "path": "Tests/AlgorandTests/ComprehensiveIntegrationTest.swift",
+        "kind": "file",
+        "mode": 33188,
+        "payload_digest": "e8ddaa0ec0dc683a53f1efabfa18f928522b214862873d62d0ae8c73a3adbea4",
+        "entry_digest": "b1d16b7bb71d262beab4d25afdca428c452e957141bda61c4cb209fe6d7acb10",
+        "owners": [
+          "@exact:test"
+        ]
+      },
+      {
+        "path": "Tests/AlgorandTests/IntegrationTests.swift",
+        "kind": "file",
+        "mode": 33188,
+        "payload_digest": "60b0044762d277f647d4aad4d4f8384d2633f9dc45e30f9f06f38154c228b0c4",
+        "entry_digest": "e25873a2582ff8e2af2faa73e02160c3d184f8cb6c3e55ec206c1467eb9e8ce4",
+        "owners": [
+          "@exact:test"
+        ]
+      },
+      {
+        "path": "Tests/AlgorandTests/KeyRegistrationTests.swift",
+        "kind": "file",
+        "mode": 33188,
+        "payload_digest": "1fabb1fb7465c45fc505522fad49843d46600ba80e7850fd3a9478fd291af330",
+        "entry_digest": "a13a4fde9ce7b543c37d73bb9c23c9630cfb6d94924ee9fe6ad2625ec0b6acbc",
+        "owners": [
+          "@exact:test"
+        ]
+      },
+      {
+        "path": "Tests/AlgorandTests/MicroAlgosTests.swift",
+        "kind": "file",
+        "mode": 33188,
+        "payload_digest": "634d45669f8c9b8ba23d92688613256c6e21b4a1c8a0727af51d65bffcc6c29d",
+        "entry_digest": "b1fd55a7d55ceb267a24c0a00e514280341cb59a37d7941f8d973a1e9470592b",
+        "owners": [
+          "@exact:test"
+        ]
+      },
+      {
+        "path": "Tests/AlgorandTests/MnemonicTests.swift",
+        "kind": "file",
+        "mode": 33188,
+        "payload_digest": "0d60d87d179e56179ccbadc882640b42dc883899e0918f9d690f476f967c21dc",
+        "entry_digest": "5e21c6a54741f8a615db899b51cf5201d689f98608d916b3eff2c07ca7c5e1f3",
+        "owners": [
+          "@exact:test"
+        ]
+      },
+      {
+        "path": "Tests/AlgorandTests/PaymentTransactionTests.swift",
+        "kind": "file",
+        "mode": 33188,
+        "payload_digest": "cdd0c8451486c75341026da6e9da4fab960d6ddbe79d11befd39809ad26f0d76",
+        "entry_digest": "bd6876285a6feeeda62f90cfdf81941946ade8dd24d7822d32b89c9f4dd1470e",
+        "owners": [
+          "@exact:test"
+        ]
+      },
+      {
+        "path": "Tests/AlgorandTests/ProofOfWorkTest.swift",
+        "kind": "file",
+        "mode": 33188,
+        "payload_digest": "f05d9dee8411d606ecf951c29e5943a9f6372376131dad721e7852c8e71c546d",
+        "entry_digest": "75e77c26e042507abfcd056248e8af571684cbcdd121b96cf118802eb7e92de4",
+        "owners": [
+          "@exact:test"
+        ]
+      },
+      {
+        "path": "Tests/AlgorandTests/SHA512_256Tests.swift",
+        "kind": "file",
+        "mode": 33188,
+        "payload_digest": "40b19243b3009a121aa2d612a69cd861ed68c28fc43d3ce273d77d75d521e606",
+        "entry_digest": "8a13a8c8914498ec547acbcd714032804a8efdfc380764b418e03d49c6c34ddd",
+        "owners": [
+          "@exact:test"
+        ]
+      },
+      {
+        "path": "fledge.toml",
+        "kind": "file",
+        "mode": 33188,
+        "payload_digest": "86040efe5afdef3fa8effa84656882041da67f04274205fce2ed6fd6237c1028",
+        "entry_digest": "6c5b2536afecf276d8c76dd04da209ecc1c553eb21bad78c800b4c289ed086d5",
+        "owners": [
+          "@exact:delivery"
+        ]
+      },
+      {
+        "path": "specs/algorand/algorand.spec.md",
+        "kind": "file",
+        "mode": 33188,
+        "payload_digest": "6c0670807cb2ee0f24722e23db4a5dba41982e17358bd94c85a4b8041f812c8e",
+        "entry_digest": "35b2993a7d58ef80086f6d6bd56eb4505679dd288377f7afea180aaf8e6a7ff4",
+        "owners": [
+          "algorand"
+        ]
+      },
+      {
+        "path": "specs/algorand/context.md",
+        "kind": "file",
+        "mode": 33188,
+        "payload_digest": "6e9eead0da22b20b53a344b3a45587adc2a8fa6fff5971db7515cc66fda8381f",
+        "entry_digest": "bb5f7d0c66ee4c25343887dc853d4f5a8870e20d73cf815a7476be213449a914",
+        "owners": [
+          "algorand"
+        ]
+      },
+      {
+        "path": "specs/algorand/requirements.md",
+        "kind": "file",
+        "mode": 33188,
+        "payload_digest": "a7390553afbba7647f1f41d8644f53b7e724301099e1150435b549b3a7c25dbd",
+        "entry_digest": "2c75a1949394fd42db8f2623ea5eea2fe4d1eac706e6daa851d252bb6939e602",
+        "owners": [
+          "algorand"
+        ]
+      },
+      {
+        "path": "specs/algorand/tasks.md",
+        "kind": "file",
+        "mode": 33188,
+        "payload_digest": "5fade87407ad9fc9f595af05f53cedc078085f3a6f67dd0722ee8d3e5b58d0f7",
+        "entry_digest": "750101ae045684aa867c3aaa7c07c776f0d8fa3cf030cac90a67cd64665df330",
+        "owners": [
+          "algorand"
+        ]
+      },
+      {
+        "path": "specs/algorand/testing.md",
+        "kind": "file",
+        "mode": 33188,
+        "payload_digest": "a09d3736d604e3a9fdadb97ce1daf54ff1276c0a8436354d93081c32c8d9785c",
+        "entry_digest": "83e35e2613990c3df3225631c16956393a9ddc87adccf3cd1880128ace45dad7",
+        "owners": [
+          "algorand"
+        ]
+      }
+    ]
+  },
   "passed": true,
   "commands": [
     {
-      "command": "fledge lanes run verify",
+      "command": "specsync check --spec algorand",
       "success": true,
       "exit_code": 0
     }
