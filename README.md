@@ -14,7 +14,8 @@ A modern Swift SDK for the Algorand blockchain. Built with Swift 6 and async/awa
 - **Swift 6** - Built with the latest Swift concurrency features
 - **Type-Safe** - Leveraging Swift's type system for safe blockchain interactions
 - **Modern Async/Await** - No callbacks, just clean async code
-- **Multi-Platform** - iOS 15+, macOS 11+, tvOS 15+, watchOS 8+, visionOS 1+, Linux
+- **Multi-Platform** - macOS 11+ and Linux are built and tested in CI. iOS 15+, tvOS 15+,
+  watchOS 8+ and visionOS 1+ are declared minimums that CI does not currently build
 - **Pure Swift** - No SwiftUI dependencies, just core blockchain functionality
 
 ## Installation
@@ -293,7 +294,7 @@ To exercise TestNet or MainNet, write a small program against the library - the
 ## Requirements
 
 - Swift 6.0+
-- iOS 15.0+ / macOS 11.0+ / tvOS 15.0+ / watchOS 8.0+ / visionOS 1.0+
+- macOS 11.0+ and Linux (CI-verified); iOS 15.0+ / tvOS 15.0+ / watchOS 8.0+ / visionOS 1.0+ (declared, not built in CI)
 - Linux (with Swift 6.0+)
 - Docker (optional, only for the LocalNet integration tests)
 

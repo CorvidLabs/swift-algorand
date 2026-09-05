@@ -1,0 +1,97 @@
+{
+  "approvals": [
+    {
+      "gate": "definition",
+      "actor": "0xLeif",
+      "timestamp": 1788642209,
+      "digest": "b6543ec53f2fe8b733f24f715f9268c5a514eec914c8d94fc35203531c6b18c3",
+      "note": null,
+      "approved_scope": {
+        "schema_version": 1,
+        "change_id": "canonical-messagepack-encoding-conformance-for-consensus-v42-omit-empty-fields-messagepack-booleans-box-reference",
+        "title": "Canonical MessagePack encoding conformance for consensus v42: omit-empty fields, MessagePack booleans, box reference indexes, and grouped transaction IDs",
+        "description": "Canonical MessagePack encoding conformance for consensus v42: omit-empty fields, MessagePack booleans, box reference indexes, and grouped transaction IDs",
+        "kind": "bug_fix",
+        "affected_specs": [
+          "algorand"
+        ],
+        "affected_paths": [
+          "Sources/Algorand",
+          "Tests/AlgorandTests",
+          "specs/algorand"
+        ],
+        "no_spec_change": false,
+        "no_spec_change_rationale": null,
+        "acceptance_criteria": [
+          "A 69-vector golden conformance suite, generated from go-algorand v5.0.1-stable's msgp-generated marshaller, asserts byte equality of the encoded transaction and the computed transaction ID. All 15 vectors that fail against the current encoder pass: fee/fv/lv/gen/note/lease/xaid/amt omitted when zero or empty; nonpart and afrz encoded as msgpack bool; box references translated to foreign-app indexes with 0 for the current application; SignedTransaction.id() hashing the grouped encoding. Verified independently against a live consensus v42 TestNet node via /v2/transactions/simulate: each fixed form reaches balance application (HTTP 200) where the current form returns HTTP 400 'At least one signature didn't pass verification'. swift build and swift test remain green on macOS and Linux."
+        ],
+        "dependencies": [],
+        "supersedes": [
+          {
+            "predecessor_id": "CHG-0001-adopt-specsync-5-0-1-and-trust-1-0-0-governance-for-the-swift-algorand-sdk",
+            "obligations": [
+              {
+                "path": "Sources/Algorand/ApplicationTransaction.swift",
+                "module": "algorand",
+                "predecessor_entry_digest": "423ff4e6aeb8ebc062fd5a69574c1813077eae3d2e97cb25ae1af466330ec538"
+              },
+              {
+                "path": "Sources/Algorand/AssetTransaction.swift",
+                "module": "algorand",
+                "predecessor_entry_digest": "5a7fd668094c39f7fd578784338837de935acef3e0d48c33151f65668c5f4b51"
+              },
+              {
+                "path": "Sources/Algorand/KeyRegistrationTransaction.swift",
+                "module": "algorand",
+                "predecessor_entry_digest": "1f86159a3835d6b0053d115c295073db259de0ef064bdb04d1618de9c5bee7b7"
+              },
+              {
+                "path": "Sources/Algorand/PaymentTransaction.swift",
+                "module": "algorand",
+                "predecessor_entry_digest": "b35d89f99ed7786c2cd82b518599c92d6e1e90f678cc6213d31cc4a6ebe0d5cd"
+              },
+              {
+                "path": "Sources/Algorand/SignedTransaction.swift",
+                "module": "algorand",
+                "predecessor_entry_digest": "8d7ed10750ea6c1d6f897cdcd7f7ae7a64a83050a0fc2c30aedacf9ef430fe98"
+              },
+              {
+                "path": "Sources/Algorand/Transaction.swift",
+                "module": "algorand",
+                "predecessor_entry_digest": "ccd0d62a91bcb1a37de0844c9eea954203ecb3c65995822bf17a2ea6e4ec7bbb"
+              },
+              {
+                "path": "specs/algorand/algorand.spec.md",
+                "module": "algorand",
+                "predecessor_entry_digest": "35b2993a7d58ef80086f6d6bd56eb4505679dd288377f7afea180aaf8e6a7ff4"
+              },
+              {
+                "path": "specs/algorand/context.md",
+                "module": "algorand",
+                "predecessor_entry_digest": "bb5f7d0c66ee4c25343887dc853d4f5a8870e20d73cf815a7476be213449a914"
+              },
+              {
+                "path": "specs/algorand/requirements.md",
+                "module": "algorand",
+                "predecessor_entry_digest": "2c75a1949394fd42db8f2623ea5eea2fe4d1eac706e6daa851d252bb6939e602"
+              },
+              {
+                "path": "specs/algorand/testing.md",
+                "module": "algorand",
+                "predecessor_entry_digest": "83e35e2613990c3df3225631c16956393a9ddc87adccf3cd1880128ace45dad7"
+              }
+            ]
+          }
+        ],
+        "answers": {
+          "architecture_risk": "yes",
+          "public_contract": "yes"
+        }
+      },
+      "approved_delta_digests": {
+        "algorand": "f54e91dee55d6b90056ad2f3eb6acaf0f55cc24bc427e151bd86fb03048708b1"
+      }
+    }
+  ],
+  "reopenings": []
+}

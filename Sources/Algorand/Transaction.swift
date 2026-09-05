@@ -87,6 +87,19 @@ public protocol Transaction: Sendable {
 }
 
 extension Transaction {
+    /**
+     Encodes the transaction to MessagePack format for signing, outside any atomic group
+
+     The protocol requirement takes a group ID, and a protocol requirement cannot carry a default
+     argument, so this overload is what makes `encode()` callable on an `any Transaction`.
+
+     - Returns: The canonical transaction bytes
+     - Throws: `AlgorandError.encodingError` if encoding fails
+     */
+    public func encode() throws -> Data {
+        try encode(groupID: nil)
+    }
+
     /// Returns the transaction ID (hash of "TX" prefix + encoded transaction, base32 encoded)
     public func id() throws -> String {
         let encoded = try encode(groupID: nil)

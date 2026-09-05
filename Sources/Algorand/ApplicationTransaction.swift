@@ -37,7 +37,17 @@ public struct ApplicationCallTransaction: Transaction {
     public let accounts: [Address]?
     public let foreignApps: [UInt64]?
     public let foreignAssets: [UInt64]?
-    public let boxes: [(UInt64, Data)]?  // (app_id, box_name)
+    /// Box references for this application call, as `(applicationID, boxName)` pairs.
+    ///
+    /// The `applicationID` names the application that OWNS the box. Both `0` and this call's own
+    /// `applicationID` mean "this application" and encode as an omitted index. Any other value is
+    /// resolved to a 1-based slot in `foreignApps`, and is appended to `foreignApps` when it is not
+    /// already declared there. Encoding throws ``AlgorandError/invalidTransaction(_:)`` when the
+    /// resulting foreign-application array would exceed the protocol limit of 8.
+    ///
+    /// - Note: The node additionally caps combined references (accounts + apps + assets + boxes) at
+    ///   8. That limit is not enforced here, so an append may surface as a node-side rejection.
+    public let boxes: [(UInt64, Data)]?
     public let extraPages: UInt64?
     public let fee: MicroAlgos
     public let firstValid: UInt64
@@ -94,118 +104,72 @@ public struct ApplicationCallTransaction: Transaction {
         self.rekeyTo = rekeyTo
     }
 
+    /**
+     Encodes the transaction to canonical MessagePack format for signing
+
+     Box references are translated from the application IDs the caller supplied into the positional
+     form the network expects, which may extend the foreign-application array.
+
+     - Parameter groupID: Optional group ID for atomic transaction groups
+     - Returns: The canonical transaction bytes
+     - Throws: `AlgorandError.invalidTransaction` if a box reference cannot be resolved, or
+       `AlgorandError.encodingError` if encoding fails
+     */
     public func encode(groupID: Data? = nil) throws -> Data {
-        var map: [String: MessagePackValue] = [:]
+        let boxReferences = try CanonicalBoxReferences(
+            boxes: boxes ?? [],
+            applicationID: applicationID,
+            foreignApplications: foreignApps ?? []
+        )
 
-        // Required fields
-        map["fee"] = .uint(fee.value)
-        map["fv"] = .uint(firstValid)
-        map["gen"] = .string(genesisID)
-        map["gh"] = .binary(genesisHash)
-        map["lv"] = .uint(lastValid)
-        map["snd"] = .binary(sender.bytes)
-        map["type"] = .string("appl")
+        var fields = CanonicalTransactionFields()
+        fields.setHeader(
+            type: "appl",
+            sender: sender,
+            fee: fee,
+            firstValid: firstValid,
+            lastValid: lastValid,
+            genesisID: genesisID,
+            genesisHash: genesisHash,
+            note: note,
+            lease: lease,
+            rekeyTo: rekeyTo,
+            groupID: groupID
+        )
 
-        // Application ID (0 for creation)
-        if applicationID > 0 {
-            map["apid"] = .uint(applicationID)
-        }
+        fields.set("apid", uint: applicationID)
+        fields.set("apan", uint: onCompletion.rawValue)
+        fields.set("apap", blob: approvalProgram)
+        fields.set("apsu", blob: clearStateProgram)
+        fields.set("apgs", map: Self.schemaFields(globalStateSchema))
+        fields.set("apls", map: Self.schemaFields(localStateSchema))
+        fields.set("apaa", array: (appArguments ?? []).map { .binary($0) })
+        fields.set("apat", array: (accounts ?? []).map { .binary($0.bytes) })
+        fields.set("apfa", array: boxReferences.foreignApplications.map { .uint($0) })
+        fields.set("apas", array: (foreignAssets ?? []).map { .uint($0) })
+        fields.set("apbx", array: boxReferences.references.map(Self.boxValue))
+        fields.set("apep", uint: extraPages ?? 0)
 
-        // On-completion
-        if onCompletion != .noOp {
-            map["apan"] = .uint(onCompletion.rawValue)
-        }
+        return try fields.encoded()
+    }
 
-        // Approval and clear programs
-        if let approvalProgram = approvalProgram {
-            map["apap"] = .binary(approvalProgram)
-        }
-        if let clearStateProgram = clearStateProgram {
-            map["apsu"] = .binary(clearStateProgram)
-        }
+    // MARK: - Private Methods
 
-        // State schemas
-        if let globalSchema = globalStateSchema {
-            var schemaMap: [String: MessagePackValue] = [:]
-            if globalSchema.numUint > 0 {
-                schemaMap["nui"] = .uint(globalSchema.numUint)
-            }
-            if globalSchema.numByteSlice > 0 {
-                schemaMap["nbs"] = .uint(globalSchema.numByteSlice)
-            }
-            if !schemaMap.isEmpty {
-                map["apgs"] = .map(schemaMap)
-            }
-        }
+    /// Builds the nested `apgs` / `apls` map, which is omitted when both counts are zero.
+    private static func schemaFields(_ schema: StateSchema?) -> CanonicalTransactionFields {
+        var fields = CanonicalTransactionFields()
+        fields.set("nui", uint: schema?.numUint ?? 0)
+        fields.set("nbs", uint: schema?.numByteSlice ?? 0)
+        return fields
+    }
 
-        if let localSchema = localStateSchema {
-            var schemaMap: [String: MessagePackValue] = [:]
-            if localSchema.numUint > 0 {
-                schemaMap["nui"] = .uint(localSchema.numUint)
-            }
-            if localSchema.numByteSlice > 0 {
-                schemaMap["nbs"] = .uint(localSchema.numByteSlice)
-            }
-            if !schemaMap.isEmpty {
-                map["apls"] = .map(schemaMap)
-            }
-        }
-
-        // Application arguments
-        if let args = appArguments, !args.isEmpty {
-            map["apaa"] = .array(args.map { .binary($0) })
-        }
-
-        // Accounts array
-        if let accounts = accounts, !accounts.isEmpty {
-            map["apat"] = .array(accounts.map { .binary($0.bytes) })
-        }
-
-        // Foreign apps
-        if let foreignApps = foreignApps, !foreignApps.isEmpty {
-            map["apfa"] = .array(foreignApps.map { .uint($0) })
-        }
-
-        // Foreign assets
-        if let foreignAssets = foreignAssets, !foreignAssets.isEmpty {
-            map["apas"] = .array(foreignAssets.map { .uint($0) })
-        }
-
-        // Boxes
-        if let boxes = boxes, !boxes.isEmpty {
-            var boxArray: [MessagePackValue] = []
-            for (appID, boxName) in boxes {
-                var boxMap: [String: MessagePackValue] = [:]
-                if appID > 0 {
-                    boxMap["i"] = .uint(appID)
-                }
-                boxMap["n"] = .binary(boxName)
-                boxArray.append(.map(boxMap))
-            }
-            map["apbx"] = .array(boxArray)
-        }
-
-        // Extra pages
-        if let extraPages = extraPages, extraPages > 0 {
-            map["apep"] = .uint(extraPages)
-        }
-
-        // Optional fields
-        if let groupID = groupID {
-            map["grp"] = .binary(groupID)
-        }
-        if let note = note {
-            map["note"] = .binary(note)
-        }
-        if let lease = lease {
-            map["lx"] = .binary(lease)
-        }
-        if let rekeyTo = rekeyTo {
-            map["rekey"] = .binary(rekeyTo.bytes)
-        }
-
-        var writer = MessagePackWriter()
-        return try writer.write(map: map)
+    /// Builds one `apbx` element. Unlike the schemas, an all-zero box reference is still emitted,
+    /// as an empty map, because the array elements themselves are not subject to omission.
+    private static func boxValue(_ reference: CanonicalBoxReferences.Reference) -> MessagePackValue {
+        var fields = CanonicalTransactionFields()
+        fields.set("i", uint: reference.index)
+        fields.set("n", blob: reference.name)
+        return fields.mapValue
     }
 }
 

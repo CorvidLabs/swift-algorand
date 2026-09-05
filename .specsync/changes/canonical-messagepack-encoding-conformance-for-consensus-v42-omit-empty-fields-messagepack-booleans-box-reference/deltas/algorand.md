@@ -1,43 +1,36 @@
----
-module: algorand
-version: 4
-status: active
-files:
-  - Package.swift
-  - Sources/Algorand/Account.swift
-  - Sources/Algorand/Address.swift
-  - Sources/Algorand/AlgodClient.swift
-  - Sources/Algorand/AlgorandConfiguration.swift
-  - Sources/Algorand/AlgorandError.swift
-  - Sources/Algorand/ApplicationTransaction.swift
-  - Sources/Algorand/AssetTransaction.swift
-  - Sources/Algorand/AtomicTransactionGroup.swift
-  - Sources/Algorand/BIP39Wordlist.swift
-  - Sources/Algorand/CanonicalBoxReferences.swift
-  - Sources/Algorand/CanonicalTransactionFields.swift
-  - Sources/Algorand/IndexerClient.swift
-  - Sources/Algorand/KeyRegistrationTransaction.swift
-  - Sources/Algorand/MessagePackWriter.swift
-  - Sources/Algorand/MicroAlgos.swift
-  - Sources/Algorand/Mnemonic.swift
-  - Sources/Algorand/PaymentTransaction.swift
-  - Sources/Algorand/SecureRandom.swift
-  - Sources/Algorand/SHA512_256.swift
-  - Sources/Algorand/SignedTransaction.swift
-  - Sources/Algorand/Transaction.swift
+# algorand
 
-db_tables: []
-depends_on: []
----
+## MODIFIED
 
-# Swift Algorand SDK
+### REQUIREMENT REQ-algorand-002
+`MicroAlgos`, `SHA512_256`, secure randomness, and MessagePack encoding SHALL preserve protocol-compatible numeric, hash, random-byte, and canonical wire representations. Canonical means the encoding produced by go-algorand v5.0.1-stable's msgp-generated marshaller under `_struct codec:",omitempty,omitemptyarray"`, so that the bytes this package signs are the bytes a consensus v42 node reconstructs and verifies.
 
-## Purpose
+Acceptance Criteria
+- Amount arithmetic and conversion, official hash vectors, and generated randomness use tests pass.
+- The canonical golden-vector suite passes by byte equality of the encoded transaction and the base32 transaction identifier against vectors derived from go-algorand v5.0.1-stable.
 
-Provide the existing Swift SDK primitives for Algorand accounts, addresses, amounts, mnemonics, transactions, signing, atomic groups, and asynchronous Algod and Indexer clients across the package's supported Apple and Linux platforms.
+*Rationale: the requirement text was already correct and the code already violated it. `fee`, `fv`, `gen`, `note`, and `lx` were emitted when zero or empty, and TestNet returned `HTTP 400 {"message":"At least one signature didn't pass verification"}`. The former acceptance criterion, "transaction encoding tests pass", was satisfiable by tests asserting `encoded.count > 0`.*
 
-## Public API
+### REQUIREMENT REQ-algorand-007
+Key-registration construction SHALL preserve online, offline, and nonparticipating vote, selection, dilution, state-proof, and participation fields, encoding `nonpart` as a MessagePack boolean and omitting it when false.
 
+Acceptance Criteria
+- Existing online, offline, nonparticipating, and signing tests pass.
+- The `keyreg_nonparticipating` golden vector matches byte-for-byte, carrying `a76e6f6e70617274 c3`.
+- The `keyreg_offline` golden vector omits `nonpart` entirely rather than encoding `false`.
+
+*Rationale: `KeyRegistrationTransaction.encode` wrote `nonpart` as MessagePack `uint 1` (`0x01`). go-algorand writes it with `msgp.AppendBool` and reads it with `msgp.ReadBoolBytes`. A nonparticipating key registration built by this package could not be accepted by any node.*
+
+### REQUIREMENT REQ-algorand-006
+Application create, update, delete, opt-in, close-out, clear-state, and call transactions SHALL preserve programs, schemas, arguments, accounts, foreign references, boxes, completion mode, and extra-page fields, naming box references by owning application identifier and translating them to `apfa` slot indexes at encode time.
+
+Acceptance Criteria
+- Existing application transaction construction, encoding, foreign-reference, box, and signing tests pass.
+- The `appl_*` golden vectors match byte-for-byte.
+
+*Rationale: `boxes: [(UInt64, Data)]?` keeps its type and its documented `(app_id, box_name)` meaning. Only the encoder changes, to honour that meaning instead of writing the identifier into the wire index slot.*
+
+### SPEC SECTION Public API
 ### Contract groups
 
 | Existing surface | Contract |
@@ -401,8 +394,7 @@ SpecSync 5.0.1 extracts the following 344 unique public symbols from the 21 cano
 | `firstRound` |
 | `Transaction` |
 
-## Invariants
-
+### SPEC SECTION Invariants
 1. Address, mnemonic, key, signature, transaction, and MessagePack representations must preserve the existing Algorand protocol encodings and validation behavior, where the transaction encoding is go-algorand v5.0.1-stable's canonical omit-empty form.
 2. Transaction builders must reject incomplete or invalid inputs rather than construct an apparently valid transaction.
 3. Network clients use asynchronous APIs and surface transport, decoding, and protocol failures as errors.
@@ -411,8 +403,7 @@ SpecSync 5.0.1 extracts the following 344 unique public symbols from the 21 cano
 6. Every transaction field passes through one internal omit-empty choke point, and every transaction type installs its shared header through one call. A field is written only when it differs from its go-algorand zero value. Boolean fields are encoded as MessagePack booleans and omitted when false. Box references carry an `apfa` slot index — `0` for the called application, otherwise the 1-based position — never a raw application identifier, and an undeclared application is appended to `apfa` up to the eight-application limit.
 7. The bytes signed and the bytes submitted are produced by the same encoding call, and a transaction identifier is always the hash of the bytes that were signed. For a transaction signed as part of an atomic group that means the encoding including `grp`.
 
-## Behavioral Examples
-
+### SPEC SECTION Behavioral Examples
 ```
 Given a valid account and complete payment parameters
 When a payment transaction is built, signed, and encoded
@@ -425,8 +416,7 @@ When the transaction is encoded and signed
 Then those fields are absent from the encoding, and a consensus v42 node accepts the signature
 ```
 
-## Error Cases
-
+### SPEC SECTION Error Cases
 | Error | When | Behavior |
 |-------|------|----------|
 | Invalid address or mnemonic | Input fails protocol validation | Return a typed error without creating an account value |
@@ -438,23 +428,57 @@ Then those fields are absent from the encoding, and a consensus v42 node accepts
 
 No new `AlgorandError` case is introduced. A box reference naming an application absent from `apfa` appends that application rather than failing, up to the limit above.
 
-## Dependencies
-
-- Swift 6.0 or newer
-- `swift-crypto` for cross-platform cryptographic primitives
-- Foundation networking and Swift concurrency
-- Swift-DocC plugin for independent documentation publication
-
-## Change Log
-
-| Version | Date | Changes |
-|---------|------|---------|
-| 1 | 2026-07-12 | Initial spec |
-| 2 | 2026-07-14 | Adopt SpecSync 5.0.1 and Trust 1.0.0 governance with complete source, export, and requirement coverage. |
-| 3 | 2026-09-05 | CHG-0001-adopt-specsync-5-0-1-and-trust-1-0-0-governance-for-the-swift-algorand-sdk: Adopt SpecSync 5.0.1 and Trust 1.0.0 governance for the Swift Algorand SDK |
-| 4 | 2026-09-05 | canonical-messagepack-encoding-conformance-for-consensus-v42-omit-empty-fields-messagepack-booleans-box-reference: Canonical MessagePack encoding conformance for consensus v42: omit-empty fields, MessagePack booleans, box reference indexes, and grouped transaction IDs |
-
-## Complete API and source inventory
-
+### SPEC SECTION Complete API and source inventory
 The active spec maps all 21 canonical Swift source files and documents all 344 unique public symbols extracted by SpecSync 5.0.1. The inventory is organized by accounts and cryptography, canonical protocol encoding, transaction families, atomic grouping, Algod, Indexer, response models, configuration, and errors. The two files added for canonical encoding, `CanonicalTransactionFields.swift` and `CanonicalBoxReferences.swift`, are internal and contribute no public symbol.
 
+## ADDED
+
+### REQUIREMENT REQ-algorand-013
+Transaction encoding SHALL omit every field that holds its go-algorand zero value, following the `_struct codec:",omitempty,omitemptyarray"` semantics of go-algorand v5.0.1-stable: unsigned integers when `0`, strings when empty, variable-length byte slices when `len == 0`, fixed-width byte arrays and addresses when every byte is zero, arrays when empty, and nested structures when recursively empty. `snd` and `type` are the only exempt transaction fields.
+
+Acceptance Criteria
+- The `pay_fee_zero`, `pay_first_valid_zero`, `pay_empty_note`, `pay_zero_lease`, `pay_empty_genesis_id`, `pay_all_omittable_zero`, and `axfer_zero_asset_id` vectors match byte-for-byte and produce the golden transaction identifier.
+- `pay_empty_note` and `pay_zero_lease` produce the same encoding and identifier as `pay_normal`.
+- `pay_all_omittable_zero` encodes to 129 bytes carrying only `gh`, `lv`, `rcv`, `snd`, `type`.
+- A variable-length byte field whose content is all zeros but non-empty is retained, not omitted.
+
+### REQUIREMENT REQ-algorand-014
+Boolean transaction fields — `nonpart`, `afrz`, and `apar.df` — SHALL be encoded as a MessagePack boolean (`0xC3`) and SHALL be omitted entirely when false. No boolean field is encoded as an integer, and `0xC2` is never written.
+
+Acceptance Criteria
+- `keyreg_nonparticipating` encodes `a76e6f6e70617274 c3`.
+- `keyreg_offline` omits `nonpart`; `afrz_unfreeze` omits `afrz`; `acfg_create_default_frozen_false` omits `apar.df`.
+- `afrz_freeze` writes `afrz` as `0xC3`.
+
+### REQUIREMENT REQ-algorand-015
+An application call's `apbx` entries SHALL carry a foreign-application slot index, never an application identifier: `0` when the box belongs to the application being called, otherwise the 1-based position of that application in `apfa`. An application named by a box reference but absent from `apfa` SHALL be appended to `apfa` so the index resolves, and SHALL fail with `AlgorandError.invalidTransaction` when that would exceed eight foreign applications. The caller-facing `boxes: [(UInt64, Data)]?` parameter continues to name boxes by owning application identifier. The box name `n` SHALL be omitted when empty.
+
+Acceptance Criteria
+- `appl_box_current_app` and `appl_box_self_app_id` omit `i`.
+- `appl_box_foreign_app` encodes `i` as `1` and `2`, and the raw identifier byte sequences `ce3ade68b1` and `ce075bcd15` appear only inside `apfa`.
+- `appl_box_empty_name` encodes `apbx` as `91 80`.
+- `appl_kitchen_sink` matches its 401-byte golden encoding.
+
+### REQUIREMENT REQ-algorand-016
+`SignedTransaction.id()` SHALL return the identifier of the bytes that were signed, which for a grouped transaction is the encoding including `grp`. `Transaction.id()` SHALL continue to return the ungrouped identifier, because `AtomicTransactionGroup` derives the group identifier from each member's ungrouped encoding.
+
+Acceptance Criteria
+- `group_txn0_grouped` reports `3ZFBH32KQJVFCXLXVRCONWKYXL5R5EENIRHKURR3LFL4UGPD3CFQ` through `SignedTransaction.id()`.
+- `AtomicTransactionGroup.groupID` remains `2e17dd6e388e7b5a34dc844cf3555711687f06b9633796ccaf082239247fd899` for the golden two-payment group and is stable across repeated construction.
+- The grouped and ungrouped identifiers of the same transaction differ.
+
+### REQUIREMENT REQ-algorand-017
+Transactions carrying no zero-valued or empty field SHALL encode to byte-identical output before and after this change, and the omit-empty rules SHALL be enforced at a single internal choke point through which every transaction field passes.
+
+Acceptance Criteria
+- All 37 golden vectors passing against the pre-change encoder still pass, unchanged.
+- No `encode(groupID:)` implementation assigns directly into a `[String: MessagePackValue]`; every transaction type installs its shared header through the single `setHeader(...)` call.
+- `MessagePackWriter` and `MessagePackValue` are unchanged.
+
+### REQUIREMENT REQ-algorand-018
+The canonical encoder SHALL be verified by byte-equality golden vectors whose authority is go-algorand v5.0.1-stable's msgp-generated marshaller. py-algorand-sdk SHALL NOT be treated as a byte oracle. No vector or fixture may be copied from an AGPL-3.0 or unlicensed upstream into this MIT package.
+
+Acceptance Criteria
+- The suite asserts encoded bytes and transaction identifier against hex literals, not shape or length.
+- The three py-algorand-sdk deviations (`apan`, `nonpart`, `lx`) are recorded alongside the vectors that expose them.
+- No file under `Tests/` originates in `algorandfoundation/falcon-signatures` or `algorandfoundation/algokit-polytest`.

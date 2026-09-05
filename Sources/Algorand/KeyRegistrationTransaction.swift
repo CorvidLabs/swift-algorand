@@ -55,57 +55,38 @@ public struct KeyRegistrationTransaction: Transaction {
         self.rekeyTo = rekeyTo
     }
 
+    /**
+     Encodes the transaction to canonical MessagePack format for signing
+
+     - Parameter groupID: Optional group ID for atomic transaction groups
+     - Returns: The canonical transaction bytes
+     - Throws: `AlgorandError.encodingError` if encoding fails
+     */
     public func encode(groupID: Data? = nil) throws -> Data {
-        var map: [String: MessagePackValue] = [:]
+        var fields = CanonicalTransactionFields()
+        fields.setHeader(
+            type: "keyreg",
+            sender: sender,
+            fee: fee,
+            firstValid: firstValid,
+            lastValid: lastValid,
+            genesisID: genesisID,
+            genesisHash: genesisHash,
+            note: note,
+            lease: lease,
+            rekeyTo: rekeyTo,
+            groupID: groupID
+        )
 
-        // Required fields
-        map["fee"] = .uint(fee.value)
-        map["fv"] = .uint(firstValid)
-        map["gen"] = .string(genesisID)
-        map["gh"] = .binary(genesisHash)
-        map["lv"] = .uint(lastValid)
-        map["snd"] = .binary(sender.bytes)
-        map["type"] = .string("keyreg")
+        fields.set("votekey", digest: votePK)
+        fields.set("selkey", digest: selectionPK)
+        fields.set("sprfkey", digest: stateProofPK)
+        fields.set("votefst", uint: voteFirst ?? 0)
+        fields.set("votelst", uint: voteLast ?? 0)
+        fields.set("votekd", uint: voteKeyDilution ?? 0)
+        fields.set("nonpart", bool: nonparticipation ?? false)
 
-        // Key registration fields
-        if let votePK = votePK {
-            map["votekey"] = .binary(votePK)
-        }
-        if let selectionPK = selectionPK {
-            map["selkey"] = .binary(selectionPK)
-        }
-        if let voteFirst = voteFirst {
-            map["votefst"] = .uint(voteFirst)
-        }
-        if let voteLast = voteLast {
-            map["votelst"] = .uint(voteLast)
-        }
-        if let voteKeyDilution = voteKeyDilution {
-            map["votekd"] = .uint(voteKeyDilution)
-        }
-        if let nonparticipation = nonparticipation, nonparticipation {
-            map["nonpart"] = .uint(1)
-        }
-        if let stateProofPK = stateProofPK {
-            map["sprfkey"] = .binary(stateProofPK)
-        }
-
-        // Optional fields
-        if let groupID = groupID {
-            map["grp"] = .binary(groupID)
-        }
-        if let note = note {
-            map["note"] = .binary(note)
-        }
-        if let lease = lease {
-            map["lx"] = .binary(lease)
-        }
-        if let rekeyTo = rekeyTo {
-            map["rekey"] = .binary(rekeyTo.bytes)
-        }
-
-        var writer = MessagePackWriter()
-        return try writer.write(map: map)
+        return try fields.encoded()
     }
 }
 

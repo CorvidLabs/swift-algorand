@@ -14,10 +14,15 @@ public struct SignedTransaction: Sendable {
     /**
      The transaction ID
 
+     A grouped transaction's on-chain ID is the hash of its *grouped* encoding, the one that carries
+     `grp`. Re-encoding without the group ID here would report an ID that does not exist on chain.
+
      - Throws: `AlgorandError.encodingError` if encoding fails
      */
     public func id() throws -> String {
-        try transaction.id()
+        let encoded = try transaction.encode(groupID: groupID)
+        let prefixed = Data("TX".utf8) + encoded
+        return SHA512_256.hash(data: prefixed).base32EncodedString()
     }
 
     public init(transaction: any Transaction, signature: Data, groupID: Data? = nil) {
@@ -35,7 +40,11 @@ public struct SignedTransaction: Sendable {
        - groupID: Optional group ID for atomic transaction groups
      - Returns: A signed transaction
      */
-    public static func sign(_ transaction: any Transaction, with account: Account, groupID: Data? = nil) throws -> SignedTransaction {
+    public static func sign(
+        _ transaction: any Transaction,
+        with account: Account,
+        groupID: Data? = nil
+    ) throws -> SignedTransaction {
         let encoded = try transaction.encode(groupID: groupID)
         let prefixed = Data("TX".utf8) + encoded
         let signature = try account.sign(prefixed)

@@ -43,43 +43,34 @@ public struct PaymentTransaction: Transaction {
         self.closeRemainderTo = closeRemainderTo
     }
 
+    /**
+     Encodes the transaction to canonical MessagePack format for signing
+
+     - Parameter groupID: Optional group ID for atomic transaction groups
+     - Returns: The canonical transaction bytes
+     - Throws: `AlgorandError.encodingError` if encoding fails
+     */
     public func encode(groupID: Data? = nil) throws -> Data {
-        // Build transaction map with Algorand's canonical field names
-        var map: [String: MessagePackValue] = [:]
+        var fields = CanonicalTransactionFields()
+        fields.setHeader(
+            type: "pay",
+            sender: sender,
+            fee: fee,
+            firstValid: firstValid,
+            lastValid: lastValid,
+            genesisID: genesisID,
+            genesisHash: genesisHash,
+            note: note,
+            lease: lease,
+            rekeyTo: rekeyTo,
+            groupID: groupID
+        )
 
-        // Required fields (omit zero values per Algorand canonical encoding)
-        if amount.value > 0 {
-            map["amt"] = .uint(amount.value)
-        }
-        map["fee"] = .uint(fee.value)
-        map["fv"] = .uint(firstValid)
-        map["gen"] = .string(genesisID)
-        map["gh"] = .binary(genesisHash)
-        map["lv"] = .uint(lastValid)
-        map["rcv"] = .binary(receiver.bytes)
-        map["snd"] = .binary(sender.bytes)
-        map["type"] = .string("pay")
+        fields.set("amt", uint: amount.value)
+        fields.set("rcv", address: receiver)
+        fields.set("close", address: closeRemainderTo)
 
-        // Optional fields (only include if present)
-        if let close = closeRemainderTo {
-            map["close"] = .binary(close.bytes)
-        }
-        if let groupID = groupID {
-            map["grp"] = .binary(groupID)
-        }
-        if let lease = lease {
-            map["lx"] = .binary(lease)
-        }
-        if let note = note {
-            map["note"] = .binary(note)
-        }
-        if let rekey = rekeyTo {
-            map["rekey"] = .binary(rekey.bytes)
-        }
-
-        // Encode with canonical ordering
-        var writer = MessagePackWriter()
-        return try writer.write(map: map)
+        return try fields.encoded()
     }
 }
 
