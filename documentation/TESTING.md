@@ -5,7 +5,14 @@ invocation actually runs.
 
 ## The shape of the suite
 
-There is one test target, `AlgorandTests`, containing 98 tests across 14 suites.
+There is one test target, `AlgorandTests`. Its XCTest half contains the 98 tests across 14
+suites listed below; alongside them run the Swift Testing suites added since (canonical
+encoding, box references, the signed-transaction envelope, post-quantum vectors, the fee
+model, and the 1.0 safety and surface work), 129 tests in 7 suites, none of which needs a
+network. The XCTest suites are exact-only inputs of the changes that wrote them and are never
+edited; compiling them prints deprecation warnings for `MicroAlgos(algos:)`, the `MicroAlgos`
+operators, and `AssetParams.toBaseUnits`, which they exercise deliberately. The library itself
+builds without warnings.
 
 | Suite | Tests | Needs a network? |
 |---|---|---|

@@ -1,8 +1,27 @@
 @preconcurrency import Foundation
 import Crypto
 
-/// Generates and validates BIP-39 mnemonics for Algorand accounts
+/**
+ Generates and validates 25-word Algorand mnemonics
+
+ A 32-byte key is packed little-endian into 24 eleven-bit words, and a 25th checksum word carries
+ the first eleven bits of `SHA512-256(key)`. 24 words hold 264 bits but the key is 256, so eight
+ bits are spare; only the spelling that leaves them zero is canonical. py-algorand-sdk and
+ go-algorand reject the other 255 spellings of every key, and so does ``decode(_:)``.
+ */
 public enum Mnemonic {
+    /// The number of words in a mnemonic, including the checksum word.
+    private static let wordCount = 25
+
+    /// The number of words that carry key bits.
+    private static let keyWordCount = 24
+
+    /// The key size in bytes.
+    private static let keyByteCount = 32
+
+    /// The number of bytes 24 eleven-bit words unpack to: ceil(24 * 11 / 8).
+    private static let unpackedByteCount = 33
+
     /**
      Generates a random 25-word mnemonic
 
@@ -11,7 +30,7 @@ public enum Mnemonic {
      */
     public static func generate() throws -> String {
         // Generate 32 cryptographically secure random bytes
-        let keyData = try SecureRandom.bytes(count: 32)
+        let keyData = try SecureRandom.bytes(count: keyByteCount)
 
         return try encode(keyData)
     }
@@ -24,8 +43,8 @@ public enum Mnemonic {
      - Throws: `AlgorandError.encodingError` if key data is not 32 bytes
      */
     public static func encode(_ keyData: Data) throws -> String {
-        guard keyData.count == 32 else {
-            throw AlgorandError.encodingError("Key data must be 32 bytes")
+        guard keyData.count == keyByteCount else {
+            throw AlgorandError.encodingError("Key data must be \(keyByteCount) bytes")
         }
 
         let wordlist = BIP39Wordlist.english
@@ -37,7 +56,9 @@ public enum Mnemonic {
         // Compute checksum: first 11 bits of SHA512/256 hash (little-endian)
         let checksumHash = SHA512_256.hash(data: keyData)
         let checksumWords = toElevenBit(Array(checksumHash.prefix(2)))
-        let checksumWord = checksumWords[0]
+        guard let checksumWord = checksumWords.first else {
+            throw AlgorandError.encodingError("Failed to derive mnemonic checksum")
+        }
 
         // Build the 25-word mnemonic: 24 key words + 1 checksum word
         var words = keyWords.map { wordlist[$0] }
@@ -75,14 +96,18 @@ public enum Mnemonic {
     /**
      Decodes a 25-word mnemonic into key data
 
+     Strict: the eight spare bits the 24 key words carry beyond the 32-byte key must be zero. A
+     mnemonic that decodes to a valid key and checksum but spells the key non-canonically is
+     rejected, as py-algorand-sdk's `to_private_key` and go-algorand reject it.
+
      - Parameter mnemonic: The 25-word mnemonic string
      - Returns: 32 bytes of key data
-     - Throws: `AlgorandError.invalidMnemonic` if the mnemonic is invalid
+     - Throws: `AlgorandError.invalidMnemonic` if the mnemonic is invalid or non-canonical
      */
     public static func decode(_ mnemonic: String) throws -> Data {
         let words = mnemonic.components(separatedBy: " ")
-        guard words.count == 25 else {
-            throw AlgorandError.invalidMnemonic("Mnemonic must contain exactly 25 words")
+        guard words.count == wordCount else {
+            throw AlgorandError.invalidMnemonic("Mnemonic must contain exactly \(wordCount) words")
         }
 
         let wordlist = BIP39Wordlist.english
@@ -97,16 +122,28 @@ public enum Mnemonic {
         }
 
         // First 24 words encode the key, last word is checksum
-        let keyIndices = Array(indices.prefix(24))
-        let checksumIndex = indices[24]
+        let keyIndices = Array(indices.prefix(keyWordCount))
+        let checksumIndex = indices[keyWordCount]
 
-        // Convert 11-bit indices back to bytes using little-endian unpacking
-        let keyData = fromElevenBit(keyIndices, byteCount: 32)
+        // Unpack every bit the 24 words carry - 33 bytes - so the spare byte can be checked.
+        let unpacked = fromElevenBit(keyIndices)
+        guard unpacked.count == unpackedByteCount else {
+            throw AlgorandError.invalidMnemonic("Mnemonic did not unpack to \(unpackedByteCount) bytes")
+        }
+        guard unpacked[keyByteCount] == 0 else {
+            throw AlgorandError.invalidMnemonic(
+                "Non-canonical mnemonic: the key words carry bits beyond the \(keyByteCount)-byte key"
+            )
+        }
+
+        let keyData = Data(unpacked.prefix(keyByteCount))
 
         // Verify checksum
         let checksumHash = SHA512_256.hash(data: keyData)
         let expectedChecksumWords = toElevenBit(Array(checksumHash.prefix(2)))
-        let expectedChecksum = expectedChecksumWords[0]
+        guard let expectedChecksum = expectedChecksumWords.first else {
+            throw AlgorandError.invalidMnemonic("Failed to derive mnemonic checksum")
+        }
 
         guard checksumIndex == expectedChecksum else {
             throw AlgorandError.invalidMnemonic("Invalid checksum")
@@ -115,9 +152,10 @@ public enum Mnemonic {
         return keyData
     }
 
-    /// Converts 11-bit numbers back to bytes using little-endian bit unpacking
-    /// This is the inverse of toElevenBit
-    private static func fromElevenBit(_ indices: [Int], byteCount: Int) -> Data {
+    /// Converts 11-bit numbers back to bytes using little-endian bit unpacking, emitting every
+    /// bit the words carry rather than stopping at a fixed byte count. This is the inverse of
+    /// toElevenBit; for 24 words it produces 33 bytes, the last of which is the spare byte.
+    private static func fromElevenBit(_ indices: [Int]) -> [UInt8] {
         var buffer: UInt32 = 0
         var numBits = 0
         var output: [UInt8] = []
@@ -126,26 +164,25 @@ public enum Mnemonic {
             buffer |= UInt32(index) << numBits
             numBits += 11
 
-            while numBits >= 8 && output.count < byteCount {
+            while numBits >= 8 {
                 output.append(UInt8(buffer & 0xFF))
                 buffer >>= 8
                 numBits -= 8
             }
         }
 
-        // Pad with zeros if needed (shouldn't be necessary for valid input)
-        while output.count < byteCount {
-            output.append(0)
+        if numBits > 0 {
+            output.append(UInt8(buffer & 0xFF))
         }
 
-        return Data(output)
+        return output
     }
 
     /**
      Validates a mnemonic
 
      - Parameter mnemonic: The mnemonic to validate
-     - Returns: `true` if the mnemonic is valid
+     - Returns: `true` if the mnemonic is valid and canonical
      */
     public static func isValid(_ mnemonic: String) -> Bool {
         do {

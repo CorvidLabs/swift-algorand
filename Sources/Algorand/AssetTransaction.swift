@@ -62,13 +62,56 @@ public struct AssetParams: Sendable {
     }
 
     /**
-     Converts a decimal amount to base units
+     Converts a decimal amount to base units, trapping on input no amount can represent.
 
      Example: 10.5 with 2 decimals = 1050 base units
+
+     `UInt64.init(_: Double)` aborts the process on a negative value, on NaN or infinity, and on
+     anything at or above 2^64 - all ordinary caller input from an amount field. Deprecated in
+     favour of ``baseUnits(for:)``, which throws instead.
      */
+    @available(
+        *,
+        deprecated,
+        message: "Use baseUnits(for:), which throws AmountError instead of trapping and rounds to the nearest base unit"
+    )
     public func toBaseUnits(_ decimalAmount: Double) -> UInt64 {
         let multiplier = pow(10.0, Double(decimals))
         return UInt64(decimalAmount * multiplier)
+    }
+
+    /**
+     Converts a decimal amount to base units, rejecting input no amount can represent.
+
+     Example: 10.5 with 2 decimals = 1050 base units. The scaled amount is rounded to the nearest
+     base unit, ties to even, so `0.29` with 2 decimals is 29 rather than the 28 that truncating
+     its binary approximation would give.
+
+     - Parameter decimalAmount: The human-readable amount. Must be finite, non-negative, and
+       scale to less than 2^64 base units.
+     - Returns: The amount in base units.
+     - Throws: ``AmountError/notRepresentable(_:)`` if the amount is NaN or infinite, negative, or
+       scales to 2^64 base units or more.
+     */
+    public func baseUnits(for decimalAmount: Double) throws -> UInt64 {
+        guard decimalAmount.isFinite else {
+            throw AmountError.notRepresentable("Asset amount \(decimalAmount) is not a finite number")
+        }
+        guard decimalAmount >= 0 else {
+            throw AmountError.notRepresentable("Asset amount \(decimalAmount) is negative")
+        }
+
+        let scaled = (decimalAmount * pow(10.0, Double(decimals))).rounded(.toNearestOrEven)
+
+        // 2^64 is exactly representable as a Double and `UInt64.max` rounds up to it, so a
+        // `<= Double(UInt64.max)` bound would still admit a trapping value.
+        guard scaled.isFinite, scaled < 0x1p64 else {
+            throw AmountError.notRepresentable(
+                "Asset amount \(decimalAmount) with \(decimals) decimals exceeds the range of UInt64"
+            )
+        }
+
+        return UInt64(scaled)
     }
 
     /**

@@ -85,11 +85,38 @@ public actor AlgodClient {
 
 
     /**
+     Test seam: builds a client over a caller-supplied session configuration.
+
+     Internal, so it widens nothing publicly. The confirmation-polling retry, the box query URL,
+     and the simulate request's body and headers are only observable at the transport layer, and
+     the client otherwise owns its session outright; tests register a `URLProtocol` stub on the
+     configuration and assert on what the client actually sends.
+
+     - Parameters:
+       - baseURL: The base URL of the algod node.
+       - apiToken: Optional API token.
+       - requestTimeout: Deadline for a single request.
+       - configuration: The session configuration to use verbatim.
+     */
+    internal init(
+        baseURL: URL,
+        apiToken: String? = nil,
+        requestTimeout: TimeInterval = 30,
+        configuration: URLSessionConfiguration
+    ) {
+        self.baseURL = baseURL
+        self.apiToken = apiToken
+        self.requestTimeout = requestTimeout
+        self.session = URLSession(configuration: configuration)
+    }
+
+    /**
      Creates a new Algod client
 
      - Parameters:
        - baseURL: The base URL string of the algod node
        - apiToken: Optional API token for authentication
+     - Throws: `AlgorandError.invalidURL` if `baseURL` is not an absolute http(s) URL
      */
     public init(
         baseURL: String,
@@ -97,9 +124,7 @@ public actor AlgodClient {
         requestTimeout: TimeInterval = 30,
         resourceTimeout: TimeInterval = 60
     ) throws {
-        guard let url = URL(string: baseURL) else {
-            throw AlgorandError.invalidAddress("Invalid base URL")
-        }
+        let url = try EndpointURL.parse(baseURL, role: "algod")
         self.init(
             baseURL: url,
             apiToken: apiToken,
@@ -216,10 +241,21 @@ public actor AlgodClient {
     /**
      Waits for a transaction to be confirmed
 
+     Polls `GET /v2/transactions/pending/{id}` once per round, from the current round, until the
+     transaction reports a confirmed round or `timeout` rounds have passed. A `404` from that
+     endpoint means the queried node has not seen the transaction yet - the normal state for a
+     round or two after submission, and always the state when a load-balanced endpoint routed the
+     submission to a different node - so it is treated as "not yet" and polling continues, as
+     js-algorand-sdk does. A pool error is thrown as soon as it is reported.
+
      - Parameters:
        - transactionID: The transaction ID
        - timeout: Maximum number of rounds to wait (default: 10)
      - Returns: The confirmed transaction
+     - Throws: `AlgorandError.networkError` if the transaction hits a pool error or is not
+       confirmed within `timeout` rounds, `AlgorandError.invalidTransaction` if `timeout` rounds
+       from the current round overflow the round counter, or any transport error other than the
+       node's 404 for a transaction it has not seen
      */
     public func waitForConfirmation(
         transactionID: String,
@@ -227,21 +263,49 @@ public actor AlgodClient {
     ) async throws -> PendingTransaction {
         let startRound = try await status().lastRound
 
-        for round in startRound...(startRound + timeout) {
-            let pending = try await pendingTransaction(transactionID)
+        // `startRound + timeout` traps on overflow, and `timeout` is caller input.
+        let (endRound, overflowed) = startRound.addingReportingOverflow(timeout)
+        guard !overflowed else {
+            throw AlgorandError.invalidTransaction(
+                "A timeout of \(timeout) rounds from round \(startRound) overflows the round counter"
+            )
+        }
 
-            if pending.confirmedRound != nil {
-                return pending
-            }
+        for round in startRound...endRound {
+            do {
+                let pending = try await pendingTransaction(transactionID)
 
-            if let poolError = pending.poolError, !poolError.isEmpty {
-                throw AlgorandError.networkError("Transaction pool error: \(poolError)")
+                if pending.confirmedRound != nil {
+                    return pending
+                }
+
+                if let poolError = pending.poolError, !poolError.isEmpty {
+                    throw AlgorandError.networkError("Transaction pool error: \(poolError)")
+                }
+            } catch let error where Self.isNotYetKnown(error) {
+                // Expected, not exceptional: keep polling. The poll order is unchanged - query
+                // first, then wait for the next block.
             }
 
             _ = try await waitForBlock(round: round)
         }
 
         throw AlgorandError.networkError("Transaction not confirmed after \(timeout) rounds")
+    }
+
+    /**
+     Whether an error from `GET /v2/transactions/pending/{id}` means "not seen yet".
+
+     algod answers HTTP 404 for a transaction that has not reached the queried node's pool or
+     ledger. Every other failure - a different status, a transport error, a decoding error - is
+     surfaced to the caller unchanged.
+
+     - Parameter error: The error the pending-transaction request threw.
+     - Returns: `true` for the node's 404, `false` for anything else.
+     */
+    internal static func isNotYetKnown(_ error: any Error) -> Bool {
+        guard case .apiError(let statusCode, _)? = error as? AlgorandError else { return false }
+        return statusCode == 404
     }
 
     // MARK: - Account Information
@@ -286,14 +350,57 @@ public actor AlgodClient {
     /**
      Gets a specific box by name
 
+     Takes the raw box name: base64 and percent encoding are the SDK's job, because algod spells
+     the parameter `b64:<base64>` and the escaping has two traps a caller should not have to know
+     about (see ``boxURL(baseURL:applicationID:name:)``).
+
      - Parameters:
        - applicationID: The application ID
-       - name: The box name (base64 encoded)
+       - name: The raw box name bytes
+     - Throws: `AlgorandError.invalidURL` if the request URL cannot be assembled, or the
+       transport, API, and decoding errors every request can throw
      */
-    public func applicationBox(_ applicationID: UInt64, name: String) async throws -> BoxResponse {
-        // URL encode the box name for the query
-        let encodedName = name.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) ?? name
-        return try await get(path: "/v2/applications/\(applicationID)/box?name=b64:\(encodedName)")
+    public func applicationBox(_ applicationID: UInt64, name: Data) async throws -> BoxResponse {
+        try await get(url: try Self.boxURL(baseURL: baseURL, applicationID: applicationID, name: name))
+    }
+
+    /**
+     Builds the URL of `GET /v2/applications/{id}/box?name=b64:<base64>`.
+
+     Two escaping problems, both of which the previous implementation had:
+
+     1. It appended `?name=...` through `appendingPathComponent`, which treats the whole string
+        as one path component and percent-encodes the `?` to `%3F`. The request went to a path
+        that does not exist, so the endpoint was dead.
+     2. Base64 contains `+`, and Go's `net/url.ParseQuery`, which algod uses to read the query,
+        decodes `+` in a query value as a space. `CharacterSet.urlQueryAllowed` permits `+`, so a
+        name whose base64 contains one would have been silently corrupted even once the `?` was
+        fixed. The value is therefore percent-encoded down to the unreserved set.
+
+     - Parameters:
+       - baseURL: The node's base URL.
+       - applicationID: The application ID.
+       - name: The raw box name bytes.
+     - Returns: The request URL.
+     - Throws: `AlgorandError.invalidURL` if the components cannot be assembled.
+     */
+    internal static func boxURL(baseURL: URL, applicationID: UInt64, name: Data) throws -> URL {
+        let path = baseURL.appendingPathComponent("/v2/applications/\(applicationID)/box")
+        guard var components = URLComponents(url: path, resolvingAgainstBaseURL: false) else {
+            throw AlgorandError.invalidURL("Could not build URL components for application box")
+        }
+
+        let unreserved = CharacterSet.alphanumerics.union(CharacterSet(charactersIn: "-._~"))
+        let parameter = "b64:\(name.base64EncodedString())"
+        guard let value = parameter.addingPercentEncoding(withAllowedCharacters: unreserved) else {
+            throw AlgorandError.invalidURL("Could not percent-encode the box name")
+        }
+        components.percentEncodedQuery = "name=\(value)"
+
+        guard let url = components.url else {
+            throw AlgorandError.invalidURL("Could not build URL for application box")
+        }
+        return url
     }
 
     // MARK: - Transaction Simulation
@@ -301,19 +408,27 @@ public actor AlgodClient {
     /**
      Simulates a transaction or group of transactions
 
+     Posts the request as `application/msgpack` in the shape algod's `PreEncodedSimulateRequest`
+     expects, `{"txn-groups":[{"txns":[<signed txn>, …]}]}`, with each signed transaction's own
+     canonical encoding spliced in verbatim, and decodes the JSON response. A well-formedness or
+     fee failure arrives as HTTP 200 with the detail in ``SimulateTransactionGroupResult/failureMessage``;
+     a signature failure arrives as HTTP 400 and is thrown as `AlgorandError.apiError`.
+
      - Parameter request: The simulation request
      - Returns: Simulation result
+     - Throws: `AlgorandError.encodingError` if the request cannot be encoded, or the transport,
+       API, and decoding errors every request can throw
      */
     public func simulateTransaction(_ request: SimulateRequest) async throws -> SimulateResponse {
-        let encoder = JSONEncoder()
-        let data = try encoder.encode(request)
+        let data = try request.encodedForSimulate()
 
         var urlRequest = URLRequest(url: baseURL.appendingPathComponent("/v2/transactions/simulate"))
 
         urlRequest.timeoutInterval = requestTimeout
         urlRequest.httpMethod = "POST"
         urlRequest.httpBody = data
-        urlRequest.setValue("application/json", forHTTPHeaderField: "Content-Type")
+        urlRequest.setValue("application/msgpack", forHTTPHeaderField: "Content-Type")
+        urlRequest.setValue("application/json", forHTTPHeaderField: "Accept")
 
         if let apiToken = apiToken {
             urlRequest.setValue(apiToken, forHTTPHeaderField: "X-Algo-API-Token")
@@ -346,7 +461,11 @@ public actor AlgodClient {
     // MARK: - Private
 
     private func get<T: Decodable>(path: String) async throws -> T {
-        var request = URLRequest(url: baseURL.appendingPathComponent(path))
+        try await get(url: baseURL.appendingPathComponent(path))
+    }
+
+    private func get<T: Decodable>(url: URL) async throws -> T {
+        var request = URLRequest(url: url)
         request.timeoutInterval = requestTimeout
         request.httpMethod = "GET"
 
@@ -394,26 +513,27 @@ public struct NodeStatus: Codable, Sendable {
     }
 }
 
-/// Pending transaction information
+/**
+ Pending transaction information
+
+ The fields a caller acts on after submission: the confirmed round, a pool error, and the asset or
+ application an `acfg` or `appl` created. The node also echoes the signed transaction itself under
+ `txn`; that echo is the caller's own submission, and this type does not model it - the `0.3.x`
+ line declared an empty `TransactionData` for it that decoded successfully and dropped every byte,
+ which read as "modelled" and behaved as "discarded".
+ */
 public struct PendingTransaction: Codable, Sendable {
     public let confirmedRound: UInt64?
     public let poolError: String?
-    public let txn: TransactionData?
     public let assetIndex: UInt64?
     public let applicationIndex: UInt64?
 
     enum CodingKeys: String, CodingKey {
         case confirmedRound = "confirmed-round"
         case poolError = "pool-error"
-        case txn
         case assetIndex = "asset-index"
         case applicationIndex = "application-index"
     }
-}
-
-/// Transaction data from pending transaction response
-public struct TransactionData: Codable, Sendable {
-    // Add fields as needed
 }
 
 /// Account information
@@ -673,10 +793,31 @@ public struct SimulateRequest: Codable, Sendable {
 
 /// Simulate request transaction group
 public struct SimulateRequestTransactionGroup: Codable, Sendable {
-    public let txns: [String]  // Base64-encoded signed transactions
+    /// The signed transactions of the group, each as its canonical MessagePack encoding.
+    ///
+    /// These bytes are spliced into the request body verbatim, so they must be exactly what
+    /// ``SignedTransaction/encode()`` produces - or what an external signer produced in the same
+    /// format. Base64 strings, the `0.3.x` representation, cannot be decoded by algod's
+    /// `[]SignedTxn` field and were never accepted.
+    public let txns: [Data]
 
-    public init(txns: [String]) {
+    /// Creates a group from pre-encoded signed transactions.
+    /// - Parameter txns: The signed transactions' canonical encodings, in group order.
+    public init(txns: [Data]) {
         self.txns = txns
+    }
+
+    /**
+     Creates a group from signed transactions, encoding each one.
+
+     - Parameter signedTransactions: The signed transactions, in group order. A grouped
+       transaction's envelope already carries `grp`, so a ``SignedAtomicTransactionGroup``'s
+       ``SignedAtomicTransactionGroup/signedTransactions`` can be passed directly.
+     - Throws: `TransactionAuthorizationError` or `AlgorandError.encodingError` if a member cannot
+       be encoded.
+     */
+    public init(signedTransactions: [SignedTransaction]) throws {
+        self.txns = try signedTransactions.map { try $0.encode() }
     }
 
     enum CodingKeys: String, CodingKey {

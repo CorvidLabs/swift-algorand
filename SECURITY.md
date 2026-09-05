@@ -63,47 +63,67 @@ Read the limitations below before relying on any of them.
 
 ### Cryptographically Secure Random Generation
 
-All private keys and random values are generated using platform-native CSPRNGs:
+Keys and random values come from platform-native cryptographic random sources:
 
-- **Apple platforms**: `SecRandomCopyBytes`, backed by the system's cryptographic RNG
-- **Linux**: `/dev/urandom`, the kernel's CSPRNG
+- `Account()` generates its key with `Curve25519.Signing.PrivateKey()`, which draws from
+  CryptoKit's system random source on Apple platforms and from BoringSSL's `RAND_bytes` on
+  Linux, straight into the key's own storage.
+- `Mnemonic.generate()` draws 32 bytes through `SecureRandom`: `SecRandomCopyBytes` on Apple
+  platforms and `/dev/urandom`, the kernel's CSPRNG, on Linux.
 
 ### Key Material Is Not Publicly Reachable
 
-`Account` holds its private key in a `private` reference-typed container. There is no
-public property or method that returns the raw private key; `publicKey` and `address` are
-public, the private key is not. `mnemonic()` re-encodes it on demand rather than caching a
-copy.
+`Account` holds its key as a `Curve25519.Signing.PrivateKey` inside a `private`
+reference-typed box. There is no public property or method that returns the raw private key;
+`publicKey` and `address` are public, the private key is not. `mnemonic()` is the one
+operation that materialises the seed as bytes, and it does so on demand rather than caching
+a copy.
 
 This limits *accidental* exposure through the API surface. It is not an isolation
 guarantee - see the next section.
 
-### Best-effort Memory Zeroing
+### What Is and Is Not Guaranteed About Key Memory
 
-The private key container overwrites its buffer with `memset` when it deallocates.
+The seed is never held by this package as a `Data` value. It lives in the cryptography
+library's own key storage:
 
-**Do not treat this as a security boundary.** It is best effort and it is defeated in
-practice:
+- **Linux**: swift-crypto's BoringSSL backend keeps the Ed25519 private key in its
+  `SecureBytes` type, whose backing store overwrites itself with `memset_s` when it is
+  deallocated. `memset_s` is the one clearing call an optimiser is not permitted to remove.
+  The signing arithmetic is BoringSSL's, vendored inside swift-crypto.
+- **Apple platforms**: swift-crypto re-exports CryptoKit, so the key is CryptoKit's. Apple's
+  CryptoKit documentation states that it overwrites sensitive data during deallocation. That
+  storage is not open source and this package does not verify the claim.
 
-- Swift's `Data` is copy-on-write, and the container hands the value out rather than
-  lending a pointer. Signing constructs a `Curve25519.Signing.PrivateKey` from that value
-  and `mnemonic()` passes it to the encoder; each of those, and anything Foundation or
-  swift-crypto does internally, may take a buffer of its own that the wipe never reaches.
-  Those copies persist until their memory happens to be reused.
-- Pure Swift cannot guarantee the write survives optimization. There is no `memset_s` or
-  `explicit_bzero` equivalent in the language, and the compiler is permitted to remove a
-  store to memory that is never read again.
-- Nothing prevents the pages from having been paged to disk or captured in a core dump
-  before the wipe ran.
+**Do not treat any of this as a security boundary.** It reduces how many copies of the seed
+exist and how long they live; it does not isolate the key:
+
+- Every `Data` or `String` you hand in or take out is yours. `Account(privateKey:)` reads the
+  seed from your buffer, `Account(mnemonic:)` decodes the phrase into a `Data` the key copies
+  from, and `mnemonic()` returns the seed in another alphabet. None of those is wiped by this
+  package: Swift's `Data` and `String` are copy-on-write values and there is no way to reach
+  every copy. Let them go out of scope promptly and never log or persist them.
+- Nothing prevents the pages from being paged to disk or captured in a core dump while the
+  key is alive.
+- A process that can read this process's memory can read the key while it is in use.
 
 Callers who need a real guarantee should keep key material outside this SDK - in a secure
 enclave, an HSM, or a hardware wallet - and hand it in only for the duration of a signature.
+`TransactionSigner` and `Transaction.bytesToSign(groupID:)` exist for exactly that.
+
+### Canonical Input Only
+
+`Address(string:)` accepts only the canonical 58-character uppercase rendering, as
+go-algorand's `UnmarshalChecksumAddress` does, and `Mnemonic.decode` rejects the 255
+non-canonical spellings of every key that a lenient decoder would accept. An address or
+mnemonic this SDK accepts is therefore one every other Algorand tool also accepts, and a
+value it renders is the only rendering of those bytes.
 
 ### Known Limitations
 
 - **No third-party security audit.** This SDK has not undergone a formal external security
   audit. Anyone handling significant funds should treat it accordingly.
-- **Memory zeroing is not a boundary.** See the section above.
+- **Key memory clearing is not a boundary.** See the section above.
 - **No certificate pinning.** Clients use a default `URLSession` configuration and the
   system trust store.
 - **Pre-1.0.** Security-relevant behaviour may change between minor versions.
@@ -123,10 +143,10 @@ See [documentation/SECURITY.md](documentation/SECURITY.md) for worked examples.
 
 ## Dependencies
 
-This SDK uses Apple's CryptoKit (via swift-crypto for Linux compatibility) for:
-
-- Ed25519 signing (`Curve25519.Signing`)
-- No external cryptographic dependencies beyond platform-provided libraries
+This SDK uses swift-crypto for Ed25519 key handling and signing (`Curve25519.Signing`). On
+Apple platforms swift-crypto is a thin wrapper over the system's CryptoKit; on Linux it
+vendors BoringSSL. SHA-512/256, the hash Algorand uses for checksums and identifiers, is
+implemented in this package. No other cryptographic dependency is linked.
 
 The only other dependency is `swift-docc-plugin`, which is a build-time documentation tool
 and is not linked into the library.

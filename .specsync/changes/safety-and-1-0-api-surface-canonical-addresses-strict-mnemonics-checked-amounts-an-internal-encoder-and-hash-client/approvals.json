@@ -1,0 +1,278 @@
+{
+  "approvals": [
+    {
+      "gate": "definition",
+      "actor": "0xLeif",
+      "timestamp": 1788650937,
+      "digest": "0d8f318e498bc6883560ea59591d8c510c8e387a4cccaef6127143623e050cb0",
+      "note": null,
+      "approved_scope": {
+        "schema_version": 1,
+        "change_id": "safety-and-1-0-api-surface-canonical-addresses-strict-mnemonics-checked-amounts-an-internal-encoder-and-hash-client",
+        "title": "Safety and 1.0 API surface: canonical addresses, strict mnemonics, checked amounts, an internal encoder and hash, client fixes, key storage, and a gated DocC plugin",
+        "description": "Safety and 1.0 API surface: canonical addresses, strict mnemonics, checked amounts, an internal encoder and hash, client fixes, key storage, and a gated DocC plugin",
+        "kind": "feature",
+        "affected_specs": [
+          "algorand"
+        ],
+        "affected_paths": [
+          "Package.swift",
+          "Sources/Algorand",
+          "Tests/AlgorandTests",
+          "specs/algorand"
+        ],
+        "no_spec_change": false,
+        "no_spec_change_rationale": null,
+        "acceptance_criteria": [
+          "Address(string:) accepts only the canonical 58-character uppercase rendering whose decoded bytes re-encode to the input (go-algorand UnmarshalChecksumAddress), rejecting lowercase and the three same-checksum trailing-bit variants of a real TestNet address with invalidAddress; Mnemonic.decode rejects all 255 non-canonical spellings of a key (33rd unpacked byte non-zero) with invalidMnemonic while the py-algorand-sdk vectors and the legacy MnemonicTests pass unchanged; MicroAlgos gains adding, subtracting, multiplied(by:), divided(by:), init(checkedAlgos:) and AssetParams gains baseUnits(for:), all throwing AmountError where the deprecated operators, init(algos:), and toBaseUnits trap, with those kept unchanged and deprecated so the 14 frozen XCTest files compile and pass; MessagePackWriter, MessagePackValue, and SHA512_256 are internal with a raw case, and every golden-vector suite passes byte-for-byte; AlgorandError.invalidURL replaces invalidAddress for bad base URLs; applicationBox takes Data and requests /v2/applications/{id}/box?name=b64%3A... through URLComponents; simulateTransaction posts application/msgpack {\"txn-groups\":[{\"txns\":[<raw signed txns>]}]} and decodes the response; waitForConfirmation keeps polling through algod's 404 in the same order and rejects an overflowing timeout; the four force unwraps are gone; PendingTransaction.txn and TransactionData are removed, BlockResponse carries the block header and transactions, IndexerAsset.params is an AssetParamsResponse with a deprecated typealias; Account stores a Curve25519.Signing.PrivateKey and SECURITY.md states per platform what is and is not guaranteed without calling zeroing a boundary; Package.swift and the DocC catalog are unchanged because they are exact-only delivery inputs of CHG-0001, with the prepared edits kept as a follow-up patch; on a live TestNet v42 node, read-only, simulate reaches overspend for an unfunded throwaway sender, waitForConfirmation on an unknown ID tolerates the 404 and throws the timeout error, and applicationBox returns a real box whose base64 name contains '+'; fledge lanes run verify is green with XCTest exactly 98 / 20 skipped / 0 failures and Swift Testing 97 -> 128 with 0 issues on macOS and three runs out of three on Linux swift:6.0-jammy; a forced full recompile of Sources/Algorand emits no warning; no predecessor test file is edited."
+        ],
+        "dependencies": [],
+        "supersedes": [
+          {
+            "predecessor_id": "CHG-0001-adopt-specsync-5-0-1-and-trust-1-0-0-governance-for-the-swift-algorand-sdk",
+            "obligations": [
+              {
+                "path": "Sources/Algorand/Account.swift",
+                "module": "algorand",
+                "predecessor_entry_digest": "8332f00df35701c7d5b6756dbc1df217f8b544549e2e22031a7bde9e4140513a"
+              },
+              {
+                "path": "Sources/Algorand/Address.swift",
+                "module": "algorand",
+                "predecessor_entry_digest": "6926b4316063acb417e6d8c6f03128b6d976c9f0e51eac2c485fd3ab0c239eaa"
+              },
+              {
+                "path": "Sources/Algorand/AlgodClient.swift",
+                "module": "algorand",
+                "predecessor_entry_digest": "aea7a77da359da87f6cb2545046f3c037a94be6847565f701d5d286a793c9c15"
+              },
+              {
+                "path": "Sources/Algorand/AlgorandConfiguration.swift",
+                "module": "algorand",
+                "predecessor_entry_digest": "d222b99a442fc315f44065fe3b91afbb3f61e8c16ed60f84e6937a917c1dc11a"
+              },
+              {
+                "path": "Sources/Algorand/AlgorandError.swift",
+                "module": "algorand",
+                "predecessor_entry_digest": "43822d8bb65ca64d71a091a6495b04633bc294c2346f4ab66deeadea3b34487b"
+              },
+              {
+                "path": "Sources/Algorand/IndexerClient.swift",
+                "module": "algorand",
+                "predecessor_entry_digest": "d057ead84ee1c58f5f60f9f2906c490d9a728be11bd2dc3e81c3f6e756d361e2"
+              },
+              {
+                "path": "Sources/Algorand/MessagePackWriter.swift",
+                "module": "algorand",
+                "predecessor_entry_digest": "cff2b4961db874f37538db4daf8463da87dd9c3b36de67f9462a5b17293807f8"
+              },
+              {
+                "path": "Sources/Algorand/MicroAlgos.swift",
+                "module": "algorand",
+                "predecessor_entry_digest": "f359463efb86de1ece3fc226852fca17309a47c626637ec4038e9c8ae98cf43f"
+              },
+              {
+                "path": "Sources/Algorand/Mnemonic.swift",
+                "module": "algorand",
+                "predecessor_entry_digest": "f9112eca1194e0b65714b5b7de6bd665b0fcab1992da9f2561eeeeb7571051d3"
+              },
+              {
+                "path": "Sources/Algorand/SHA512_256.swift",
+                "module": "algorand",
+                "predecessor_entry_digest": "600cea6902c5af235ccfa244aad40afc6d2d9c350ab833840b3706a8635dc935"
+              }
+            ]
+          },
+          {
+            "predecessor_id": "canonical-messagepack-encoding-conformance-for-consensus-v42-omit-empty-fields-messagepack-booleans-box-reference",
+            "obligations": [
+              {
+                "path": "Sources/Algorand/Account.swift",
+                "module": "algorand",
+                "predecessor_entry_digest": "8332f00df35701c7d5b6756dbc1df217f8b544549e2e22031a7bde9e4140513a"
+              },
+              {
+                "path": "Sources/Algorand/Address.swift",
+                "module": "algorand",
+                "predecessor_entry_digest": "6926b4316063acb417e6d8c6f03128b6d976c9f0e51eac2c485fd3ab0c239eaa"
+              },
+              {
+                "path": "Sources/Algorand/AlgodClient.swift",
+                "module": "algorand",
+                "predecessor_entry_digest": "aea7a77da359da87f6cb2545046f3c037a94be6847565f701d5d286a793c9c15"
+              },
+              {
+                "path": "Sources/Algorand/AlgorandConfiguration.swift",
+                "module": "algorand",
+                "predecessor_entry_digest": "d222b99a442fc315f44065fe3b91afbb3f61e8c16ed60f84e6937a917c1dc11a"
+              },
+              {
+                "path": "Sources/Algorand/AlgorandError.swift",
+                "module": "algorand",
+                "predecessor_entry_digest": "43822d8bb65ca64d71a091a6495b04633bc294c2346f4ab66deeadea3b34487b"
+              },
+              {
+                "path": "Sources/Algorand/IndexerClient.swift",
+                "module": "algorand",
+                "predecessor_entry_digest": "d057ead84ee1c58f5f60f9f2906c490d9a728be11bd2dc3e81c3f6e756d361e2"
+              },
+              {
+                "path": "Sources/Algorand/MessagePackWriter.swift",
+                "module": "algorand",
+                "predecessor_entry_digest": "cff2b4961db874f37538db4daf8463da87dd9c3b36de67f9462a5b17293807f8"
+              },
+              {
+                "path": "Sources/Algorand/MicroAlgos.swift",
+                "module": "algorand",
+                "predecessor_entry_digest": "f359463efb86de1ece3fc226852fca17309a47c626637ec4038e9c8ae98cf43f"
+              },
+              {
+                "path": "Sources/Algorand/Mnemonic.swift",
+                "module": "algorand",
+                "predecessor_entry_digest": "f9112eca1194e0b65714b5b7de6bd665b0fcab1992da9f2561eeeeb7571051d3"
+              },
+              {
+                "path": "Sources/Algorand/SHA512_256.swift",
+                "module": "algorand",
+                "predecessor_entry_digest": "600cea6902c5af235ccfa244aad40afc6d2d9c350ab833840b3706a8635dc935"
+              }
+            ]
+          },
+          {
+            "predecessor_id": "consensus-v42-fee-model-feestrategy-on-every-builder-and-initializer-per-transaction-usage-and-a-group-pooled-fee",
+            "obligations": [
+              {
+                "path": "Sources/Algorand/Account.swift",
+                "module": "algorand",
+                "predecessor_entry_digest": "8332f00df35701c7d5b6756dbc1df217f8b544549e2e22031a7bde9e4140513a"
+              },
+              {
+                "path": "Sources/Algorand/Address.swift",
+                "module": "algorand",
+                "predecessor_entry_digest": "6926b4316063acb417e6d8c6f03128b6d976c9f0e51eac2c485fd3ab0c239eaa"
+              },
+              {
+                "path": "Sources/Algorand/AlgodClient.swift",
+                "module": "algorand",
+                "predecessor_entry_digest": "aea7a77da359da87f6cb2545046f3c037a94be6847565f701d5d286a793c9c15"
+              },
+              {
+                "path": "Sources/Algorand/AlgorandConfiguration.swift",
+                "module": "algorand",
+                "predecessor_entry_digest": "d222b99a442fc315f44065fe3b91afbb3f61e8c16ed60f84e6937a917c1dc11a"
+              },
+              {
+                "path": "Sources/Algorand/AlgorandError.swift",
+                "module": "algorand",
+                "predecessor_entry_digest": "43822d8bb65ca64d71a091a6495b04633bc294c2346f4ab66deeadea3b34487b"
+              },
+              {
+                "path": "Sources/Algorand/AssetTransaction.swift",
+                "module": "algorand",
+                "predecessor_entry_digest": "21b887c12a69ce64c611ee630dbe45c59856e894a30ccefeb4948d8d15d5e99e"
+              },
+              {
+                "path": "Sources/Algorand/IndexerClient.swift",
+                "module": "algorand",
+                "predecessor_entry_digest": "d057ead84ee1c58f5f60f9f2906c490d9a728be11bd2dc3e81c3f6e756d361e2"
+              },
+              {
+                "path": "Sources/Algorand/MessagePackWriter.swift",
+                "module": "algorand",
+                "predecessor_entry_digest": "cff2b4961db874f37538db4daf8463da87dd9c3b36de67f9462a5b17293807f8"
+              },
+              {
+                "path": "Sources/Algorand/MicroAlgos.swift",
+                "module": "algorand",
+                "predecessor_entry_digest": "f359463efb86de1ece3fc226852fca17309a47c626637ec4038e9c8ae98cf43f"
+              },
+              {
+                "path": "Sources/Algorand/Mnemonic.swift",
+                "module": "algorand",
+                "predecessor_entry_digest": "f9112eca1194e0b65714b5b7de6bd665b0fcab1992da9f2561eeeeb7571051d3"
+              },
+              {
+                "path": "Sources/Algorand/SHA512_256.swift",
+                "module": "algorand",
+                "predecessor_entry_digest": "600cea6902c5af235ccfa244aad40afc6d2d9c350ab833840b3706a8635dc935"
+              },
+              {
+                "path": "specs/algorand/algorand.spec.md",
+                "module": "algorand",
+                "predecessor_entry_digest": "1f1fde881958a1444306feb033b2e262bdef4eff3c577440f0fb4221188f2491"
+              },
+              {
+                "path": "specs/algorand/requirements.md",
+                "module": "algorand",
+                "predecessor_entry_digest": "9d7813e615db6bbfc3fb4c268bc77c833d92a86f42daaf348800660703286d46"
+              }
+            ]
+          },
+          {
+            "predecessor_id": "post-quantum-signedtransaction-envelope-for-consensus-v42-sgnr-rekey-inference-pqsig-with-falcon-1024-address",
+            "obligations": [
+              {
+                "path": "Sources/Algorand/Account.swift",
+                "module": "algorand",
+                "predecessor_entry_digest": "8332f00df35701c7d5b6756dbc1df217f8b544549e2e22031a7bde9e4140513a"
+              },
+              {
+                "path": "Sources/Algorand/Address.swift",
+                "module": "algorand",
+                "predecessor_entry_digest": "6926b4316063acb417e6d8c6f03128b6d976c9f0e51eac2c485fd3ab0c239eaa"
+              },
+              {
+                "path": "Sources/Algorand/AlgodClient.swift",
+                "module": "algorand",
+                "predecessor_entry_digest": "aea7a77da359da87f6cb2545046f3c037a94be6847565f701d5d286a793c9c15"
+              },
+              {
+                "path": "Sources/Algorand/AlgorandConfiguration.swift",
+                "module": "algorand",
+                "predecessor_entry_digest": "d222b99a442fc315f44065fe3b91afbb3f61e8c16ed60f84e6937a917c1dc11a"
+              },
+              {
+                "path": "Sources/Algorand/AlgorandError.swift",
+                "module": "algorand",
+                "predecessor_entry_digest": "43822d8bb65ca64d71a091a6495b04633bc294c2346f4ab66deeadea3b34487b"
+              },
+              {
+                "path": "Sources/Algorand/IndexerClient.swift",
+                "module": "algorand",
+                "predecessor_entry_digest": "d057ead84ee1c58f5f60f9f2906c490d9a728be11bd2dc3e81c3f6e756d361e2"
+              },
+              {
+                "path": "Sources/Algorand/MessagePackWriter.swift",
+                "module": "algorand",
+                "predecessor_entry_digest": "cff2b4961db874f37538db4daf8463da87dd9c3b36de67f9462a5b17293807f8"
+              },
+              {
+                "path": "Sources/Algorand/MicroAlgos.swift",
+                "module": "algorand",
+                "predecessor_entry_digest": "f359463efb86de1ece3fc226852fca17309a47c626637ec4038e9c8ae98cf43f"
+              },
+              {
+                "path": "Sources/Algorand/Mnemonic.swift",
+                "module": "algorand",
+                "predecessor_entry_digest": "f9112eca1194e0b65714b5b7de6bd665b0fcab1992da9f2561eeeeb7571051d3"
+              },
+              {
+                "path": "Sources/Algorand/SHA512_256.swift",
+                "module": "algorand",
+                "predecessor_entry_digest": "600cea6902c5af235ccfa244aad40afc6d2d9c350ab833840b3706a8635dc935"
+              }
+            ]
+          }
+        ],
+        "answers": {
+          "architecture_risk": "yes",
+          "public_contract": "yes"
+        }
+      },
+      "approved_delta_digests": {
+        "algorand": "871a590104b256bed1cbf889cbca508982035f627603f254132550a073243d22"
+      }
+    }
+  ],
+  "reopenings": []
+}

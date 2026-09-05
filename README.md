@@ -108,7 +108,7 @@ let receiver = try Address(string: "RECEIVER_ADDRESS_HERE")
 let transaction = try PaymentTransactionBuilder()
     .sender(account.address)
     .receiver(receiver)
-    .amount(MicroAlgos(algos: 1.0))  // 1 ALGO
+    .amount(try MicroAlgos(checkedAlgos: 1.0))  // 1 ALGO
     .params(params)
     .note("Hello, Algorand!")
     .build()
@@ -172,20 +172,46 @@ let fromString = try Address(string: "YOUR_ADDRESS_HERE")
 let fromBytes = try Address(bytes: publicKeyBytes)
 ```
 
+`Address(string:)` accepts only the canonical form, exactly as go-algorand's
+`UnmarshalChecksumAddress` does: 58 uppercase base32 characters whose decoded bytes re-encode to
+the identical string. A lowercase address, or one whose final character carries stray bits past
+the 36 decoded bytes, is rejected with `AlgorandError.invalidAddress` even though its checksum
+passes, and `description` is always the canonical rendering.
+
+### Mnemonics
+
+`Mnemonic.decode` and `Account(mnemonic:)` are strict: the 24 key words carry eight spare bits
+beyond the 32-byte key, and only the spelling that leaves them zero is accepted, which is the
+check py-algorand-sdk and go-algorand make. The other 255 spellings of the same key throw
+`AlgorandError.invalidMnemonic`. Every mnemonic this SDK generates is canonical.
+
 ### Amounts
 
-Amounts are type-safe with `MicroAlgos`:
+Amounts are type-safe with `MicroAlgos`. The `UInt64` operators trap on overflow and on a zero
+divisor, and `UInt64(_: Double)` traps on NaN, negative, and out-of-range input; a trap cannot be
+caught, so the checked forms throw `AmountError` instead:
 
 ```swift
 // From microAlgos (1 ALGO = 1,000,000 microAlgos)
 let fromMicroAlgos = MicroAlgos(1_000_000)
 
-// From Algos
-let fromAlgos = MicroAlgos(algos: 1.0)
+// From Algos, rounded to the nearest microAlgo; throws on NaN, negative, or > UInt64 input
+let fromAlgos = try MicroAlgos(checkedAlgos: 1.0)
 
-// Arithmetic operations
-let total = MicroAlgos(algos: 1.0) + MicroAlgos(algos: 2.0)
-let doubled = fromAlgos * 2  // scalar multiplication takes a UInt64
+// Checked arithmetic
+let total = try fromAlgos.adding(MicroAlgos(2_000_000))
+let doubled = try fromAlgos.multiplied(by: 2)   // AmountError.overflow past UInt64.max
+let half = try fromAlgos.divided(by: 2)         // AmountError.divisionByZero for 0
+let change = try total.subtracting(fromAlgos)   // AmountError.overflow below zero
+```
+
+`MicroAlgos(algos:)` and the `+`, `-`, `*`, `/` operators still exist but are deprecated; the
+deprecation message names the replacement. The same applies to `AssetParams.toBaseUnits(_:)`,
+replaced by `baseUnits(for:)`, which rounds to the nearest base unit and throws rather than traps:
+
+```swift
+let params = AssetParams(total: 1_000_000, decimals: 2, unitName: "DEMO")
+let baseUnits = try params.baseUnits(for: 10.5)  // 1050
 ```
 
 ### Transactions
@@ -286,6 +312,58 @@ print(signer.address)  // SHA512_256("PQA" || "f1" || salt || publicKey)
 let signedTxn = try await signer.sign(transaction)
 ```
 
+### Simulating, confirming, and reading boxes
+
+`simulateTransaction` posts the group to `POST /v2/transactions/simulate` as
+`application/msgpack`, with each signed transaction's own canonical encoding spliced in, and
+decodes the JSON response. A signature failure comes back as HTTP 400 (`AlgorandError.apiError`);
+a well-formedness or fee failure comes back as HTTP 200 with the detail in `failureMessage`, so
+check it:
+
+```swift
+let group = try SimulateRequestTransactionGroup(signedTransactions: [signedTxn])
+let result = try await algod.simulateTransaction(SimulateRequest(txnGroups: [group]))
+if let failure = result.txnGroups.first?.failureMessage {
+    print("Simulation failed: \(failure)")
+}
+```
+
+`waitForConfirmation` polls once per round and treats algod's `404` from
+`GET /v2/transactions/pending/{id}` as "not seen yet" - the normal state for a round or two after
+submission, and always the state when a load-balanced endpoint routed the submission elsewhere -
+so it keeps polling until the transaction confirms or the timeout elapses, as js-algorand-sdk does.
+
+`applicationBox(_:name:)` takes the raw box name as `Data` and builds the
+`?name=b64:<base64>` query itself, percent-encoding the `+`, `/`, and `=` that base64 produces:
+
+```swift
+let box = try await algod.applicationBox(applicationID, name: Data("counter".utf8))
+```
+
+## Changes on the road to 1.0
+
+The `0.3.x` line carried several APIs that trapped, accepted input the network rejects, or could
+not work. They are corrected here; the source-breaking ones are listed so an upgrade is deliberate:
+
+| Area | Change |
+|---|---|
+| `Address(string:)` | Canonical form only. Lowercase and stray-trailing-bit input now throws `invalidAddress`. |
+| `Mnemonic.decode`, `Account(mnemonic:)` | Non-canonical spellings (the 33rd unpacked byte non-zero) now throw `invalidMnemonic`. |
+| `MicroAlgos` | `+`, `-`, `*`, `/`, and `init(algos:)` are deprecated; use `adding`, `subtracting`, `multiplied(by:)`, `divided(by:)`, and `init(checkedAlgos:)`, which throw `AmountError`. |
+| `AssetParams.toBaseUnits` | Deprecated; use `baseUnits(for:)`. |
+| `MessagePackWriter`, `MessagePackValue`, `SHA512_256` | Internal. They were the wire format of one chain, not a general encoder or hash API. |
+| `AlgorandError` | New case `invalidURL`; a bad client base URL reports it instead of `invalidAddress`. |
+| `AlgorandConfiguration` | `init(network:)`, `localnet()`, `testnet()`, and `mainnet()` throw instead of force-unwrapping the endpoint literals; `custom` does not. |
+| `AlgodClient.applicationBox` | Takes the box name as `Data`; the previous version percent-encoded its own `?` and could never reach the endpoint. |
+| `AlgodClient.simulateTransaction` | Posts MessagePack; `SimulateRequestTransactionGroup.txns` is `[Data]` (canonical signed encodings) with an `init(signedTransactions:)`. The previous JSON body was never accepted by algod. |
+| `AlgodClient.waitForConfirmation` | Keeps polling through a `404`; throws `invalidTransaction` if `timeout` would overflow the round counter. |
+| `PendingTransaction.txn`, `TransactionData` | Removed. The empty `TransactionData` decoded the node's echo of your own submission and dropped every field; the fields a caller acts on (`confirmedRound`, `poolError`, `assetIndex`, `applicationIndex`) remain. |
+| `BlockResponse` | Was an empty struct; now carries the block header and the block's transactions. |
+| `IndexerAsset.params` | Typed as `AssetParamsResponse`, the model algod already returns, with a deprecated `IndexerAsset.AssetParams` typealias. |
+| `Account` | Stores its key as `Curve25519.Signing.PrivateKey` rather than a `Data` copy of the seed; see [SECURITY.md](SECURITY.md). |
+
+Transaction encodings are unchanged: the golden-vector suites pass byte-for-byte.
+
 ## Architecture
 
 The SDK is organized into several key components:
@@ -321,12 +399,16 @@ let algod = try AlgodClient(
 ```
 
 `AlgorandConfiguration` bundles a network with its URLs and token if you would rather not
-hardcode endpoints:
+hardcode endpoints. The well-known factories throw, because Foundation offers no non-failable
+`http` URL constructor and the SDK does not force-unwrap:
 
 ```swift
-let configuration = AlgorandConfiguration.testnet()
+let configuration = try AlgorandConfiguration.testnet()
 let algod = AlgodClient(baseURL: configuration.algodURL, apiToken: configuration.apiToken)
 ```
+
+A string base URL that is not an absolute `http` or `https` URL is rejected with
+`AlgorandError.invalidURL` by `AlgodClient(baseURL:)` and `IndexerClient(baseURL:)`.
 
 ## Testing
 
@@ -346,8 +428,11 @@ offline construction and encoding of every transaction type the SDK models: `pay
 CI=true swift test
 ```
 
-Setting `CI` makes the integration suites skip themselves. This executes 98 tests with 20
-skipped and 0 failures.
+Setting `CI` makes the integration suites skip themselves. This executes 98 XCTest tests with 20
+skipped and 0 failures, followed by the Swift Testing suites (129 tests in 7 suites). Compiling
+the legacy XCTest suites prints deprecation warnings for `MicroAlgos(algos:)`, the `MicroAlgos`
+operators, and `AssetParams.toBaseUnits`, which those suites exercise on purpose; the library
+itself builds warning-free.
 
 ### Integration tests against a local node
 

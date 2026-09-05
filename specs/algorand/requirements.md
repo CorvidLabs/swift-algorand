@@ -265,3 +265,56 @@ Acceptance Criteria
 - A harness built once against 4bea606 and once against this change prints identical output for 20 transactions bare and grouped, four signed envelopes standalone and grouped, and one group identifier (47 lines, `cmp` silent).
 - Live: `GET /v2/transactions/params` on TestNet reports exactly that identifier as `consensus-version`.
 
+### REQ-algorand-029
+
+`Address.init(string:)` SHALL accept a string only if it has 58 characters of the uppercase RFC 4648 base32 alphabet, its 36 decoded bytes carry a valid SHA-512/256 checksum, and re-encoding those bytes reproduces the input exactly, which is go-algorand's `UnmarshalChecksumAddress` rule; otherwise it SHALL throw `AlgorandError.invalidAddress`. `description` SHALL be the canonical rendering, and `Address.init(bytes:)` SHALL produce a string `init(string:)` accepts.
+
+Acceptance Criteria
+- `canonicalAddressRoundTrips`, `lowercaseAddressesAreRejected`, `nonCanonicalTrailingBitsAreRejected` (the three same-checksum variants of a real TestNet address whose final character carries stray bits), `malformedAddressesAreRejected`, and `addressDecodesFromJSONCanonicallyOnly` pass.
+- The legacy `AddressTests` pass unchanged, and no frozen test asserts a lowercase address.
+
+*Rationale: the previous decoder folded case and dropped trailing bits, so four distinct strings decoded to one address and `description` could be a string no other Algorand tool accepts.*
+
+### REQ-algorand-030
+
+`Mnemonic.decode` SHALL unpack the 24 key words to 33 bytes and SHALL throw `AlgorandError.invalidMnemonic` unless the 33rd byte is zero, the check py-algorand-sdk's `to_private_key` makes, before verifying the checksum word; `Mnemonic.isValid` and `Account.init(mnemonic:)` SHALL follow. Every mnemonic `Mnemonic.encode` and `Mnemonic.generate` produce SHALL be canonical.
+
+Acceptance Criteria
+- `nonCanonicalMnemonicsAreRejected` shows all 255 non-canonical spellings of a key rejected with a message containing `Non-canonical` and the canonical spelling accepted.
+- `crossSDKMnemonicVectorsStillDecode` keeps the all-zero and all-42 py-algorand-sdk vectors, `malformedMnemonicsAreRejected` and `generatedMnemonicsRoundTrip` pass, and the legacy `MnemonicTests` (6 tests) pass unchanged, so nothing depended on lenient decoding.
+
+### REQ-algorand-031
+
+`MicroAlgos` SHALL offer `adding(_:)`, `subtracting(_:)`, `multiplied(by:)`, and `divided(by:)`, which throw `AmountError.overflow` or `AmountError.divisionByZero` where `+`, `-`, `*`, and `/` trap, and `init(checkedAlgos:)`, which rounds to the nearest microAlgo and throws `AmountError.notRepresentable` for a NaN, infinite, negative, or out-of-range value. `AssetParams` SHALL offer `baseUnits(for:)` with the same contract. The operators, `init(algos:)`, and `toBaseUnits(_:)` SHALL remain with unchanged semantics, marked `@available(*, deprecated)` with a message naming the replacement, and no library code SHALL use them.
+
+Acceptance Criteria
+- `checkedArithmeticHappyPath`, `checkedArithmeticThrowsInsteadOfTrapping`, `checkedAlgosInitializer` (including 2^64 microAlgos exactly), `assetBaseUnits` (including `Double(UInt64.max)`, which rounds to 2^64), and `amountErrorsDescribeThemselves` pass.
+- The legacy `MicroAlgosTests`, `AssetTests`, `IntegrationTests`, and `ComprehensiveIntegrationTest` compile and pass unchanged through the deprecated symbols; their deprecation warnings are the only ones in the test build, and a forced full recompile of `Sources/Algorand` emits none.
+- The fee-model files (`FeeStrategy.swift`, `TransactionUsage.swift`, `AtomicTransactionGroup+Fees.swift`) are unchanged from the base tree and use no deprecated symbol.
+
+### REQ-algorand-032
+
+`MessagePackWriter`, `MessagePackValue`, and `SHA512_256` SHALL be `internal`, and `MessagePackValue` SHALL gain `case raw(Data)`, which the writer splices verbatim. Every transaction, envelope, and group-identifier encoding SHALL be byte-identical to the base tree.
+
+Acceptance Criteria
+- `specsync check --strict` reports 384/384 exports documented with no row for `MessagePackWriter`, `write`, `MessagePackValue`, `string`, `binary`, `map`, `array`, `bool`, or `SHA512_256`.
+- `rawValuesAreSplicedVerbatim` passes, and the golden-vector suites `CanonicalEncodingTests`, `CanonicalBoxReferenceTests`, `SignedTransactionEnvelopeTests`, `PostQuantumVectorTests`, and `FeeModelTests` pass unchanged, byte-for-byte.
+
+### REQ-algorand-033
+
+`AlgorandError` SHALL gain `invalidURL(String)`, thrown by `AlgodClient.init(baseURL: String)` and `IndexerClient.init(baseURL: String)` for anything but an absolute http(s) URL and by request construction that cannot assemble a URL. `AlgodClient.applicationBox(_:name:)` SHALL take the raw box name as `Data` and request `/v2/applications/{id}/box?name=b64:<base64>` with the value percent-encoded to the unreserved set. `simulateTransaction` SHALL post `Content-Type: application/msgpack` with the body `{"txn-groups":[{"txns":[<raw signed txns>]}]}` plus only the flags that are set, and decode the JSON response; `SimulateRequestTransactionGroup.txns` SHALL be `[Data]` with an `init(signedTransactions:)`. `waitForConfirmation` SHALL treat the node's 404 as "not yet" without reordering the poll and SHALL throw `AlgorandError.invalidTransaction` if `timeout` overflows the round counter. No library code SHALL force-unwrap. `PendingTransaction.txn` and `TransactionData` SHALL be removed; `BlockResponse` SHALL carry the block header and its transactions; `IndexerAsset.params` SHALL be an `AssetParamsResponse` with a deprecated `IndexerAsset.AssetParams` typealias.
+
+Acceptance Criteria
+- `invalidBaseURLsAreInvalidURL`, `builtInEndpointsResolve`, `boxURLIsWellFormed` (`?name=b64%3A%2B%2F8%3D`, no `%3F`), `simulateBodyIsMessagePack` (exact bytes), `simulateFlagsAreOmittedOrCanonical`, `simulateGroupFromSignedTransactions`, `responsesDecode`, `blockResponseDecodes`, `indexerAssetDecodesFullParameters`, and `notYetKnownMatchesOnly404` pass.
+- The serialized `Transport` suite passes through a `URLProtocol` stub: `waitForConfirmationToleratesA404` (status, 404, wait-for-block, confirmed, in that order), `waitForConfirmationSurfacesOtherFailures`, `waitForConfirmationRejectsOverflowingTimeout`, `applicationBoxSendsALiveQueryURL`, and `simulatePostsMessagePack` (`Content-Type: application/msgpack`, body equal to the encoder's output).
+- Live, read-only, on TestNet v42: a payment signed by an unfunded throwaway account simulates with HTTP 200 and `failure-message` `overspend`; `GET /v2/transactions/pending/{unknown}` answers 404 and `waitForConfirmation(timeout: 1)` then throws `networkError("Transaction not confirmed after 1 rounds")`; `applicationBox` on an application with a box whose base64 name contains `+` returns the box, while the base tree's `%3F` URL answers the router's `{"message":"Not Found"}`.
+- `grep -rn '!' Sources/Algorand` finds no force unwrap, `try!`, or `as!`.
+
+### REQ-algorand-034
+
+`Account` SHALL store its key as a `Curve25519.Signing.PrivateKey` inside a private reference-typed box, SHALL never hold a `Data` copy of the seed, and SHALL keep its public API (`init()`, `init(mnemonic:)`, `init(privateKey:)`, `mnemonic()`, `sign(_:)`, `verify(signature:for:)`, `address`, `publicKey`). Root `SECURITY.md` SHALL state what the key storage guarantees on each platform (swift-crypto's `SecureBytes` with `memset_s` on Linux, backed by BoringSSL; CryptoKit on Apple platforms), what it does not (caller-owned copies, swap, core dumps, a process that can read memory), and SHALL never present zeroing as a security boundary.
+
+Acceptance Criteria
+- `accountKeyStorageIsStable` shows a key surviving `mnemonic()` by cross-verification, a mnemonic round trip restoring the same address and public key, and a copied `Account` signing for the same key; `AccountTests`, `CanonicalEncodingTests`, and `SignedTransactionEnvelopeTests` keep every existing signature vector.
+- `SECURITY.md` and `documentation/SECURITY.md` contain no claim that the SDK zeroes key material as a boundary, and name BoringSSL for Linux.
+
