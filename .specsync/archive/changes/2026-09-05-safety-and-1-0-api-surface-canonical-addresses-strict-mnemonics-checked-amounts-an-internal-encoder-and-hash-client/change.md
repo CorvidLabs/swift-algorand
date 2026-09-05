@@ -1,6 +1,6 @@
 ---
 id: safety-and-1-0-api-surface-canonical-addresses-strict-mnemonics-checked-amounts-an-internal-encoder-and-hash-client
-state: implementing
+state: archived
 type: feature
 base_commit: 4665470f59cbd6b382ebefca4515575c0a0aaa83
 ---

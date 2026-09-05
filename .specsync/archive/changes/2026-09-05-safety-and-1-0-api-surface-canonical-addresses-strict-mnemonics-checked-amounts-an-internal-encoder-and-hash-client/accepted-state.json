@@ -7,11 +7,11 @@
   "title": "Safety and 1.0 API surface: canonical addresses, strict mnemonics, checked amounts, an internal encoder and hash, client fixes, key storage, and a gated DocC plugin",
   "description": "Safety and 1.0 API surface: canonical addresses, strict mnemonics, checked amounts, an internal encoder and hash, client fixes, key storage, and a gated DocC plugin",
   "kind": "feature",
-  "state": "verifying",
+  "state": "accepted",
   "canonical_applied": true,
   "base_commit": "4665470f59cbd6b382ebefca4515575c0a0aaa83",
   "created_at": 1788649177,
-  "updated_at": 1788650976,
+  "updated_at": 1788651151,
   "affected_specs": [
     "algorand"
   ],

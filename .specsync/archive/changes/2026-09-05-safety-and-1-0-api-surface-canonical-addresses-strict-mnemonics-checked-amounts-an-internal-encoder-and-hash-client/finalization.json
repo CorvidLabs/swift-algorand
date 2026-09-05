@@ -1,0 +1,12 @@
+{
+  "schema_version": 2,
+  "change_id": "safety-and-1-0-api-surface-canonical-addresses-strict-mnemonics-checked-amounts-an-internal-encoder-and-hash-client",
+  "implementation_commit": "ccdd9d4c4875f57d11a2791f9744b076703521e6",
+  "implementation_tree": "c18da14646aaddb4ab65838dd680de29d41fc59d",
+  "contract_digest": "0d8f318e498bc6883560ea59591d8c510c8e387a4cccaef6127143623e050cb0",
+  "workspace_digest": "380e529b737341a3813441f171d8e4c1367558c3dd30dcb4f42f67eba997c39a",
+  "closing_digest": "ed8c28a762689a64ed5876474d3980002524391da2855e32eaf9e88c9b4f84ba",
+  "review_digest": "309a5ab704c91099979196563912f50ab2d4a41caa68a4e3b7e8d218de6105b5",
+  "finalization_digest": "883aefabf49dcc8353e2aedd8ad046cb63ebc17b23568ad101d0828b1c0cebe8",
+  "timestamp": 1788651151
+}
