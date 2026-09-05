@@ -1,0 +1,1 @@
+{"commit":"0d8a85f5c569ac2c9201a8f521ad178354e96f63","confidence":0.9,"humanApproved":false,"note":"fledge lanes run verify (swift build + CI=true swift test) passed on this tree; Sources/Tests identical to the verified tip where the commit touched only governance or docs","reviewer":"agent:claude","testsPassed":true,"timestamp":1788631616}
