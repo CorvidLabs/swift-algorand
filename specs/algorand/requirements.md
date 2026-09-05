@@ -166,3 +166,54 @@ Acceptance Criteria
 - The three py-algorand-sdk deviations (`apan`, `nonpart`, `lx`) are recorded alongside the vectors that expose them.
 - No file under `Tests/` originates in `algorandfoundation/falcon-signatures` or `algorandfoundation/algokit-polytest`.
 
+### REQ-algorand-019
+
+`SignedTransaction.encode()` SHALL emit go-algorand's `SignedTxn` envelope as a canonical omit-empty MessagePack map over the keys `lsig < msig < pqsig < sgnr < sig < txn`, writing only the keys that are present, choosing `bin8`, `bin16`, or `bin32` headers by value length through the canonical writer, and splicing the transaction bytes that were signed in under `txn`. An envelope carrying only an Ed25519 signature SHALL encode byte-identically to the previous fixed `0x82 {sig, txn}` encoding, and a signature longer than 255 bytes SHALL encode rather than trap.
+
+Acceptance Criteria
+- `testEd25519EnvelopeIsByteIdenticalToLegacyEncoder` and `testGroupedEd25519EnvelopeIsByteIdenticalToLegacyEncoder` match a hand-written legacy `{sig, txn}` layout and the `signed_ed25519_only` golden envelope, standalone and grouped; six envelopes produced by a build of 93c952a and by this change are byte-identical, transaction IDs included.
+- `testEnvelopeSurvivesSignaturesLongerThan255Bytes` encodes a 1538-byte value under `sig` with a `bin16` header (`82a3736967c50602`) instead of aborting the process.
+- `testSignedEnvelopeStructure`, `testSignedEnvelopeIsByteExactOnDeterministicBackends`, and every pre-existing XCTest signing test pass unchanged in outcome.
+
+*Rationale: the previous encoder hand-wrote `0x82`, `"sig"`, `0xC4`, `UInt8(signature.count)`, which could express neither `sgnr` nor `pqsig` and trapped for every Falcon-1024 signature.*
+
+### REQ-algorand-020
+
+Signing SHALL infer `sgnr`: when the signer's address differs from `transaction.sender`, the envelope SHALL carry the signer's address under `sgnr`; when it equals the sender, `sgnr` SHALL be omitted. An explicit `authAddr` argument SHALL be accepted only when it equals the signer's address, and otherwise signing SHALL throw `TransactionAuthorizationError.authAddrMismatch` before any signature is produced. This applies to `SignedTransaction.sign(_:with:groupID:authAddr:)` and to `TransactionSigner.sign(_:groupID:authAddr:)` alike.
+
+Acceptance Criteria
+- `testRekeyedEnvelopeCarriesSgnr` and `testSignerDifferentFromSenderInfersSgnr` produce the 280-byte `{sgnr, sig, txn}` envelope of golden vector `signed_ed25519_rekeyed_sgnr`, byte-exact where the Ed25519 backend is deterministic.
+- `testSignerEqualToSenderOmitsSgnr`, `testExplicitAuthAddrMustNameTheSigner`, and `testAccountSignsThroughTheProtocolPath` cover omission, the accepted explicit form, and the typed mismatch error on both paths.
+- Live: a rekeyed envelope simulated on TestNet v42 returns HTTP 200 with `should have been authorized by <sender> but was actually authorized by <signer>` (the throwaway sender is not rekeyed on chain), which is an authorization failure after a successful decode, not a decode error.
+
+*Rationale: matches py-algorand-sdk and js-algorand-sdk, and consensus (`EnforceAuthAddrSenderDiff`) rejects a `sgnr` equal to the sender, so inference is the only correct policy.*
+
+### REQ-algorand-021
+
+`Address.postQuantum(scheme:salt:publicKey:)` SHALL derive `SHA512_256("PQA" || scheme[2] || salt[1] || publicKey)`, and `Address.postQuantum(scheme:publicKey:)` SHALL return the canonical salt and address: the lowest salt in `0...255` whose derived address does not decode as an Edwards25519 point, where the point predicate follows `edwards25519.Point.SetBytes` exactly, accepting non-canonical encodings and not requiring prime-order subgroup membership.
+
+Acceptance Criteria
+- `testEdwards25519PointPredicateMatchesGoSetBytes` agrees with all 13 point-decode vectors, including `y == p`, `y == p + 1`, all-zero, all-`0xff`, and the identity with the sign bit set.
+- `testPostQuantumAddressDerivationMatchesGoldenVectors` reproduces canonical salts 0, 2, and 1 and the three golden addresses, and shows that every lower salt's digest decodes as a point.
+- Live: with the `slt` of a `pqsig` envelope patched from 0 to 1, TestNet v42 rejects it with `pq signature authorizer mismatch: derived 26KVNLGM25G46YMGMOVXRKGLUGOWUEYIMNLZEIVO2KFOCCXUCVNRIYBCNA`, which equals `Address.postQuantum(scheme: .falcon1024, salt: 1, publicKey:)` for the same key.
+
+### REQ-algorand-022
+
+A post-quantum authorization SHALL be carried as `pqsig: {pk, sch, sig, slt}`, where `sch` is the two-byte scheme tag as a MessagePack binary (`"f1"`, bytes `0x66 0x31`, for Falcon-1024), `slt` is omitted when zero, and `pk` and `sig` are binaries of 1793 and at most 1538 bytes for Falcon-1024. The signing preimage SHALL be `"TX" || msgpack(txn)`, unhashed, exposed as `Transaction.bytesToSign(groupID:)`. Signing SHALL be delegated through the `TransactionSigner` protocol, to which `Account` conforms; `PQSigner` SHALL derive the canonical salt and address from the public key and obtain the signature from a caller-supplied `@Sendable` callback. No Falcon implementation SHALL be bundled.
+
+Acceptance Criteria
+- `testPostQuantumSignedEnvelopeMatchesGoldenVector` reproduces the 3530-byte `pq_signed_payment` envelope from its parts and its transaction ID `BT6JAPZ7LE75FHLMO624E2J7WXBG7POEL6EKOCJAGVJNGCSLKYXA`.
+- `testPostQuantumSaltIsOmittedWhenZeroAndPresentOtherwise`, `testPostQuantumSignerDerivesCanonicalSaltAndAddress`, `testCustomSignerReceivesThePreimageAndControlsSgnr`, `testBytesToSignIsThePrefixedCanonicalEncoding`, and `testPostQuantumSchemeTag` pass.
+- Live: a `pqsig` envelope with `sch = "f1"` simulated on TestNet v42 is rejected at signature verification (`pq signature validation failed: invalid falcon-1024 signature: error code -4: falcon verify failed`), past the scheme check that answered `pq signature scheme not supported` for every other tag, and past the authorizer check.
+
+*Rationale: `protocol.PQSchemeFalcon1024 = PQScheme{'f', '1'}` in go-algorand v5.0.1-stable (`protocol/pq_scheme.go`); `[2]byte` marshals as a binary.*
+
+### REQ-algorand-023
+
+Before a signed transaction is assembled, and again when it is encoded, a post-quantum proof SHALL be verified to authorize the transaction: its public key has the scheme's size, its signature is non-empty and within the scheme's maximum, and its scheme, salt, and public key derive the authorizer, which is `sgnr` when present and otherwise the sender. Violations SHALL throw `TransactionAuthorizationError.unauthorizedProof` or `TransactionAuthorizationError.malformed`. Ed25519 signature bytes SHALL be carried verbatim.
+
+Acceptance Criteria
+- `testPostQuantumProofMustDeriveTheAuthorizer` covers sign-time refusal of a proof for another key, refusal of a non-canonical salt, encode-time refusal of a hand-built envelope, and acceptance of the same proof once `sgnr` names the derived address.
+- `testPostQuantumSizesAreEnforced`, `testRekeyedPostQuantumSignerCarriesSgnr`, and `testAuthorizationErrorsDescribeThemselves` pass.
+- No `AlgorandError` case is added; `TransactionAuthorizationError` is the only new error type.
+

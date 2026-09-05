@@ -1,0 +1,62 @@
+{
+  "approvals": [
+    {
+      "gate": "definition",
+      "actor": "0xLeif",
+      "timestamp": 1788643292,
+      "digest": "a3b7e7818e0eadef2a53b8f796382cd5c784e3da8c5c4f5f80a09523aa4aca2b",
+      "note": null,
+      "approved_scope": {
+        "schema_version": 1,
+        "change_id": "post-quantum-signedtransaction-envelope-for-consensus-v42-sgnr-rekey-inference-pqsig-with-falcon-1024-address",
+        "title": "Post-quantum SignedTransaction envelope for consensus v42: sgnr rekey inference, pqsig with Falcon-1024 address derivation, a callback TransactionSigner, and bin16 signatures",
+        "description": "Post-quantum SignedTransaction envelope for consensus v42: sgnr rekey inference, pqsig with Falcon-1024 address derivation, a callback TransactionSigner, and bin16 signatures",
+        "kind": "feature",
+        "affected_specs": [
+          "algorand"
+        ],
+        "affected_paths": [
+          "Sources/Algorand",
+          "Tests/AlgorandTests",
+          "specs/algorand"
+        ],
+        "no_spec_change": false,
+        "no_spec_change_rationale": null,
+        "acceptance_criteria": [
+          "An Ed25519-only SignedTransaction encodes byte-identically to the previous encoder across six envelope vectors (three payments, standalone and grouped). Signing with an account whose address is not the sender emits sgnr automatically; an explicit authAddr that does not equal the signer throws TransactionAuthorizationError.authAddrMismatch. A pqsig envelope carries sch/slt/pk/sig with sch = f1 and, on a live consensus v42 TestNet node via read-only simulate, reaches Falcon signature verification instead of 'scheme not supported'; Address.postQuantum derives the same address the node derives for the same key and salt; a PQ proof that does not derive the authorizing address throws unauthorizedProof; a 1538-byte signature encodes as bin16 without trapping. Swift Testing grows from 57 to 76 tests in four suites with 0 issues on macOS and Linux swift:6.0-jammy, without editing the canonical change's test file; XCTest remains 98 / 20 skipped / 0 failures; the build is warning-free; no public signature is source-breaking."
+        ],
+        "dependencies": [],
+        "supersedes": [
+          {
+            "predecessor_id": "canonical-messagepack-encoding-conformance-for-consensus-v42-omit-empty-fields-messagepack-booleans-box-reference",
+            "obligations": [
+              {
+                "path": "Sources/Algorand/SignedTransaction.swift",
+                "module": "algorand",
+                "predecessor_entry_digest": "b5223f84fa0e116de4b364f877948f277cab91b29050d38362d2fcfbe70f501a"
+              },
+              {
+                "path": "specs/algorand/algorand.spec.md",
+                "module": "algorand",
+                "predecessor_entry_digest": "8fe1bd38b69b9788973af3dca64b9088085434c9d55619a4ec4885fe77969ce7"
+              },
+              {
+                "path": "specs/algorand/requirements.md",
+                "module": "algorand",
+                "predecessor_entry_digest": "9a193c5d10203416d5927f7e51acfdab31deb8c40fdbad091d9a7ddc802a7744"
+              }
+            ]
+          }
+        ],
+        "answers": {
+          "architecture_risk": "yes",
+          "public_contract": "yes"
+        }
+      },
+      "approved_delta_digests": {
+        "algorand": "ae990e6567e36507089caddf61960852ca2f026dff35d2452dd507eb1db84fbd"
+      }
+    }
+  ],
+  "reopenings": []
+}
