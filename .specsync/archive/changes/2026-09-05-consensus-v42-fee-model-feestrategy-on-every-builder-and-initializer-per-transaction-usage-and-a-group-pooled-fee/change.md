@@ -1,6 +1,6 @@
 ---
 id: consensus-v42-fee-model-feestrategy-on-every-builder-and-initializer-per-transaction-usage-and-a-group-pooled-fee
-state: implementing
+state: archived
 type: feature
 base_commit: 4bea6067a5414895918dafcb4fb0cebcf408f4af
 ---

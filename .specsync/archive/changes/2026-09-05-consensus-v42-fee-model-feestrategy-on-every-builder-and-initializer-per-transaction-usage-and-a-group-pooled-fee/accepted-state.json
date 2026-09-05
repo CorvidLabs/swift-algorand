@@ -7,11 +7,11 @@
   "title": "Consensus v42 fee model: FeeStrategy on every builder and initializer, per-transaction usage, and a group-pooled fee requirement",
   "description": "Consensus v42 fee model: FeeStrategy on every builder and initializer, per-transaction usage, and a group-pooled fee requirement",
   "kind": "feature",
-  "state": "verifying",
+  "state": "accepted",
   "canonical_applied": true,
   "base_commit": "4bea6067a5414895918dafcb4fb0cebcf408f4af",
   "created_at": 1788646406,
-  "updated_at": 1788646520,
+  "updated_at": 1788646553,
   "affected_specs": [
     "algorand"
   ],

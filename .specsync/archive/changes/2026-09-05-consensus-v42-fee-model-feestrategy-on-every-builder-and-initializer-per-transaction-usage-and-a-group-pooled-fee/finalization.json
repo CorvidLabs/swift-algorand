@@ -1,0 +1,12 @@
+{
+  "schema_version": 2,
+  "change_id": "consensus-v42-fee-model-feestrategy-on-every-builder-and-initializer-per-transaction-usage-and-a-group-pooled-fee",
+  "implementation_commit": "bc88fac80d74922af38e1106d491576e686a26e3",
+  "implementation_tree": "c1353660d2a920d500cb7e6f181bac4cde915cc6",
+  "contract_digest": "62e40d15a9b9ea5c4a04ad9f955c8b46a41aef91e11b4239a1216e1e0a31db5b",
+  "workspace_digest": "30e88457ce3d443ce1aa3ff0e1b62728c44ebc5248727b21d4cfde4652bd8484",
+  "closing_digest": "9e24bbb036659f18211ffb2efd8c76d1131bce84c4f6f1fb36225663eee9250d",
+  "review_digest": "7005c8e31a81df4eb42d63878744c2ecacd57fd6fd7ecafe3dc99a3c97583107",
+  "finalization_digest": "17900d6a81587fa2e6c4aaa54254625a765c4681fcf6eaf16c8e66f9cacd4bbc",
+  "timestamp": 1788646553
+}
