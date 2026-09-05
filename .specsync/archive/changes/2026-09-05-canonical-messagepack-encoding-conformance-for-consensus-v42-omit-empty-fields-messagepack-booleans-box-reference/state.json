@@ -7,11 +7,11 @@
   "title": "Canonical MessagePack encoding conformance for consensus v42: omit-empty fields, MessagePack booleans, box reference indexes, and grouped transaction IDs",
   "description": "Canonical MessagePack encoding conformance for consensus v42: omit-empty fields, MessagePack booleans, box reference indexes, and grouped transaction IDs",
   "kind": "bug_fix",
-  "state": "verifying",
+  "state": "archived",
   "canonical_applied": true,
   "base_commit": "0d8a85f5c569ac2c9201a8f521ad178354e96f63",
   "created_at": 1788642167,
-  "updated_at": 1788642220,
+  "updated_at": 1788642310,
   "affected_specs": [
     "algorand"
   ],

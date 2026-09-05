@@ -1,6 +1,6 @@
 ---
 id: canonical-messagepack-encoding-conformance-for-consensus-v42-omit-empty-fields-messagepack-booleans-box-reference
-state: implementing
+state: archived
 type: bug_fix
 base_commit: 0d8a85f5c569ac2c9201a8f521ad178354e96f63
 ---

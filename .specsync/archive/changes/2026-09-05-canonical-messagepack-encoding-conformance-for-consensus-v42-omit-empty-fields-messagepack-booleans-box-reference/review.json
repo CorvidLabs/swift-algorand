@@ -1,0 +1,16 @@
+{
+  "schema_version": 2,
+  "change_id": "canonical-messagepack-encoding-conformance-for-consensus-v42-omit-empty-fields-messagepack-booleans-box-reference",
+  "reviewer": "0xLeif",
+  "provenance": {
+    "schema_version": 1,
+    "provider": "github_actions_check",
+    "required_check": "SpecSync scoped review"
+  },
+  "verdict": "pass",
+  "implementation_commit": "8546b6ab64d5f8550fafe6d806573e3e55468c13",
+  "contract_digest": "b6543ec53f2fe8b733f24f715f9268c5a514eec914c8d94fc35203531c6b18c3",
+  "execution_digest": "93ad40659f1c05786f52d039293e5f55bdd1c00ba8b1b5319ef719f92d1d0932",
+  "workspace_digest": "1900189a0fc01f0f0ff24031d7679a35766d2320131b66d99c0784895c2ec251",
+  "timestamp": 1788642223
+}
