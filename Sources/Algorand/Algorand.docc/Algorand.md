@@ -63,3 +63,6 @@ All types are `Sendable` for safe use with Swift concurrency, and network client
 ### Errors
 
 - ``AlgorandError``
+- ``AmountError``
+- ``FeeError``
+- ``TransactionAuthorizationError``
