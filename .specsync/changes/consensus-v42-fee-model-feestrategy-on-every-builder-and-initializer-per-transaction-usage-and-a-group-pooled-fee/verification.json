@@ -1,0 +1,22 @@
+{
+  "timestamp": 1788646519,
+  "commit": "4bea6067a5414895918dafcb4fb0cebcf408f4af",
+  "contract_digest": "62e40d15a9b9ea5c4a04ad9f955c8b46a41aef91e11b4239a1216e1e0a31db5b",
+  "execution_digest": "d33f8efee96a2f9c97fabd0d23c7444c3e2d71cab5447bf98312f14aeec6f692",
+  "workspace_digest": "30e88457ce3d443ce1aa3ff0e1b62728c44ebc5248727b21d4cfde4652bd8484",
+  "passed": true,
+  "commands": [
+    {
+      "command": "specsync check --spec algorand",
+      "success": true,
+      "exit_code": 0
+    }
+  ],
+  "requirement_ids": [
+    "REQ-algorand-024",
+    "REQ-algorand-025",
+    "REQ-algorand-026",
+    "REQ-algorand-027",
+    "REQ-algorand-028"
+  ]
+}

@@ -204,6 +204,56 @@ let transaction = try PaymentTransactionBuilder()
     .build()
 ```
 
+Every transaction type also has an initializer and factories that take the suggested
+parameters directly, so the validity window and genesis data never have to be copied by hand:
+
+```swift
+let optIn = try AssetOptInTransaction(sender: sender, assetID: 12345, params: params)
+let call = try ApplicationCallTransaction.call(sender: sender, applicationID: 7, params: params)
+```
+
+### Fees (consensus v42)
+
+Consensus v42 prices transactions by *usage*: every transaction owes one minimum fee, plus
+0.0001 of a minimum fee per note byte beyond 1024, per application-argument byte beyond 2048,
+and per program byte beyond 8192, plus two minimum fees for a Falcon-1024 envelope. The network
+checks the **sum** of a group's fees against the **sum** of its members' usage, rounded up once.
+
+Every builder and params-based initializer takes a `FeeStrategy`, `.minimum` by default:
+
+```swift
+// .minimum: the v42 requirement for this transaction alone, from params.minFee
+let payment = try PaymentTransaction(sender: sender, receiver: receiver, amount: 1, params: params)
+
+// .flat: exactly this fee, including 0 for a member another member pays for
+let covered = try PaymentTransaction(sender: sender, receiver: receiver, amount: 1,
+                                     fee: .flat(0), params: params)
+
+// .suggested: the node's per-byte fee over the signed size, never below .minimum
+let urgent = try PaymentTransactionBuilder().sender(sender).receiver(receiver)
+    .amount(1).params(params).fee(.suggested).build()
+```
+
+A group is priced as a whole. Build the members with placeholder fees, ask the group what it
+needs, and rebuild the paying member, because the fee is part of the bytes that are signed:
+
+```swift
+let drafts = try AtomicTransactionGroup(transactions: [payment, covered])
+let required = try drafts.requiredFee(minFee: MicroAlgos(params.minFee))
+let payer = try PaymentTransaction(sender: sender, receiver: receiver, amount: 1,
+                                   fee: .flat(required), params: params)
+let group = try AtomicTransactionGroup(transactions: [payer, covered])
+let signed = try SignedAtomicTransactionGroup.sign(group, with: [0: account, 1: other])
+try signed.checkFees(minFee: MicroAlgos(params.minFee))  // throws FeeError.insufficient
+```
+
+`Transaction.feeUsage()` and `SignedTransaction.feeUsage()` expose the usage itself, in
+micro-units where `1_000_000` is one minimum fee, so a Falcon-1024 signer can be priced ahead of
+signing with `PQScheme.falcon1024.feeUsage`. Fee arithmetic throws `FeeError.overflow` rather
+than saturating. The header-field initializers keep a fixed default of
+`AlgorandConsensus.v42.minimumFee` (1000 microAlgos) because they never see the network's
+parameters.
+
 ### Signing
 
 Sign transactions with an account:

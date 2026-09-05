@@ -1,55 +1,11 @@
----
-module: algorand
-version: 6
-status: active
-files:
-  - Package.swift
-  - Sources/Algorand/Account.swift
-  - Sources/Algorand/Address+PostQuantum.swift
-  - Sources/Algorand/Address.swift
-  - Sources/Algorand/AlgodClient.swift
-  - Sources/Algorand/AlgorandConfiguration.swift
-  - Sources/Algorand/AlgorandConsensus.swift
-  - Sources/Algorand/AlgorandError.swift
-  - Sources/Algorand/ApplicationTransaction.swift
-  - Sources/Algorand/AssetTransaction.swift
-  - Sources/Algorand/AtomicTransactionGroup+Fees.swift
-  - Sources/Algorand/AtomicTransactionGroup.swift
-  - Sources/Algorand/BIP39Wordlist.swift
-  - Sources/Algorand/CanonicalBoxReferences.swift
-  - Sources/Algorand/CanonicalTransactionFields.swift
-  - Sources/Algorand/Edwards25519.swift
-  - Sources/Algorand/FeeError.swift
-  - Sources/Algorand/FeeStrategy.swift
-  - Sources/Algorand/IndexerClient.swift
-  - Sources/Algorand/KeyRegistrationTransaction.swift
-  - Sources/Algorand/MessagePackWriter.swift
-  - Sources/Algorand/MicroAlgos.swift
-  - Sources/Algorand/Mnemonic.swift
-  - Sources/Algorand/PQScheme.swift
-  - Sources/Algorand/PQSignature.swift
-  - Sources/Algorand/PaymentTransaction.swift
-  - Sources/Algorand/SHA512_256.swift
-  - Sources/Algorand/SecureRandom.swift
-  - Sources/Algorand/SignedTransaction.swift
-  - Sources/Algorand/Transaction+Signing.swift
-  - Sources/Algorand/Transaction.swift
-  - Sources/Algorand/TransactionAuthorization.swift
-  - Sources/Algorand/TransactionSigner.swift
-  - Sources/Algorand/TransactionUsage.swift
+# algorand
 
-db_tables: []
-depends_on: []
----
+## MODIFIED
 
-# Swift Algorand SDK
-
-## Purpose
-
+### SPEC SECTION Purpose
 Provide the existing Swift SDK primitives for Algorand accounts, addresses, amounts, mnemonics, transactions priced under the consensus v42 usage-based fee model, signing (Ed25519 and, since consensus v42, native post-quantum Falcon-1024 through a caller-supplied signer), atomic groups with a pooled fee requirement, and asynchronous Algod and Indexer clients across the package's supported Apple and Linux platforms.
 
-## Public API
-
+### SPEC SECTION Public API
 ### Contract groups
 
 | Existing surface | Contract |
@@ -447,8 +403,7 @@ SpecSync 6.0.0 extracts the following 378 unique public symbols from the 33 cano
 | `overflow` |
 | `insufficient` |
 
-## Invariants
-
+### SPEC SECTION Invariants
 1. Address, mnemonic, key, signature, transaction, and MessagePack representations must preserve the existing Algorand protocol encodings and validation behavior, where the transaction encoding is go-algorand v5.0.1-stable's canonical omit-empty form.
 2. Transaction builders must reject incomplete or invalid inputs rather than construct an apparently valid transaction.
 3. Network clients use asynchronous APIs and surface transport, decoding, and protocol failures as errors.
@@ -460,8 +415,7 @@ SpecSync 6.0.0 extracts the following 378 unique public symbols from the 33 cano
 9. `sgnr` is present exactly when the signer's address differs from the sender. A post-quantum proof is attached only after its scheme, salt, and public key are shown to derive the authorizer, and the signing preimage `"TX" || msgpack(txn)` is handed to signers unhashed. No Falcon implementation is bundled; signatures come from a caller-supplied `TransactionSigner`.
 10. Fees follow consensus v42's usage model. Every transaction owes `1_000_000` micro-units of usage plus `100` per note byte beyond 1024; an application call adds `100` per application-argument byte beyond 2048 and per approval-plus-clear-state program byte beyond 8192; a Falcon-1024 envelope adds `2_000_000`; `apep`, boxes, accounts, foreign references, schemas, and Ed25519 signatures add nothing. A group's requirement is `ceil(sum(usage) * minFee / 1_000_000)` over the pooled usage of its members, compared with the sum of their fees, with no per-transaction check. A `FeeStrategy` is resolved for one transaction against suggested parameters, `.minimum` by default; the header-field initializers default to `AlgorandConsensus.v42.minimumFee`. Fee arithmetic throws `FeeError.overflow` and never saturates, and a transaction whose fee is given explicitly encodes byte-identically to every previous release.
 
-## Behavioral Examples
-
+### SPEC SECTION Behavioral Examples
 ```
 Given a valid account and complete payment parameters
 When a payment transaction is built, signed, and encoded
@@ -498,8 +452,7 @@ When the group's requiredFee(minFee:) is placed on the first member and the grou
 Then checkFees(minFee:) passes, a consensus v42 node reports group-usage 2000000 and group-fees-paid equal to that fee, and one microAlgo less throws FeeError.insufficient locally
 ```
 
-## Error Cases
-
+### SPEC SECTION Error Cases
 | Error | When | Behavior |
 |-------|------|----------|
 | Invalid address or mnemonic | Input fails protocol validation | Return a typed error without creating an account value |
@@ -517,25 +470,50 @@ Then checkFees(minFee:) passes, a consensus v42 node reports group-usage 2000000
 
 No new `AlgorandError` case is introduced. `TransactionAuthorizationError` is the one error type added by the post-quantum envelope change and `FeeError` the one added by the fee-model change; Ed25519 signature bytes are carried verbatim and never validated locally. A box reference naming an application absent from `apfa` appends that application rather than failing, up to the limit above.
 
-## Dependencies
-
-- Swift 6.0 or newer
-- `swift-crypto` for cross-platform cryptographic primitives
-- Foundation networking and Swift concurrency
-- Swift-DocC plugin for independent documentation publication
-
-## Change Log
-
-| Version | Date | Changes |
-|---------|------|---------|
-| 1 | 2026-07-12 | Initial spec |
-| 2 | 2026-07-14 | Adopt SpecSync 5.0.1 and Trust 1.0.0 governance with complete source, export, and requirement coverage. |
-| 3 | 2026-09-05 | CHG-0001-adopt-specsync-5-0-1-and-trust-1-0-0-governance-for-the-swift-algorand-sdk: Adopt SpecSync 5.0.1 and Trust 1.0.0 governance for the Swift Algorand SDK |
-| 4 | 2026-09-05 | canonical-messagepack-encoding-conformance-for-consensus-v42-omit-empty-fields-messagepack-booleans-box-reference: Canonical MessagePack encoding conformance for consensus v42: omit-empty fields, MessagePack booleans, box reference indexes, and grouped transaction IDs |
-| 5 | 2026-09-05 | post-quantum-signedtransaction-envelope-for-consensus-v42-sgnr-rekey-inference-pqsig-with-falcon-1024-address: Post-quantum SignedTransaction envelope for consensus v42: sgnr rekey inference, pqsig with Falcon-1024 address derivation, a callback TransactionSigner, and bin16 signatures |
-| 6 | 2026-09-05 | consensus-v42-fee-model-feestrategy-on-every-builder-and-initializer-per-transaction-usage-and-a-group-pooled-fee: Consensus v42 fee model: FeeStrategy on every builder and initializer, per-transaction usage, and a group-pooled fee requirement |
-
-## Complete API and source inventory
-
+### SPEC SECTION Complete API and source inventory
 The active spec maps all 33 canonical Swift source files and documents all 378 unique public symbols extracted by SpecSync 6.0.0. The inventory is organized by accounts and cryptography, canonical protocol encoding, signed-transaction envelopes and post-quantum authorization, the consensus v42 fee model, transaction families, atomic grouping, Algod, Indexer, response models, configuration, and errors. The two files added for canonical encoding, `CanonicalTransactionFields.swift` and `CanonicalBoxReferences.swift`, and the `Edwards25519.swift` point predicate added for post-quantum address derivation are internal and contribute no public symbol. The other six files added by the post-quantum envelope change (`Address+PostQuantum.swift`, `PQScheme.swift`, `PQSignature.swift`, `Transaction+Signing.swift`, `TransactionAuthorization.swift`, `TransactionSigner.swift`) contribute the 17 names listed at the end of the export inventory. The five files added by the consensus v42 fee-model change (`AlgorandConsensus.swift`, `AtomicTransactionGroup+Fees.swift`, `FeeError.swift`, `FeeStrategy.swift`, `TransactionUsage.swift`) contribute the 17 names listed last in the export inventory.
 
+## ADDED
+
+### REQUIREMENT REQ-algorand-024
+Every transaction builder, params-based initializer, and params-based factory SHALL accept a `FeeStrategy` — `.minimum` (the default), `.flat(MicroAlgos)`, or `.suggested` — and SHALL resolve it against `TransactionParams` for the transaction alone: `.minimum` is `ceil(usage * min-fee / 1_000_000)`, `.flat` is carried verbatim including zero, and `.suggested` is `max(minimum, fee * (encoded size + 75))` when the per-byte `fee` is non-zero and the minimum otherwise. `TransactionParams` SHALL decode the per-byte `fee`, defaulting to 0 when absent, and SHALL offer a public memberwise initializer. The header-field initializers and factories SHALL keep their signatures and SHALL default `fee` to `AlgorandConsensus.v42.minimumFee`.
+
+Acceptance Criteria
+- `testMinimumStrategyReadsMinFeeFromParams` reproduces the `pay_min_fee_from_params` golden bytes and transaction ID through both `PaymentTransactionBuilder` and `PaymentTransaction.init(sender:receiver:amount:fee:params:validRounds:note:lease:rekeyTo:closeRemainderTo:)`.
+- `testMinimumStrategyPricesUsage`, `testFlatStrategyIsCarriedVerbatim`, `testSuggestedStrategyFloorsAtMinimum`, `testStrategyResolvesForAnyTransaction`, `testBuilderFeeOverloads`, `testParamsInitializersAndFactoriesAcrossTypes` (all eight params-based initializers and all eleven params-based factories), `testHeaderFieldInitializersDefaultToTheCertifiedMinimum`, `testTransactionParamsDecodesFeePerByte`, and `testValidRoundsOverflowIsAnError` pass.
+- Every pre-existing XCTest compiles and passes unchanged: 98 executed, 20 skipped, 0 failures.
+
+*Rationale: 21 initializer and factory defaults and the builder's stored `fee` hardcoded `MicroAlgos(1000)` while `TransactionParams.minFee` was decoded and never read; the header-field forms cannot read parameters they are not given, so they keep a named protocol constant instead of a magic number.*
+
+### REQUIREMENT REQ-algorand-025
+`Transaction.feeUsage()` SHALL return the consensus v42 usage in micro-units: `1_000_000` plus `100` per note byte beyond 1024. `ApplicationCallTransaction.feeUsage()` SHALL add `100` per application-argument byte beyond 2048, summed over every argument, and `100` per approval-plus-clear-state program byte beyond 8192; `extraPages`, boxes, accounts, foreign references, and schemas SHALL contribute nothing. `PQScheme.feeUsage` SHALL be `2_000_000` for Falcon-1024 and 0 for any other scheme, `TransactionAuthorization.feeUsage` SHALL be 0 for Ed25519, and `SignedTransaction.feeUsage()` SHALL be the sum of the transaction's and the authorization's usage. `TransactionUsage.fee(minFee:)` SHALL be `ceil(micros * minFee / 1_000_000)` computed at full 128-bit width.
+
+Acceptance Criteria
+- `testHeaderUsageIsOneFeePlusNoteSurcharge` reports 1000000, 1000000, 1000100, 1097600, and 1307200 micro-units for notes of 0, 1024, 1025, 2000, and 4096 bytes, and fees of 1000, 1000, 1001, 1098, 1308 at `minFee` 1000 and 2000, 2000, 2001, 2196, 2615 at `minFee` 2000.
+- `testNonApplicationTypesUseHeaderUsageOnly`, `testApplicationUsagePricesArgumentsAndPrograms`, `testSignatureUsage`, and `testFeeRoundsUpOnce` pass.
+- Live: a TestNet v42 node's `group-usage` equals the SDK's usage for a 2000-byte-note payment (1097600), an application create with 4000 argument bytes (1195200), and one with 12000 program bytes over five extra pages (1380800).
+
+### REQUIREMENT REQ-algorand-026
+`AtomicTransactionGroup.feeUsage()` SHALL sum the members' usage as Ed25519-signed transactions, `SignedAtomicTransactionGroup.feeUsage()` SHALL sum the envelopes' usage including post-quantum contributions, `requiredFee(minFee:)` on both SHALL be a single rounding over the pooled usage, and `SignedAtomicTransactionGroup.checkFees(minFee:)` SHALL return the requirement or throw `FeeError.insufficient(required:paid:)` when the members' fees sum to less. No per-transaction fee check SHALL be made: a member may carry a zero fee when another member covers it.
+
+Acceptance Criteria
+- `testGroupUsageIsPooled` shows two members whose own requirements are 1001 each pooling to 2001, not 2002.
+- `testSignedGroupCheckFees` accepts a group paying 2000 on the first member and 0 on the second, and reports `insufficient(required: 2000, paid: 1999)` when one microAlgo short.
+- `testSignedGroupCountsPostQuantumEnvelopes` raises a two-member requirement from 2000 to 4000 for one Falcon-1024 envelope, equal to `group.feeUsage().adding(PQScheme.falcon1024.feeUsage)`.
+- Live: the pooled two-payment group simulates on TestNet v42 with `group-usage` 2000000 and `group-fees-paid` 2000, and the mixed payment-plus-application group with `group-usage` 2292800, both reaching `overspend` past signature verification.
+
+### REQUIREMENT REQ-algorand-027
+Fee arithmetic SHALL never saturate: `TransactionUsage.adding(_:)`, `TransactionUsage.fee(minFee:)`, `FeeStrategy.suggested`, and the paid-fee total in `checkFees(minFee:)` SHALL throw `FeeError.overflow` when a value exceeds 64 bits, and a validity window past `UInt64.max` SHALL throw `AlgorandError.invalidTransaction`. `FeeError` SHALL be the only error type added; no `AlgorandError` case is added and `MicroAlgos` arithmetic is untouched.
+
+Acceptance Criteria
+- `testOverflowThrowsInsteadOfSaturating` covers the usage product, the usage sum, the suggested per-byte product, and the paid-fee total, and shows `UInt64.max` usage at `minFee` 1000000 resolving to `MicroAlgos(UInt64.max)` exactly rather than overflowing.
+- `testValidRoundsOverflowIsAnError` and `testFeeErrorsDescribeThemselves` pass.
+- `Sources/Algorand/MicroAlgos.swift` and `Sources/Algorand/AlgorandError.swift` are unchanged from the base tree.
+
+### REQUIREMENT REQ-algorand-028
+`AlgorandConsensus.v42` SHALL name the certified protocol by its exact `consensus-version` identifier, `https://github.com/algorandfoundation/specs/tree/268b63433a907455d439995bf916f6b296018f4f`, and its `MinTxnFee` of 1000 microAlgos. A transaction whose fee is given explicitly SHALL encode byte-identically to the base tree, and a params-based transaction SHALL encode byte-identically to the header-field form carrying the same fields.
+
+Acceptance Criteria
+- `testHeaderFieldInitializersDefaultToTheCertifiedMinimum` checks the identifier and the 1000 microAlgo minimum, and `testParamsInitializerMatchesHeaderFieldInitializer` matches a payment and an application call byte-for-byte across the two initializer forms.
+- A harness built once against 4bea606 and once against this change prints identical output for 20 transactions bare and grouped, four signed envelopes standalone and grouped, and one group identifier (47 lines, `cmp` silent).
+- Live: `GET /v2/transactions/params` on TestNet reports exactly that identifier as `consensus-version`.
