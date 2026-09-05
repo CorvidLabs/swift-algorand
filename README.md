@@ -5,7 +5,7 @@
 [![License](https://img.shields.io/github/license/CorvidLabs/swift-algorand)](https://github.com/CorvidLabs/swift-algorand/blob/main/LICENSE)
 [![Version](https://img.shields.io/github/v/release/CorvidLabs/swift-algorand)](https://github.com/CorvidLabs/swift-algorand/releases)
 
-> **Pre-1.0 Notice**: This SDK is under active development. The API may change between minor versions until 1.0.
+> **Pre-1.0 Notice**: This SDK is under active development. The API may change between minor versions until 1.0. The latest release is in the `0.3.x` line.
 
 A modern Swift SDK for the Algorand blockchain. Built with Swift 6 and async/await.
 
@@ -25,9 +25,14 @@ Add Algorand to your `Package.swift`:
 
 ```swift
 dependencies: [
-    .package(url: "https://github.com/CorvidLabs/swift-algorand.git", from: "0.1.0")
+    .package(url: "https://github.com/CorvidLabs/swift-algorand.git", .upToNextMinor(from: "0.3.2"))
 ]
 ```
+
+`.upToNextMinor` pins to the `0.3.x` line. This is deliberate: SwiftPM's `from:` means
+`.upToNextMajor`, so `from: "0.3.2"` would accept any version below `1.0.0` — including a
+`0.4.0` that, per the pre-1.0 notice above, may break your build. Use `from:` only once 1.0
+has shipped.
 
 Then add the dependency to your target:
 
@@ -44,12 +49,15 @@ Or add it via Xcode:
 1. File > Add Package Dependencies
 2. Enter: `https://github.com/CorvidLabs/swift-algorand.git`
 
+The package vends a single library product, `Algorand`. It ships no executables.
+
 ## Documentation
 
 - **[Getting Started](documentation/GETTING_STARTED.md)** - Step-by-step guide for your first transaction
-- **[Quick Start](documentation/QUICKSTART.md)** - Test the SDK in 5 minutes
-- **[Testing Guide](documentation/TESTING.md)** - Comprehensive testing instructions
-- **[Security](documentation/SECURITY.md)** - Best practices for production use
+- **[Quick Start](documentation/QUICKSTART.md)** - Get a working program in 5 minutes
+- **[Testing Guide](documentation/TESTING.md)** - How the test suite is gated and how to run it
+- **[Security Best Practices](documentation/SECURITY.md)** - Guidance for production use
+- **[Security Policy](SECURITY.md)** - How to report a vulnerability
 - **[Contributing](CONTRIBUTING.md)** - How to contribute to the project
 
 ## Quick Start
@@ -59,13 +67,16 @@ Or add it via Xcode:
 ```swift
 import Algorand
 
-// Create a new random account
-let account = Account()
+// Create a new random account. `Account()` can throw - key generation uses the platform CSPRNG.
+let account = try Account()
 print("Address: \(account.address)")
-print("Mnemonic: \(account.mnemonic)")
 
-// Import an existing account from mnemonic
-let existingAccount = try Account(mnemonic: "your 25 word mnemonic here...")
+// The mnemonic is derived on demand by a throwing method, not stored as a property.
+let mnemonic = try account.mnemonic()
+print("Mnemonic: \(mnemonic)")  // Store this securely. Never commit it.
+
+// Import an existing account from a 25-word mnemonic
+let existingAccount = try Account(mnemonic: mnemonic)
 ```
 
 ### Connecting to the Network
@@ -108,9 +119,13 @@ let signedTxn = try SignedTransaction.sign(transaction, with: account)
 let txID = try await algod.sendTransaction(signedTxn)
 print("Transaction ID: \(txID)")
 
-// Wait for confirmation
-let confirmedTxn = try await algod.waitForConfirmation(transactionID: txID)
-print("Confirmed in round: \(confirmedTxn.confirmedRound!)")
+// Wait for confirmation. `confirmedRound` is optional - never force unwrap it.
+let confirmed = try await algod.waitForConfirmation(transactionID: txID)
+if let round = confirmed.confirmedRound {
+    print("Confirmed in round: \(round)")
+} else {
+    print("Submitted but not yet confirmed")
+}
 ```
 
 ### Querying Blockchain Data
@@ -131,10 +146,10 @@ for txn in txns.transactions {
     print("Transaction \(txn.id) in round \(txn.confirmedRound ?? 0)")
 }
 
-// Search for assets
+// Search for assets. `limit` precedes `name` in the declaration, so it comes first here.
 let assets = try await indexer.searchAssets(
-    name: "USDC",
-    limit: 5
+    limit: 5,
+    name: "USDC"
 )
 
 for asset in assets.assets {
@@ -146,14 +161,14 @@ for asset in assets.assets {
 
 ### Addresses
 
-Algorand addresses are represented by the `Address` type:
+Algorand addresses are represented by the `Address` type. Both initializers throw:
 
 ```swift
 // From string
-let address = try Address(string: "YOUR_ADDRESS_HERE")
+let fromString = try Address(string: "YOUR_ADDRESS_HERE")
 
-// From bytes
-let address = try Address(bytes: publicKeyBytes)
+// From 32 raw public key bytes
+let fromBytes = try Address(bytes: publicKeyBytes)
 ```
 
 ### Amounts
@@ -162,19 +177,20 @@ Amounts are type-safe with `MicroAlgos`:
 
 ```swift
 // From microAlgos (1 ALGO = 1,000,000 microAlgos)
-let amount = MicroAlgos(1_000_000)
+let fromMicroAlgos = MicroAlgos(1_000_000)
 
 // From Algos
-let amount = MicroAlgos(algos: 1.0)
+let fromAlgos = MicroAlgos(algos: 1.0)
 
 // Arithmetic operations
 let total = MicroAlgos(algos: 1.0) + MicroAlgos(algos: 2.0)
-let doubled = amount * 2
+let doubled = fromAlgos * 2  // scalar multiplication takes a UInt64
 ```
 
 ### Transactions
 
-Build transactions using the builder pattern:
+Build transactions using the builder pattern. Every builder method returns a new builder,
+and `build()` throws when a required field is missing:
 
 ```swift
 let transaction = try PaymentTransactionBuilder()
@@ -200,11 +216,14 @@ let signedTxn = try SignedTransaction.sign(transaction, with: account)
 The SDK is organized into several key components:
 
 - **Core Types**: `Address`, `MicroAlgos`, `Account`
-- **Transactions**: `PaymentTransaction`, `SignedTransaction`
+- **Transactions**: `PaymentTransaction`, `AssetTransaction`, `ApplicationTransaction`,
+  `KeyRegistrationTransaction`, `AtomicTransactionGroup`, `SignedTransaction`
 - **Clients**: `AlgodClient` (node interaction), `IndexerClient` (queries)
-- **Mnemonics**: BIP-39 mnemonic generation and validation
+- **Mnemonics**: BIP-39 wordlist based 25-word mnemonic encoding and decoding
 
-All clients use Swift's modern `async/await` concurrency model and are implemented as `actor` types for thread safety.
+`AlgodClient` and `IndexerClient` are `actor` types and expose only `async` methods. Each
+client owns a dedicated `URLSession` with a 30s per-request and 60s per-resource timeout,
+both configurable at init.
 
 ## Network Providers
 
@@ -226,72 +245,61 @@ let algod = try AlgodClient(
 )
 ```
 
+`AlgorandConfiguration` bundles a network with its URLs and token if you would rather not
+hardcode endpoints:
+
+```swift
+let configuration = AlgorandConfiguration.testnet()
+let algod = AlgodClient(baseURL: configuration.algodURL, apiToken: configuration.apiToken)
+```
+
 ## Testing
 
-The SDK supports testing against three networks:
-
-### LocalNet (Recommended for Development)
+### Unit tests (no network, no Docker)
 
 ```bash
-# Start local Algorand network with Docker
-docker-compose up -d
+swift test --skip IntegrationTest --skip ProofOfWorkTest
+```
 
-# Run integration tests
+Runs 77 tests covering addresses, mnemonics, MicroAlgos arithmetic, SHA-512/256, and
+offline construction and encoding of every transaction type the SDK models: `pay`,
+`keyreg`, `acfg`, `axfer`, `afrz`, `appl`, and atomic groups.
+
+### Full suite the way CI runs it
+
+```bash
+CI=true swift test
+```
+
+Setting `CI` makes the integration suites skip themselves. This executes 98 tests with 20
+skipped and 0 failures.
+
+### Integration tests against a local node
+
+```bash
 ALGORAND_NETWORK=localnet swift test
-
-# Manual testing
-ALGORAND_NETWORK=localnet swift run algorand-example
 ```
 
-### TestNet (Public Test Network)
+`ALGORAND_NETWORK` is the only network variable the test suite reads, and every integration
+test is gated on it being `localnet`. Pointing it at `testnet` or `mainnet` makes the tests
+run and immediately skip, so it is not a way to exercise those networks. The mutating
+integration tests additionally shell out to Docker to fund accounts and have further
+environment requirements. See the [Testing Guide](documentation/TESTING.md) before relying
+on them.
 
-```bash
-# Create account and get test funds
-ALGORAND_NETWORK=testnet swift run algorand-example
-# Fund at: https://bank.testnet.algorand.network/
-
-# Test with your account
-export ALGORAND_MNEMONIC="your 25 word mnemonic"
-ALGORAND_NETWORK=testnet SEND_TRANSACTION=1 swift run algorand-example
-```
-
-### MainNet (Production)
-
-```bash
-# Read-only queries (safe)
-ALGORAND_NETWORK=mainnet swift run algorand-example
-```
-
-See [Testing Guide](documentation/TESTING.md) for detailed testing instructions.
+To exercise TestNet or MainNet, write a small program against the library - the
+[Quick Start guide](documentation/QUICKSTART.md) has a complete one you can copy.
 
 ## Requirements
 
 - Swift 6.0+
 - iOS 15.0+ / macOS 11.0+ / tvOS 15.0+ / watchOS 8.0+ / visionOS 1.0+
 - Linux (with Swift 6.0+)
-- Docker (optional, for localnet testing)
+- Docker (optional, only for the LocalNet integration tests)
 
 ## License
 
 MIT License - See LICENSE file for details
-
-## Examples
-
-The repository includes runnable examples in [Sources/AlgorandExample](Sources/AlgorandExample):
-
-- **SendTransaction.swift** - Payment transaction example
-- **AllTransactionTypes.swift** - Demonstrations of all transaction types
-- **AssetExamples.swift** - Asset creation and management
-
-Run the examples:
-```bash
-# Run with TestNet
-ALGORAND_NETWORK=testnet swift run algorand-example
-
-# Run with LocalNet
-docker-compose up -d
-ALGORAND_NETWORK=localnet swift run algorand-example
-```
 
 ## Contributing
 
@@ -299,9 +307,10 @@ Contributions are welcome! See [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines
 
 ## Resources
 
-- [Algorand Developer Portal](https://developer.algorand.org)
-- [Algorand REST API](https://developer.algorand.org/docs/rest-apis/algod/)
-- [Indexer API](https://developer.algorand.org/docs/rest-apis/indexer/)
+- [Algorand Developer Portal](https://dev.algorand.co/)
+- [Algorand REST API reference](https://dev.algorand.co/reference/rest-api/overview/)
+- [TestNet dispenser](https://bank.testnet.algorand.network/)
+- [Lora block explorer](https://lora.algokit.io/testnet)
 
 ## Credits
 
