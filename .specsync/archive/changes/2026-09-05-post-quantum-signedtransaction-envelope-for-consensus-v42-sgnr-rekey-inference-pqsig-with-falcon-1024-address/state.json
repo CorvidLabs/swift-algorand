@@ -7,11 +7,11 @@
   "title": "Post-quantum SignedTransaction envelope for consensus v42: sgnr rekey inference, pqsig with Falcon-1024 address derivation, a callback TransactionSigner, and bin16 signatures",
   "description": "Post-quantum SignedTransaction envelope for consensus v42: sgnr rekey inference, pqsig with Falcon-1024 address derivation, a callback TransactionSigner, and bin16 signatures",
   "kind": "feature",
-  "state": "verifying",
+  "state": "archived",
   "canonical_applied": true,
   "base_commit": "5d081e67f076220c6c00f253bb1e67c552af49a8",
   "created_at": 1788643272,
-  "updated_at": 1788643304,
+  "updated_at": 1788643397,
   "affected_specs": [
     "algorand"
   ],

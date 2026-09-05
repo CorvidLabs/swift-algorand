@@ -1,6 +1,6 @@
 ---
 id: post-quantum-signedtransaction-envelope-for-consensus-v42-sgnr-rekey-inference-pqsig-with-falcon-1024-address
-state: implementing
+state: archived
 type: feature
 base_commit: 5d081e67f076220c6c00f253bb1e67c552af49a8
 ---
