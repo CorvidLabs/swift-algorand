@@ -1,6 +1,6 @@
 ---
 module: algorand
-version: 2
+version: 4
 status: active
 files:
   - Package.swift
@@ -13,6 +13,8 @@ files:
   - Sources/Algorand/AssetTransaction.swift
   - Sources/Algorand/AtomicTransactionGroup.swift
   - Sources/Algorand/BIP39Wordlist.swift
+  - Sources/Algorand/CanonicalBoxReferences.swift
+  - Sources/Algorand/CanonicalTransactionFields.swift
   - Sources/Algorand/IndexerClient.swift
   - Sources/Algorand/KeyRegistrationTransaction.swift
   - Sources/Algorand/MessagePackWriter.swift
@@ -41,7 +43,7 @@ Provide the existing Swift SDK primitives for Algorand accounts, addresses, amou
 | Existing surface | Contract |
 |---|---|
 | Accounts, addresses, mnemonics, hashes, and amounts | Validate protocol representations, create or restore keys, sign and verify bytes, and preserve Algorand encodings. |
-| Transactions and MessagePack | Build and encode payment, asset, application, and key-registration transactions with explicit invalid-input failures. |
+| Transactions and MessagePack | Build and encode payment, asset, application, and key-registration transactions in go-algorand's canonical omit-empty MessagePack form, with explicit invalid-input failures. |
 | Atomic groups and signed transactions | Preserve transaction order, derive one group identifier, sign with the matching accounts, and encode submission payloads. |
 | `AlgodClient` | Asynchronously read node state, submit transactions, wait for confirmations, inspect applications/assets/boxes, and simulate transaction groups. |
 | `IndexerClient` | Asynchronously query indexed accounts, transactions, assets, applications, blocks, pagination, and health. |
@@ -50,7 +52,7 @@ Provide the existing Swift SDK primitives for Algorand accounts, addresses, amou
 
 ### Complete Swift export inventory
 
-SpecSync 5.0.1 extracts the following 344 unique public symbols from the 19 canonical Swift source files. Repeated property names appear once because coverage is symbol-name based.
+SpecSync 5.0.1 extracts the following 344 unique public symbols from the 21 canonical Swift source files. Repeated property names appear once because coverage is symbol-name based.
 
 | Symbol |
 |---|
@@ -401,11 +403,13 @@ SpecSync 5.0.1 extracts the following 344 unique public symbols from the 19 cano
 
 ## Invariants
 
-1. Address, mnemonic, key, signature, transaction, and MessagePack representations must preserve the existing Algorand protocol encodings and validation behavior.
+1. Address, mnemonic, key, signature, transaction, and MessagePack representations must preserve the existing Algorand protocol encodings and validation behavior, where the transaction encoding is go-algorand v5.0.1-stable's canonical omit-empty form.
 2. Transaction builders must reject incomplete or invalid inputs rather than construct an apparently valid transaction.
 3. Network clients use asynchronous APIs and surface transport, decoding, and protocol failures as errors.
 4. Atomic transaction groups preserve ordering and assign one deterministic group identifier to the grouped transactions.
 5. Credentialed TestNet sends and live network checks remain explicitly authorized and outside the blocking pull-request lane.
+6. Every transaction field passes through one internal omit-empty choke point, and every transaction type installs its shared header through one call. A field is written only when it differs from its go-algorand zero value. Boolean fields are encoded as MessagePack booleans and omitted when false. Box references carry an `apfa` slot index — `0` for the called application, otherwise the 1-based position — never a raw application identifier, and an undeclared application is appended to `apfa` up to the eight-application limit.
+7. The bytes signed and the bytes submitted are produced by the same encoding call, and a transaction identifier is always the hash of the bytes that were signed. For a transaction signed as part of an atomic group that means the encoding including `grp`.
 
 ## Behavioral Examples
 
@@ -413,6 +417,12 @@ SpecSync 5.0.1 extracts the following 344 unique public symbols from the 19 cano
 Given a valid account and complete payment parameters
 When a payment transaction is built, signed, and encoded
 Then the result preserves the documented Algorand fields and can be submitted by an authorized caller
+```
+
+```
+Given a payment whose fee, note, and lease are zero or empty
+When the transaction is encoded and signed
+Then those fields are absent from the encoding, and a consensus v42 node accepts the signature
 ```
 
 ## Error Cases
@@ -423,6 +433,10 @@ Then the result preserves the documented Algorand fields and can be submitted by
 | Incomplete transaction | A required builder field is absent | Return an error instead of producing a transaction |
 | Invalid signature or group | Cryptographic or grouping validation fails | Reject the operation |
 | Network failure | A node or indexer request fails or returns invalid data | Surface an asynchronous error |
+| Encoding failure | A transaction map exceeds MessagePack's map or array limits | Throw `AlgorandError.encodingError` rather than emit a truncated encoding |
+| Too many foreign applications | Box references would extend `apfa` past eight entries | Throw `AlgorandError.invalidTransaction` at encode time rather than let the node reject it |
+
+No new `AlgorandError` case is introduced. A box reference naming an application absent from `apfa` appends that application rather than failing, up to the limit above.
 
 ## Dependencies
 
@@ -437,7 +451,10 @@ Then the result preserves the documented Algorand fields and can be submitted by
 |---------|------|---------|
 | 1 | 2026-07-12 | Initial spec |
 | 2 | 2026-07-14 | Adopt SpecSync 5.0.1 and Trust 1.0.0 governance with complete source, export, and requirement coverage. |
+| 3 | 2026-09-05 | CHG-0001-adopt-specsync-5-0-1-and-trust-1-0-0-governance-for-the-swift-algorand-sdk: Adopt SpecSync 5.0.1 and Trust 1.0.0 governance for the Swift Algorand SDK |
+| 4 | 2026-09-05 | canonical-messagepack-encoding-conformance-for-consensus-v42-omit-empty-fields-messagepack-booleans-box-reference: Canonical MessagePack encoding conformance for consensus v42: omit-empty fields, MessagePack booleans, box reference indexes, and grouped transaction IDs |
 
 ## Complete API and source inventory
 
-The active spec maps all 19 canonical Swift source files and documents all 344 unique public symbols extracted by SpecSync 5.0.1. The inventory is organized by accounts and cryptography, protocol encoding, transaction families, atomic grouping, Algod, Indexer, response models, configuration, and errors.
+The active spec maps all 21 canonical Swift source files and documents all 344 unique public symbols extracted by SpecSync 5.0.1. The inventory is organized by accounts and cryptography, canonical protocol encoding, transaction families, atomic grouping, Algod, Indexer, response models, configuration, and errors. The two files added for canonical encoding, `CanonicalTransactionFields.swift` and `CanonicalBoxReferences.swift`, are internal and contribute no public symbol.
+

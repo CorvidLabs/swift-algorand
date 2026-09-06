@@ -9,7 +9,7 @@
   "canonical_applied": true,
   "base_commit": "0a792af561f4136451cdd4823f2c6cb8e8f15d25",
   "created_at": 1783885270,
-  "updated_at": 1784023557,
+  "updated_at": 1788569182,
   "affected_specs": [
     "algorand"
   ],

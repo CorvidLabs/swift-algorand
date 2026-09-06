@@ -2,15 +2,31 @@
 
 This guide will help you get started with the Algorand Swift SDK.
 
+> The package is pre-1.0. The API may change between minor versions until 1.0.
+
 ## Installation
 
 Add the package to your `Package.swift`:
 
 ```swift
 dependencies: [
-    .package(url: "https://github.com/CorvidLabs/swift-algorand.git", from: "1.0.0")
+    .package(url: "https://github.com/CorvidLabs/swift-algorand.git", from: "0.3.2")
 ]
 ```
+
+Then add the library product to the target that uses it:
+
+```swift
+.executableTarget(
+    name: "YourApp",
+    dependencies: [
+        .product(name: "Algorand", package: "swift-algorand")
+    ]
+)
+```
+
+`Algorand` is the only product this package vends. There is no bundled executable, so
+everything below is code you run from your own target.
 
 ## Your First Transaction
 
@@ -19,18 +35,21 @@ dependencies: [
 ```swift
 import Algorand
 
-// Option 1: Create a new account
-let account = Account()
-print("Save this mnemonic: \(account.mnemonic)")
+// Option 1: Create a new account. Generation uses the platform CSPRNG and can throw.
+let account = try Account()
 
-// Option 2: Import existing account
-let mnemonic = "your 25 word mnemonic phrase here"
-let account = try Account(mnemonic: mnemonic)
+// `mnemonic()` is a throwing method, not a stored property.
+let phrase = try account.mnemonic()
+print("Save this mnemonic: \(phrase)")
+
+// Option 2: Import an existing account
+let imported = try Account(mnemonic: phrase)
 ```
 
 ### Step 2: Fund Your Account
 
-For TestNet, use the [Algorand Dispenser](https://bank.testnet.algorand.network/) to get test ALGO.
+For TestNet, use the [Algorand dispenser](https://bank.testnet.algorand.network/) to get
+test ALGO. Paste the address printed above and dispense; funds arrive within a few seconds.
 
 ### Step 3: Connect to a Node
 
@@ -39,6 +58,9 @@ let algod = try AlgodClient(
     baseURL: "https://testnet-api.algonode.cloud"
 )
 ```
+
+The string initializer throws if the URL is malformed. There is also a non-throwing
+initializer that takes a `URL` directly.
 
 ### Step 4: Check Your Balance
 
@@ -72,21 +94,32 @@ let signedTxn = try SignedTransaction.sign(transaction, with: account)
 let txID = try await algod.sendTransaction(signedTxn)
 print("Transaction ID: \(txID)")
 
-// Wait for confirmation
-let confirmedTxn = try await algod.waitForConfirmation(transactionID: txID)
-print("Confirmed in round: \(confirmedTxn.confirmedRound!)")
+// Wait for confirmation. `confirmedRound` is optional - unwrap it, never force it.
+let confirmed = try await algod.waitForConfirmation(transactionID: txID)
+if let round = confirmed.confirmedRound {
+    print("Confirmed in round: \(round)")
+} else {
+    print("Submitted but not confirmed within the wait window")
+}
 ```
+
+`waitForConfirmation` polls for up to 10 rounds by default; pass `timeout:` to change that.
+It throws rather than returning if the transaction hits a pool error.
 
 ## Next Steps
 
-- Check out the main [README](../README.md) for full API overview
-- Run the examples in [Sources/AlgorandExample](../Sources/AlgorandExample)
+- Check out the main [README](../README.md) for a full API overview
+- Copy the complete runnable program in the [Quick Start guide](QUICKSTART.md)
 - Understand [Security Best Practices](SECURITY.md)
-- Review [Testing Guide](TESTING.md) for test setup
+- Review the [Testing Guide](TESTING.md) to see how the suite is gated
 
 ## Common Patterns
 
 ### Error Handling
+
+Every SDK failure is an `AlgorandError`. Its cases are `invalidAddress`, `invalidMnemonic`,
+`invalidTransaction`, `networkError`, `encodingError`, `decodingError`, `invalidResponse`,
+and `apiError(statusCode:message:)`.
 
 ```swift
 do {

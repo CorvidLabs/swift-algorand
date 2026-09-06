@@ -119,72 +119,44 @@ public struct AssetCreateTransaction: Transaction {
         self.rekeyTo = rekeyTo
     }
 
+    /**
+     Encodes the transaction to canonical MessagePack format for signing
+
+     - Parameter groupID: Optional group ID for atomic transaction groups
+     - Returns: The canonical transaction bytes
+     - Throws: `AlgorandError.encodingError` if encoding fails
+     */
     public func encode(groupID: Data? = nil) throws -> Data {
-        // Build asset parameters map
-        var apar: [String: MessagePackValue] = [:]
-        apar["t"] = .uint(assetParams.total)
+        var apar = CanonicalTransactionFields()
+        apar.set("t", uint: assetParams.total)
+        apar.set("dc", uint: assetParams.decimals)
+        apar.set("df", bool: assetParams.defaultFrozen)
+        apar.set("un", string: assetParams.unitName ?? "")
+        apar.set("an", string: assetParams.assetName ?? "")
+        apar.set("au", string: assetParams.url ?? "")
+        apar.set("am", digest: assetParams.metadataHash)
+        apar.set("m", address: assetParams.manager)
+        apar.set("r", address: assetParams.reserve)
+        apar.set("f", address: assetParams.freeze)
+        apar.set("c", address: assetParams.clawback)
 
-        // Only include dc if non-zero (omit if 0 per Algorand convention)
-        if assetParams.decimals > 0 {
-            apar["dc"] = .uint(assetParams.decimals)
-        }
+        var fields = CanonicalTransactionFields()
+        fields.setHeader(
+            type: "acfg",
+            sender: sender,
+            fee: fee,
+            firstValid: firstValid,
+            lastValid: lastValid,
+            genesisID: genesisID,
+            genesisHash: genesisHash,
+            note: note,
+            lease: lease,
+            rekeyTo: rekeyTo,
+            groupID: groupID
+        )
+        fields.set("apar", map: apar)
 
-        // Only include df if true (omit if false per Algorand spec)
-        if assetParams.defaultFrozen {
-            apar["df"] = .bool(true)
-        }
-
-        if let unitName = assetParams.unitName, !unitName.isEmpty {
-            apar["un"] = .string(unitName)
-        }
-        if let assetName = assetParams.assetName, !assetName.isEmpty {
-            apar["an"] = .string(assetName)
-        }
-        if let url = assetParams.url, !url.isEmpty {
-            apar["au"] = .string(url)
-        }
-        if let metadataHash = assetParams.metadataHash {
-            apar["am"] = .binary(metadataHash)
-        }
-        if let manager = assetParams.manager {
-            apar["m"] = .binary(manager.bytes)
-        }
-        if let reserve = assetParams.reserve {
-            apar["r"] = .binary(reserve.bytes)
-        }
-        if let freeze = assetParams.freeze {
-            apar["f"] = .binary(freeze.bytes)
-        }
-        if let clawback = assetParams.clawback {
-            apar["c"] = .binary(clawback.bytes)
-        }
-
-        // Build transaction map
-        var map: [String: MessagePackValue] = [:]
-        map["apar"] = .map(apar)
-        map["fee"] = .uint(fee.value)
-        map["fv"] = .uint(firstValid)
-        map["gen"] = .string(genesisID)
-        map["gh"] = .binary(genesisHash)
-        map["lv"] = .uint(lastValid)
-        map["snd"] = .binary(sender.bytes)
-        map["type"] = .string("acfg")
-
-        if let groupID = groupID {
-            map["grp"] = .binary(groupID)
-        }
-        if let note = note {
-            map["note"] = .binary(note)
-        }
-        if let lease = lease {
-            map["lx"] = .binary(lease)
-        }
-        if let rekeyTo = rekeyTo {
-            map["rekey"] = .binary(rekeyTo.bytes)
-        }
-
-        var writer = MessagePackWriter()
-        return try writer.write(map: map)
+        return try fields.encoded()
     }
 }
 
@@ -225,36 +197,34 @@ public struct AssetOptInTransaction: Transaction {
         self.rekeyTo = rekeyTo
     }
 
+    /**
+     Encodes the transaction to canonical MessagePack format for signing
+
+     - Parameter groupID: Optional group ID for atomic transaction groups
+     - Returns: The canonical transaction bytes
+     - Throws: `AlgorandError.encodingError` if encoding fails
+     */
     public func encode(groupID: Data? = nil) throws -> Data {
-        var map: [String: MessagePackValue] = [:]
+        var fields = CanonicalTransactionFields()
+        fields.setHeader(
+            type: "axfer",
+            sender: sender,
+            fee: fee,
+            firstValid: firstValid,
+            lastValid: lastValid,
+            genesisID: genesisID,
+            genesisHash: genesisHash,
+            note: note,
+            lease: lease,
+            rekeyTo: rekeyTo,
+            groupID: groupID
+        )
 
-        // For opt-in, aamt should be 0 but might be omitted per Algorand spec
-        // map["aamt"] = .uint(0)  // Omitting zero amount
-        map["arcv"] = .binary(sender.bytes)  // Receive to self for opt-in
-        map["fee"] = .uint(fee.value)
-        map["fv"] = .uint(firstValid)
-        map["gen"] = .string(genesisID)
-        map["gh"] = .binary(genesisHash)
-        map["lv"] = .uint(lastValid)
-        map["snd"] = .binary(sender.bytes)
-        map["type"] = .string("axfer")
-        map["xaid"] = .uint(assetID)
+        // An opt-in is a zero-amount transfer to self, so `aamt` is omitted entirely.
+        fields.set("arcv", address: sender)
+        fields.set("xaid", uint: assetID)
 
-        if let groupID = groupID {
-            map["grp"] = .binary(groupID)
-        }
-        if let note = note {
-            map["note"] = .binary(note)
-        }
-        if let lease = lease {
-            map["lx"] = .binary(lease)
-        }
-        if let rekeyTo = rekeyTo {
-            map["rekey"] = .binary(rekeyTo.bytes)
-        }
-
-        var writer = MessagePackWriter()
-        return try writer.write(map: map)
+        return try fields.encoded()
     }
 }
 
@@ -301,38 +271,34 @@ public struct AssetFreezeTransaction: Transaction {
         self.rekeyTo = rekeyTo
     }
 
+    /**
+     Encodes the transaction to canonical MessagePack format for signing
+
+     - Parameter groupID: Optional group ID for atomic transaction groups
+     - Returns: The canonical transaction bytes
+     - Throws: `AlgorandError.encodingError` if encoding fails
+     */
     public func encode(groupID: Data? = nil) throws -> Data {
-        var map: [String: MessagePackValue] = [:]
+        var fields = CanonicalTransactionFields()
+        fields.setHeader(
+            type: "afrz",
+            sender: sender,
+            fee: fee,
+            firstValid: firstValid,
+            lastValid: lastValid,
+            genesisID: genesisID,
+            genesisHash: genesisHash,
+            note: note,
+            lease: lease,
+            rekeyTo: rekeyTo,
+            groupID: groupID
+        )
 
-        // afrz field: only include if true (canonical encoding omits false values)
-        if frozen {
-            map["afrz"] = .bool(true)
-        }
-        map["fadd"] = .binary(freezeAccount.bytes)
-        map["faid"] = .uint(assetID)
-        map["fee"] = .uint(fee.value)
-        map["fv"] = .uint(firstValid)
-        map["gen"] = .string(genesisID)
-        map["gh"] = .binary(genesisHash)
-        map["lv"] = .uint(lastValid)
-        map["snd"] = .binary(sender.bytes)
-        map["type"] = .string("afrz")
+        fields.set("afrz", bool: frozen)
+        fields.set("fadd", address: freezeAccount)
+        fields.set("faid", uint: assetID)
 
-        if let groupID = groupID {
-            map["grp"] = .binary(groupID)
-        }
-        if let note = note {
-            map["note"] = .binary(note)
-        }
-        if let lease = lease {
-            map["lx"] = .binary(lease)
-        }
-        if let rekeyTo = rekeyTo {
-            map["rekey"] = .binary(rekeyTo.bytes)
-        }
-
-        var writer = MessagePackWriter()
-        return try writer.write(map: map)
+        return try fields.encoded()
     }
 }
 
@@ -388,54 +354,39 @@ public struct AssetConfigTransaction: Transaction {
         self.rekeyTo = rekeyTo
     }
 
+    /**
+     Encodes the transaction to canonical MessagePack format for signing
+
+     - Parameter groupID: Optional group ID for atomic transaction groups
+     - Returns: The canonical transaction bytes
+     - Throws: `AlgorandError.encodingError` if encoding fails
+     */
     public func encode(groupID: Data? = nil) throws -> Data {
-        var map: [String: MessagePackValue] = [:]
+        // With no addresses at all the `apar` struct is entirely zero, which is the destroy shape.
+        var apar = CanonicalTransactionFields()
+        apar.set("m", address: manager)
+        apar.set("r", address: reserve)
+        apar.set("f", address: freeze)
+        apar.set("c", address: clawback)
 
-        map["caid"] = .uint(assetID)
-        map["fee"] = .uint(fee.value)
-        map["fv"] = .uint(firstValid)
-        map["gen"] = .string(genesisID)
-        map["gh"] = .binary(genesisHash)
-        map["lv"] = .uint(lastValid)
-        map["snd"] = .binary(sender.bytes)
-        map["type"] = .string("acfg")
+        var fields = CanonicalTransactionFields()
+        fields.setHeader(
+            type: "acfg",
+            sender: sender,
+            fee: fee,
+            firstValid: firstValid,
+            lastValid: lastValid,
+            genesisID: genesisID,
+            genesisHash: genesisHash,
+            note: note,
+            lease: lease,
+            rekeyTo: rekeyTo,
+            groupID: groupID
+        )
+        fields.set("caid", uint: assetID)
+        fields.set("apar", map: apar)
 
-        // If all addresses are nil, this is a destroy transaction
-        // Otherwise, update the specified addresses in nested apar map
-        if manager != nil || reserve != nil || freeze != nil || clawback != nil {
-            var apar: [String: MessagePackValue] = [:]
-
-            if let manager = manager {
-                apar["m"] = .binary(manager.bytes)
-            }
-            if let reserve = reserve {
-                apar["r"] = .binary(reserve.bytes)
-            }
-            if let freeze = freeze {
-                apar["f"] = .binary(freeze.bytes)
-            }
-            if let clawback = clawback {
-                apar["c"] = .binary(clawback.bytes)
-            }
-
-            map["apar"] = .map(apar)
-        }
-
-        if let groupID = groupID {
-            map["grp"] = .binary(groupID)
-        }
-        if let note = note {
-            map["note"] = .binary(note)
-        }
-        if let lease = lease {
-            map["lx"] = .binary(lease)
-        }
-        if let rekeyTo = rekeyTo {
-            map["rekey"] = .binary(rekeyTo.bytes)
-        }
-
-        var writer = MessagePackWriter()
-        return try writer.write(map: map)
+        return try fields.encoded()
     }
 }
 
@@ -555,41 +506,35 @@ public struct AssetTransferTransaction: Transaction {
         self.rekeyTo = rekeyTo
     }
 
+    /**
+     Encodes the transaction to canonical MessagePack format for signing
+
+     - Parameter groupID: Optional group ID for atomic transaction groups
+     - Returns: The canonical transaction bytes
+     - Throws: `AlgorandError.encodingError` if encoding fails
+     */
     public func encode(groupID: Data? = nil) throws -> Data {
-        var map: [String: MessagePackValue] = [:]
+        var fields = CanonicalTransactionFields()
+        fields.setHeader(
+            type: "axfer",
+            sender: sender,
+            fee: fee,
+            firstValid: firstValid,
+            lastValid: lastValid,
+            genesisID: genesisID,
+            genesisHash: genesisHash,
+            note: note,
+            lease: lease,
+            rekeyTo: rekeyTo,
+            groupID: groupID
+        )
 
-        // Only include amount if non-zero (omit zero per Algorand convention)
-        if amount > 0 {
-            map["aamt"] = .uint(amount)
-        }
-        map["arcv"] = .binary(receiver.bytes)
-        map["fee"] = .uint(fee.value)
-        map["fv"] = .uint(firstValid)
-        map["gen"] = .string(genesisID)
-        map["gh"] = .binary(genesisHash)
-        map["lv"] = .uint(lastValid)
-        map["snd"] = .binary(sender.bytes)
-        map["type"] = .string("axfer")
-        map["xaid"] = .uint(assetID)
+        fields.set("aamt", uint: amount)
+        fields.set("arcv", address: receiver)
+        fields.set("aclose", address: closeRemainderTo)
+        fields.set("xaid", uint: assetID)
 
-        if let closeRemainderTo = closeRemainderTo {
-            map["aclose"] = .binary(closeRemainderTo.bytes)
-        }
-        if let groupID = groupID {
-            map["grp"] = .binary(groupID)
-        }
-        if let note = note {
-            map["note"] = .binary(note)
-        }
-        if let lease = lease {
-            map["lx"] = .binary(lease)
-        }
-        if let rekeyTo = rekeyTo {
-            map["rekey"] = .binary(rekeyTo.bytes)
-        }
-
-        var writer = MessagePackWriter()
-        return try writer.write(map: map)
+        return try fields.encoded()
     }
 }
 
@@ -639,37 +584,34 @@ public struct AssetClawbackTransaction: Transaction {
         self.rekeyTo = rekeyTo
     }
 
+    /**
+     Encodes the transaction to canonical MessagePack format for signing
+
+     - Parameter groupID: Optional group ID for atomic transaction groups
+     - Returns: The canonical transaction bytes
+     - Throws: `AlgorandError.encodingError` if encoding fails
+     */
     public func encode(groupID: Data? = nil) throws -> Data {
-        var map: [String: MessagePackValue] = [:]
+        var fields = CanonicalTransactionFields()
+        fields.setHeader(
+            type: "axfer",
+            sender: sender,
+            fee: fee,
+            firstValid: firstValid,
+            lastValid: lastValid,
+            genesisID: genesisID,
+            genesisHash: genesisHash,
+            note: note,
+            lease: lease,
+            rekeyTo: rekeyTo,
+            groupID: groupID
+        )
 
-        if amount > 0 {
-            map["aamt"] = .uint(amount)
-        }
-        map["arcv"] = .binary(assetReceiver.bytes)
-        map["asnd"] = .binary(assetSender.bytes)
-        map["fee"] = .uint(fee.value)
-        map["fv"] = .uint(firstValid)
-        map["gen"] = .string(genesisID)
-        map["gh"] = .binary(genesisHash)
-        map["lv"] = .uint(lastValid)
-        map["snd"] = .binary(sender.bytes)
-        map["type"] = .string("axfer")
-        map["xaid"] = .uint(assetID)
+        fields.set("aamt", uint: amount)
+        fields.set("arcv", address: assetReceiver)
+        fields.set("asnd", address: assetSender)
+        fields.set("xaid", uint: assetID)
 
-        if let groupID = groupID {
-            map["grp"] = .binary(groupID)
-        }
-        if let note = note {
-            map["note"] = .binary(note)
-        }
-        if let lease = lease {
-            map["lx"] = .binary(lease)
-        }
-        if let rekeyTo = rekeyTo {
-            map["rekey"] = .binary(rekeyTo.bytes)
-        }
-
-        var writer = MessagePackWriter()
-        return try writer.write(map: map)
+        return try fields.encoded()
     }
 }

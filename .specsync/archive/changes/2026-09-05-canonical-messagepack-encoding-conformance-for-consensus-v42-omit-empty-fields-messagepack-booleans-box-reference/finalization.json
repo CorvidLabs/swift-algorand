@@ -1,0 +1,12 @@
+{
+  "schema_version": 2,
+  "change_id": "canonical-messagepack-encoding-conformance-for-consensus-v42-omit-empty-fields-messagepack-booleans-box-reference",
+  "implementation_commit": "8546b6ab64d5f8550fafe6d806573e3e55468c13",
+  "implementation_tree": "a23a954f110e46ca1d75f96a3edea52775efb908",
+  "contract_digest": "b6543ec53f2fe8b733f24f715f9268c5a514eec914c8d94fc35203531c6b18c3",
+  "workspace_digest": "1900189a0fc01f0f0ff24031d7679a35766d2320131b66d99c0784895c2ec251",
+  "closing_digest": "13d96569a7df6fec4de088ca03dc73f632487555b063f23a1d764cb933e1667c",
+  "review_digest": "6cf4f916e672e3ed8478e83966f5574ff513c352b533c9493ed786377fd5b902",
+  "finalization_digest": "9332d570482483cb66582dbb71186d2de39a29d87d1c6b82d157dc5e7c3025cf",
+  "timestamp": 1788642246
+}
