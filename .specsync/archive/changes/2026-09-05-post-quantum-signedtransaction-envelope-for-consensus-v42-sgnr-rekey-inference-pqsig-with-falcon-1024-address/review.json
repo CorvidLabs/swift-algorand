@@ -1,0 +1,16 @@
+{
+  "schema_version": 2,
+  "change_id": "post-quantum-signedtransaction-envelope-for-consensus-v42-sgnr-rekey-inference-pqsig-with-falcon-1024-address",
+  "reviewer": "0xLeif",
+  "provenance": {
+    "schema_version": 1,
+    "provider": "github_actions_check",
+    "required_check": "SpecSync scoped review"
+  },
+  "verdict": "pass",
+  "implementation_commit": "2bdebe408341d0e5553f6d817cf5a01578cd9540",
+  "contract_digest": "a3b7e7818e0eadef2a53b8f796382cd5c784e3da8c5c4f5f80a09523aa4aca2b",
+  "execution_digest": "720f2c752ccc77fdbf476126056f8e4ae42ffc20c51ea6fc4d21bd18d622bb1b",
+  "workspace_digest": "e9cc128c8a49adbe4b222be8dd2de828745aa926e11d06c3fc8cca87fd9f57df",
+  "timestamp": 1788643307
+}

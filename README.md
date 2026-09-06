@@ -212,6 +212,30 @@ Sign transactions with an account:
 let signedTxn = try SignedTransaction.sign(transaction, with: account)
 ```
 
+When the signing account is not the transaction's sender, the envelope carries the signer as
+`sgnr` automatically, which is how a rekeyed account is spent. Any `TransactionSigner` can sign
+the same way; `Account` conforms, and `Transaction.bytesToSign(groupID:)` exposes the exact
+unhashed preimage for an external key store.
+
+```swift
+let signedTxn = try await account.sign(transaction)
+```
+
+#### Post-quantum accounts (consensus v42)
+
+A native post-quantum account is authorized by a Falcon-1024 proof in the `pqsig` envelope. The
+SDK derives the account's address and canonical salt from the public key, builds the envelope, and
+checks that the proof authorizes the sender; the signature itself comes from a callback, because
+no Falcon implementation is bundled (the official Python and JavaScript SDKs bundle none either).
+
+```swift
+let signer = try PQSigner(publicKey: falconPublicKey) { bytes in
+    try await falconBackend.sign(bytes)  // det1024 over the exact bytes handed in
+}
+print(signer.address)  // SHA512_256("PQA" || "f1" || salt || publicKey)
+let signedTxn = try await signer.sign(transaction)
+```
+
 ## Architecture
 
 The SDK is organized into several key components:

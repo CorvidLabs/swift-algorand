@@ -1,50 +1,11 @@
----
-module: algorand
-version: 5
-status: active
-files:
-  - Package.swift
-  - Sources/Algorand/Account.swift
-  - Sources/Algorand/Address+PostQuantum.swift
-  - Sources/Algorand/Address.swift
-  - Sources/Algorand/AlgodClient.swift
-  - Sources/Algorand/AlgorandConfiguration.swift
-  - Sources/Algorand/AlgorandError.swift
-  - Sources/Algorand/ApplicationTransaction.swift
-  - Sources/Algorand/AssetTransaction.swift
-  - Sources/Algorand/AtomicTransactionGroup.swift
-  - Sources/Algorand/BIP39Wordlist.swift
-  - Sources/Algorand/CanonicalBoxReferences.swift
-  - Sources/Algorand/CanonicalTransactionFields.swift
-  - Sources/Algorand/Edwards25519.swift
-  - Sources/Algorand/IndexerClient.swift
-  - Sources/Algorand/KeyRegistrationTransaction.swift
-  - Sources/Algorand/MessagePackWriter.swift
-  - Sources/Algorand/MicroAlgos.swift
-  - Sources/Algorand/Mnemonic.swift
-  - Sources/Algorand/PQScheme.swift
-  - Sources/Algorand/PQSignature.swift
-  - Sources/Algorand/PaymentTransaction.swift
-  - Sources/Algorand/SHA512_256.swift
-  - Sources/Algorand/SecureRandom.swift
-  - Sources/Algorand/SignedTransaction.swift
-  - Sources/Algorand/Transaction+Signing.swift
-  - Sources/Algorand/Transaction.swift
-  - Sources/Algorand/TransactionAuthorization.swift
-  - Sources/Algorand/TransactionSigner.swift
+# algorand
 
-db_tables: []
-depends_on: []
----
+## MODIFIED
 
-# Swift Algorand SDK
-
-## Purpose
-
+### SPEC SECTION Purpose
 Provide the existing Swift SDK primitives for Algorand accounts, addresses, amounts, mnemonics, transactions, signing (Ed25519 and, since consensus v42, native post-quantum Falcon-1024 through a caller-supplied signer), atomic groups, and asynchronous Algod and Indexer clients across the package's supported Apple and Linux platforms.
 
-## Public API
-
+### SPEC SECTION Public API
 ### Contract groups
 
 | Existing surface | Contract |
@@ -425,8 +386,7 @@ SpecSync 6.0.0 extracts the following 361 unique public symbols from the 28 cano
 | `bytesToSign` |
 | `authorization` |
 
-## Invariants
-
+### SPEC SECTION Invariants
 1. Address, mnemonic, key, signature, transaction, and MessagePack representations must preserve the existing Algorand protocol encodings and validation behavior, where the transaction encoding is go-algorand v5.0.1-stable's canonical omit-empty form.
 2. Transaction builders must reject incomplete or invalid inputs rather than construct an apparently valid transaction.
 3. Network clients use asynchronous APIs and surface transport, decoding, and protocol failures as errors.
@@ -437,8 +397,7 @@ SpecSync 6.0.0 extracts the following 361 unique public symbols from the 28 cano
 8. A signed-transaction envelope is go-algorand's omit-empty `SignedTxn` map: keys in canonical order `lsig < msig < pqsig < sgnr < sig < txn`, only present keys written, every binary header chosen by length through the canonical MessagePack writer, and the bytes under `txn` are the bytes that were signed. An envelope carrying only an Ed25519 signature is byte-identical to the fixed `0x82 {sig, txn}` encoding of every previous release.
 9. `sgnr` is present exactly when the signer's address differs from the sender. A post-quantum proof is attached only after its scheme, salt, and public key are shown to derive the authorizer, and the signing preimage `"TX" || msgpack(txn)` is handed to signers unhashed. No Falcon implementation is bundled; signatures come from a caller-supplied `TransactionSigner`.
 
-## Behavioral Examples
-
+### SPEC SECTION Behavioral Examples
 ```
 Given a valid account and complete payment parameters
 When a payment transaction is built, signed, and encoded
@@ -463,8 +422,7 @@ When a PQSigner is created and signs a transaction whose sender is the derived p
 Then the envelope is {pqsig: {pk, sch: "f1", sig[, slt]}, txn}, the callback received "TX" || msgpack(txn) unhashed, and a consensus v42 node proceeds to Falcon signature verification
 ```
 
-## Error Cases
-
+### SPEC SECTION Error Cases
 | Error | When | Behavior |
 |-------|------|----------|
 | Invalid address or mnemonic | Input fails protocol validation | Return a typed error without creating an account value |
@@ -480,24 +438,53 @@ Then the envelope is {pqsig: {pk, sch: "f1", sig[, slt]}, txn}, the callback rec
 
 No new `AlgorandError` case is introduced. `TransactionAuthorizationError` is the one error type added by the post-quantum envelope change; Ed25519 signature bytes are carried verbatim and never validated locally. A box reference naming an application absent from `apfa` appends that application rather than failing, up to the limit above.
 
-## Dependencies
-
-- Swift 6.0 or newer
-- `swift-crypto` for cross-platform cryptographic primitives
-- Foundation networking and Swift concurrency
-- Swift-DocC plugin for independent documentation publication
-
-## Change Log
-
-| Version | Date | Changes |
-|---------|------|---------|
-| 1 | 2026-07-12 | Initial spec |
-| 2 | 2026-07-14 | Adopt SpecSync 5.0.1 and Trust 1.0.0 governance with complete source, export, and requirement coverage. |
-| 3 | 2026-09-05 | CHG-0001-adopt-specsync-5-0-1-and-trust-1-0-0-governance-for-the-swift-algorand-sdk: Adopt SpecSync 5.0.1 and Trust 1.0.0 governance for the Swift Algorand SDK |
-| 4 | 2026-09-05 | canonical-messagepack-encoding-conformance-for-consensus-v42-omit-empty-fields-messagepack-booleans-box-reference: Canonical MessagePack encoding conformance for consensus v42: omit-empty fields, MessagePack booleans, box reference indexes, and grouped transaction IDs |
-| 5 | 2026-09-05 | post-quantum-signedtransaction-envelope-for-consensus-v42-sgnr-rekey-inference-pqsig-with-falcon-1024-address: Post-quantum SignedTransaction envelope for consensus v42: sgnr rekey inference, pqsig with Falcon-1024 address derivation, a callback TransactionSigner, and bin16 signatures |
-
-## Complete API and source inventory
-
+### SPEC SECTION Complete API and source inventory
 The active spec maps all 28 canonical Swift source files and documents all 361 unique public symbols extracted by SpecSync 6.0.0. The inventory is organized by accounts and cryptography, canonical protocol encoding, signed-transaction envelopes and post-quantum authorization, transaction families, atomic grouping, Algod, Indexer, response models, configuration, and errors. The two files added for canonical encoding, `CanonicalTransactionFields.swift` and `CanonicalBoxReferences.swift`, and the `Edwards25519.swift` point predicate added for post-quantum address derivation are internal and contribute no public symbol. The other six files added by the post-quantum envelope change (`Address+PostQuantum.swift`, `PQScheme.swift`, `PQSignature.swift`, `Transaction+Signing.swift`, `TransactionAuthorization.swift`, `TransactionSigner.swift`) contribute the 17 names listed at the end of the export inventory.
 
+## ADDED
+
+### REQUIREMENT REQ-algorand-019
+`SignedTransaction.encode()` SHALL emit go-algorand's `SignedTxn` envelope as a canonical omit-empty MessagePack map over the keys `lsig < msig < pqsig < sgnr < sig < txn`, writing only the keys that are present, choosing `bin8`, `bin16`, or `bin32` headers by value length through the canonical writer, and splicing the transaction bytes that were signed in under `txn`. An envelope carrying only an Ed25519 signature SHALL encode byte-identically to the previous fixed `0x82 {sig, txn}` encoding, and a signature longer than 255 bytes SHALL encode rather than trap.
+
+Acceptance Criteria
+- `testEd25519EnvelopeIsByteIdenticalToLegacyEncoder` and `testGroupedEd25519EnvelopeIsByteIdenticalToLegacyEncoder` match a hand-written legacy `{sig, txn}` layout and the `signed_ed25519_only` golden envelope, standalone and grouped; six envelopes produced by a build of 93c952a and by this change are byte-identical, transaction IDs included.
+- `testEnvelopeSurvivesSignaturesLongerThan255Bytes` encodes a 1538-byte value under `sig` with a `bin16` header (`82a3736967c50602`) instead of aborting the process.
+- `testSignedEnvelopeStructure`, `testSignedEnvelopeIsByteExactOnDeterministicBackends`, and every pre-existing XCTest signing test pass unchanged in outcome.
+
+*Rationale: the previous encoder hand-wrote `0x82`, `"sig"`, `0xC4`, `UInt8(signature.count)`, which could express neither `sgnr` nor `pqsig` and trapped for every Falcon-1024 signature.*
+
+### REQUIREMENT REQ-algorand-020
+Signing SHALL infer `sgnr`: when the signer's address differs from `transaction.sender`, the envelope SHALL carry the signer's address under `sgnr`; when it equals the sender, `sgnr` SHALL be omitted. An explicit `authAddr` argument SHALL be accepted only when it equals the signer's address, and otherwise signing SHALL throw `TransactionAuthorizationError.authAddrMismatch` before any signature is produced. This applies to `SignedTransaction.sign(_:with:groupID:authAddr:)` and to `TransactionSigner.sign(_:groupID:authAddr:)` alike.
+
+Acceptance Criteria
+- `testRekeyedEnvelopeCarriesSgnr` and `testSignerDifferentFromSenderInfersSgnr` produce the 280-byte `{sgnr, sig, txn}` envelope of golden vector `signed_ed25519_rekeyed_sgnr`, byte-exact where the Ed25519 backend is deterministic.
+- `testSignerEqualToSenderOmitsSgnr`, `testExplicitAuthAddrMustNameTheSigner`, and `testAccountSignsThroughTheProtocolPath` cover omission, the accepted explicit form, and the typed mismatch error on both paths.
+- Live: a rekeyed envelope simulated on TestNet v42 returns HTTP 200 with `should have been authorized by <sender> but was actually authorized by <signer>` (the throwaway sender is not rekeyed on chain), which is an authorization failure after a successful decode, not a decode error.
+
+*Rationale: matches py-algorand-sdk and js-algorand-sdk, and consensus (`EnforceAuthAddrSenderDiff`) rejects a `sgnr` equal to the sender, so inference is the only correct policy.*
+
+### REQUIREMENT REQ-algorand-021
+`Address.postQuantum(scheme:salt:publicKey:)` SHALL derive `SHA512_256("PQA" || scheme[2] || salt[1] || publicKey)`, and `Address.postQuantum(scheme:publicKey:)` SHALL return the canonical salt and address: the lowest salt in `0...255` whose derived address does not decode as an Edwards25519 point, where the point predicate follows `edwards25519.Point.SetBytes` exactly, accepting non-canonical encodings and not requiring prime-order subgroup membership.
+
+Acceptance Criteria
+- `testEdwards25519PointPredicateMatchesGoSetBytes` agrees with all 13 point-decode vectors, including `y == p`, `y == p + 1`, all-zero, all-`0xff`, and the identity with the sign bit set.
+- `testPostQuantumAddressDerivationMatchesGoldenVectors` reproduces canonical salts 0, 2, and 1 and the three golden addresses, and shows that every lower salt's digest decodes as a point.
+- Live: with the `slt` of a `pqsig` envelope patched from 0 to 1, TestNet v42 rejects it with `pq signature authorizer mismatch: derived 26KVNLGM25G46YMGMOVXRKGLUGOWUEYIMNLZEIVO2KFOCCXUCVNRIYBCNA`, which equals `Address.postQuantum(scheme: .falcon1024, salt: 1, publicKey:)` for the same key.
+
+### REQUIREMENT REQ-algorand-022
+A post-quantum authorization SHALL be carried as `pqsig: {pk, sch, sig, slt}`, where `sch` is the two-byte scheme tag as a MessagePack binary (`"f1"`, bytes `0x66 0x31`, for Falcon-1024), `slt` is omitted when zero, and `pk` and `sig` are binaries of 1793 and at most 1538 bytes for Falcon-1024. The signing preimage SHALL be `"TX" || msgpack(txn)`, unhashed, exposed as `Transaction.bytesToSign(groupID:)`. Signing SHALL be delegated through the `TransactionSigner` protocol, to which `Account` conforms; `PQSigner` SHALL derive the canonical salt and address from the public key and obtain the signature from a caller-supplied `@Sendable` callback. No Falcon implementation SHALL be bundled.
+
+Acceptance Criteria
+- `testPostQuantumSignedEnvelopeMatchesGoldenVector` reproduces the 3530-byte `pq_signed_payment` envelope from its parts and its transaction ID `BT6JAPZ7LE75FHLMO624E2J7WXBG7POEL6EKOCJAGVJNGCSLKYXA`.
+- `testPostQuantumSaltIsOmittedWhenZeroAndPresentOtherwise`, `testPostQuantumSignerDerivesCanonicalSaltAndAddress`, `testCustomSignerReceivesThePreimageAndControlsSgnr`, `testBytesToSignIsThePrefixedCanonicalEncoding`, and `testPostQuantumSchemeTag` pass.
+- Live: a `pqsig` envelope with `sch = "f1"` simulated on TestNet v42 is rejected at signature verification (`pq signature validation failed: invalid falcon-1024 signature: error code -4: falcon verify failed`), past the scheme check that answered `pq signature scheme not supported` for every other tag, and past the authorizer check.
+
+*Rationale: `protocol.PQSchemeFalcon1024 = PQScheme{'f', '1'}` in go-algorand v5.0.1-stable (`protocol/pq_scheme.go`); `[2]byte` marshals as a binary.*
+
+### REQUIREMENT REQ-algorand-023
+Before a signed transaction is assembled, and again when it is encoded, a post-quantum proof SHALL be verified to authorize the transaction: its public key has the scheme's size, its signature is non-empty and within the scheme's maximum, and its scheme, salt, and public key derive the authorizer, which is `sgnr` when present and otherwise the sender. Violations SHALL throw `TransactionAuthorizationError.unauthorizedProof` or `TransactionAuthorizationError.malformed`. Ed25519 signature bytes SHALL be carried verbatim.
+
+Acceptance Criteria
+- `testPostQuantumProofMustDeriveTheAuthorizer` covers sign-time refusal of a proof for another key, refusal of a non-canonical salt, encode-time refusal of a hand-built envelope, and acceptance of the same proof once `sgnr` names the derived address.
+- `testPostQuantumSizesAreEnforced`, `testRekeyedPostQuantumSignerCarriesSgnr`, and `testAuthorizationErrorsDescribeThemselves` pass.
+- No `AlgorandError` case is added; `TransactionAuthorizationError` is the only new error type.
