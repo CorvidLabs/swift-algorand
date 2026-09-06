@@ -1,0 +1,37 @@
+{
+  "schema_version": 1,
+  "reviews": [
+    {
+      "schema_version": 2,
+      "change_id": "prepare-0-4-0-release-documentation-and-migration-notes-for-the-merged-sdk-changes",
+      "reviewer": "0xLeif",
+      "provenance": {
+        "schema_version": 1,
+        "provider": "github_actions_check",
+        "required_check": "SpecSync scoped review"
+      },
+      "verdict": "pass",
+      "implementation_commit": "35652be7fd242ffcdb9d205e1b056a6d17cf24d0",
+      "contract_digest": "56238a3361e9978733f04ff0b3c12c54c2e65a232bc35c1a9d5471e6e13f63c0",
+      "execution_digest": "9f85ac98ef609eac2828a78e6192ffd72e3c6da55623214a4209e6ac59d5e01e",
+      "workspace_digest": "53fd3829d74c560d64ddf9f5e6311a34129ef02f6ab159fc45277027c4cc17ca",
+      "timestamp": 1788706531
+    },
+    {
+      "schema_version": 2,
+      "change_id": "prepare-0-4-0-release-documentation-and-migration-notes-for-the-merged-sdk-changes",
+      "reviewer": "0xLeif",
+      "provenance": {
+        "schema_version": 1,
+        "provider": "github_actions_check",
+        "required_check": "SpecSync scoped review"
+      },
+      "verdict": "pass",
+      "implementation_commit": "1325979210ebe5941d9037fdd8f22da38b011447",
+      "contract_digest": "56238a3361e9978733f04ff0b3c12c54c2e65a232bc35c1a9d5471e6e13f63c0",
+      "execution_digest": "9f85ac98ef609eac2828a78e6192ffd72e3c6da55623214a4209e6ac59d5e01e",
+      "workspace_digest": "e31559ab8ea9ddae9f6100369f6e97ec2a78de532ac6525959159195d8bd2650",
+      "timestamp": 1788707725
+    }
+  ]
+}

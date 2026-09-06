@@ -1,0 +1,12 @@
+{
+  "schema_version": 2,
+  "change_id": "prepare-0-4-0-release-documentation-and-migration-notes-for-the-merged-sdk-changes",
+  "implementation_commit": "1325979210ebe5941d9037fdd8f22da38b011447",
+  "implementation_tree": "95c282dd582080206231f713e17d70a125e15bb8",
+  "contract_digest": "56238a3361e9978733f04ff0b3c12c54c2e65a232bc35c1a9d5471e6e13f63c0",
+  "workspace_digest": "e31559ab8ea9ddae9f6100369f6e97ec2a78de532ac6525959159195d8bd2650",
+  "closing_digest": "c3b29fcd9e16360e671cf86aaec1944730f0c0759fee12f49fbf1cfb097b52c9",
+  "review_digest": "d56fb71cbfb2c559153085798ab3878ead6ea1850cd905714ec26b9bbbd5c91d",
+  "finalization_digest": "b50d184969702624b58d3b02d3d003ceec4ae95631445feacad6c984cc65504f",
+  "timestamp": 1788707741
+}

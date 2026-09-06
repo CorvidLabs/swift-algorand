@@ -10,11 +10,11 @@ Add the package to your `Package.swift`:
 
 ```swift
 dependencies: [
-    .package(url: "https://github.com/CorvidLabs/swift-algorand.git", .upToNextMinor(from: "0.3.2"))
+    .package(url: "https://github.com/CorvidLabs/swift-algorand.git", .upToNextMinor(from: "0.4.0"))
 ]
 ```
 
-`.upToNextMinor` pins the `0.3.x` line; `from:` would accept a `0.4.0` that, pre-1.0, may break
+`.upToNextMinor` pins the `0.4.x` line; `from:` would accept a `0.5.0` that, pre-1.0, may break
 your build. Then add the library product to the target that uses it:
 
 ```swift

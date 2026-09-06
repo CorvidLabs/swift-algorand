@@ -60,7 +60,7 @@ let package = Package(
     name: "algorand-testnet-check",
     platforms: [.macOS(.v13)],
     dependencies: [
-        .package(url: "https://github.com/CorvidLabs/swift-algorand.git", .upToNextMinor(from: "0.3.2"))
+        .package(url: "https://github.com/CorvidLabs/swift-algorand.git", .upToNextMinor(from: "0.4.0"))
     ],
     targets: [
         .executableTarget(

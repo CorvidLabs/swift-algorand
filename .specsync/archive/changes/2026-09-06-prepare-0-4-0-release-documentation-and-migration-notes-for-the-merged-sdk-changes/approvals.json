@@ -1,0 +1,144 @@
+{
+  "approvals": [
+    {
+      "gate": "definition",
+      "actor": "0xLeif",
+      "timestamp": 1788706197,
+      "digest": "56238a3361e9978733f04ff0b3c12c54c2e65a232bc35c1a9d5471e6e13f63c0",
+      "note": null,
+      "approved_scope": {
+        "schema_version": 1,
+        "change_id": "prepare-0-4-0-release-documentation-and-migration-notes-for-the-merged-sdk-changes",
+        "title": "Prepare 0.4.0 release documentation and migration notes for the merged SDK changes",
+        "description": "Prepare 0.4.0 release documentation and migration notes for the merged SDK changes",
+        "kind": "documentation",
+        "affected_specs": [],
+        "affected_paths": [
+          "CHANGELOG.md",
+          "README.md",
+          "Sources/Algorand/Algorand.docc/GettingStarted.md",
+          "documentation/GETTING_STARTED.md",
+          "documentation/QUICKSTART.md"
+        ],
+        "no_spec_change": true,
+        "no_spec_change_rationale": "Release documentation only; SDK behavior and canonical requirements remain unchanged.",
+        "acceptance_criteria": [
+          "Installation snippets pin the 0.4.x line starting at 0.4.0; DocC examples use explicit package products, throwing configuration factories, checked amounts, and the nonoptional indexer URL; CHANGELOG.md describes changes since 0.3.2, source-breaking migrations, and the externally supplied Falcon signer; scoped SpecSync and Trust verification pass before release. Prepare only, without publishing a tag or release."
+        ],
+        "dependencies": [],
+        "supersedes": [],
+        "answers": {
+          "architecture_risk": "no",
+          "public_contract": "no"
+        }
+      },
+      "approved_delta_digests": {}
+    },
+    {
+      "gate": "finalization",
+      "actor": "specsync:finalization",
+      "timestamp": 1788706556,
+      "digest": "6fc02cde74e40ba3827ee10b18936398b75523b781436ac7558075708c87e7da",
+      "note": "Same-PR finalization closing digest"
+    },
+    {
+      "gate": "finalization",
+      "actor": "specsync:finalization",
+      "timestamp": 1788707740,
+      "digest": "c3b29fcd9e16360e671cf86aaec1944730f0c0759fee12f49fbf1cfb097b52c9",
+      "note": "Same-PR finalization closing digest"
+    }
+  ],
+  "reopenings": [
+    {
+      "schema_version": 1,
+      "change_id": "prepare-0-4-0-release-documentation-and-migration-notes-for-the-merged-sdk-changes",
+      "actor": "0xLeif",
+      "reason": "User approved publication of 0.4.0; record release date and activate comparison link before finalization.",
+      "timestamp": 1788707665,
+      "from_state": "accepted",
+      "to_state": "verifying",
+      "superseded_approval": {
+        "gate": "finalization",
+        "actor": "specsync:finalization",
+        "timestamp": 1788706556,
+        "digest": "6fc02cde74e40ba3827ee10b18936398b75523b781436ac7558075708c87e7da",
+        "note": "Same-PR finalization closing digest"
+      },
+      "prior_verification": {
+        "timestamp": 1788706369,
+        "commit": "35652be7fd242ffcdb9d205e1b056a6d17cf24d0",
+        "contract_digest": "56238a3361e9978733f04ff0b3c12c54c2e65a232bc35c1a9d5471e6e13f63c0",
+        "execution_digest": "9f85ac98ef609eac2828a78e6192ffd72e3c6da55623214a4209e6ac59d5e01e",
+        "workspace_digest": "53fd3829d74c560d64ddf9f5e6311a34129ef02f6ab159fc45277027c4cc17ca",
+        "acceptance_input_digest": "f182f8ca341edfc68efc5f86e86c25defb08c08d8b015c04b18d49fe3fdb353c",
+        "acceptance_manifest": {
+          "schema_version": 1,
+          "entries": [
+            {
+              "path": "CHANGELOG.md",
+              "kind": "file",
+              "mode": 33188,
+              "payload_digest": "20be40d482183e705863efdb491b145955a934798f2b8d6f0f74aed3b2d940de",
+              "entry_digest": "2ebdb4cd6d51d4bc9bc213d9b3cb07cd2d00fc20512ff453ca4f0f4d6efac369",
+              "owners": [
+                "@exact:delivery"
+              ]
+            },
+            {
+              "path": "README.md",
+              "kind": "file",
+              "mode": 33188,
+              "payload_digest": "4210f83bdf26f5517cdb799575d72fb9de862f2f56b48e86d86a8918c4229f2a",
+              "entry_digest": "1cf779015565f5dbf1fb342a48f5008bab7e63819824a5f02de849f47a086d59",
+              "owners": [
+                "@exact:delivery"
+              ]
+            },
+            {
+              "path": "Sources/Algorand/Algorand.docc/GettingStarted.md",
+              "kind": "file",
+              "mode": 33188,
+              "payload_digest": "f4abee828fa760a1121a24ac06fa42e2d7773a7171b85d162dd6a8ae95dc64c1",
+              "entry_digest": "1e8516d68a7f405251ffed95780078e065cf7ab1b5039bc1a231002ce69ec899",
+              "owners": [
+                "@exact:delivery"
+              ]
+            },
+            {
+              "path": "documentation/GETTING_STARTED.md",
+              "kind": "file",
+              "mode": 33188,
+              "payload_digest": "26e4769e23833100af8d813cbead8fcf0dbba39d40a44350fe7b550488de27a5",
+              "entry_digest": "1ee1f4654743b169e4fb9ea5d815de8ed02c1c9f7c9233b90c62d5f5f9840b19",
+              "owners": [
+                "@exact:delivery"
+              ]
+            },
+            {
+              "path": "documentation/QUICKSTART.md",
+              "kind": "file",
+              "mode": 33188,
+              "payload_digest": "74cd98affcdf236172d3cd1d6c8d3efdfed98e250b62c0a9d6cf9aa70fe78849",
+              "entry_digest": "c72cc689b954ff5befddc7cfe78fc423e91f42124e804f73c2edaccf0d94517b",
+              "owners": [
+                "@exact:delivery"
+              ]
+            }
+          ]
+        },
+        "passed": true,
+        "commands": [
+          {
+            "command": "specsync check (no spec in scope)",
+            "success": true,
+            "exit_code": 0
+          }
+        ],
+        "requirement_ids": []
+      },
+      "stale_acceptance_input_digest": "f182f8ca341edfc68efc5f86e86c25defb08c08d8b015c04b18d49fe3fdb353c",
+      "current_acceptance_input_digest": "2393cfbb47716bfd6d6edb896056e97c03822071d8903a144b9185f9a8b1a6a2"
+    }
+  ]
+}
