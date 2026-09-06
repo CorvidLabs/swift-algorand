@@ -1,15 +1,24 @@
 @preconcurrency import Foundation
 
-/// Canonical MessagePack encoder for Algorand transactions
-/// Ensures alphabetically sorted keys as required by Algorand protocol
-public struct MessagePackWriter {
+/**
+ Canonical MessagePack encoder for Algorand transactions
+
+ Ensures alphabetically sorted keys as required by the Algorand protocol.
+
+ Internal: this is the wire format of one chain, not a general MessagePack library. It has no
+ decoder and no float, negative-integer, or extension support, and its correctness is defined by
+ what go-algorand's generated marshaller emits. A caller who needs MessagePack should use a
+ MessagePack package; a caller who needs a transaction this SDK does not model can conform to
+ ``Transaction`` and return bytes produced however they like.
+ */
+internal struct MessagePackWriter {
     private var data = Data()
 
-    public init() {}
+    internal init() {}
 
     /// Encodes a dictionary with canonical key ordering
     /// - Throws: `AlgorandError.encodingError` if the map is too large
-    public mutating func write(map: [String: MessagePackValue]) throws -> Data {
+    internal mutating func write(map: [String: MessagePackValue]) throws -> Data {
         // Sort keys alphabetically (canonical ordering)
         let sortedKeys = map.keys.sorted()
 
@@ -50,6 +59,8 @@ public struct MessagePackWriter {
             try writeArray(val)
         case .bool(let val):
             writeBool(val)
+        case .raw(let val):
+            data.append(val)
         }
     }
 
@@ -140,11 +151,19 @@ public struct MessagePackWriter {
 }
 
 /// MessagePack value types
-public enum MessagePackValue {
+internal enum MessagePackValue: Sendable {
     case uint(UInt64)
     case string(String)
     case binary(Data)
     case map([String: MessagePackValue])
     case array([MessagePackValue])
     case bool(Bool)
+
+    /// Bytes that are already one well-formed MessagePack value, spliced in verbatim.
+    ///
+    /// `POST /v2/transactions/simulate` takes `txns` as `[]SignedTxn`, so the request body must
+    /// carry each signed transaction's own canonical encoding byte for byte, not a re-encoding of a
+    /// decoded model. The writer copies the payload without inspecting it; the caller is
+    /// responsible for it being exactly one MessagePack value.
+    case raw(Data)
 }

@@ -1,0 +1,1053 @@
+{
+  "schema_version": 1,
+  "attempts": [
+    {
+      "timestamp": 1788650975,
+      "commit": "4665470f59cbd6b382ebefca4515575c0a0aaa83",
+      "contract_digest": "0d8f318e498bc6883560ea59591d8c510c8e387a4cccaef6127143623e050cb0",
+      "execution_digest": "2ba7b0a2e58c187aec6eb30257f14964c9a537d7871095e7d6e47a0efb04ee94",
+      "workspace_digest": "380e529b737341a3813441f171d8e4c1367558c3dd30dcb4f42f67eba997c39a",
+      "passed": true,
+      "commands": [
+        {
+          "command": "specsync check --spec algorand",
+          "success": true,
+          "exit_code": 0
+        }
+      ],
+      "requirement_ids": [
+        "REQ-algorand-029",
+        "REQ-algorand-030",
+        "REQ-algorand-031",
+        "REQ-algorand-032",
+        "REQ-algorand-033",
+        "REQ-algorand-034"
+      ]
+    },
+    {
+      "timestamp": 1788650975,
+      "commit": "ccdd9d4c4875f57d11a2791f9744b076703521e6",
+      "contract_digest": "0d8f318e498bc6883560ea59591d8c510c8e387a4cccaef6127143623e050cb0",
+      "execution_digest": "2ba7b0a2e58c187aec6eb30257f14964c9a537d7871095e7d6e47a0efb04ee94",
+      "workspace_digest": "380e529b737341a3813441f171d8e4c1367558c3dd30dcb4f42f67eba997c39a",
+      "acceptance_input_digest": "9a554419efa121203531a60799cbfab919777526f054ed1957f4fc3ef8ce88ae",
+      "acceptance_manifest": {
+        "schema_version": 1,
+        "entries": [
+          {
+            "path": "Package.swift",
+            "kind": "file",
+            "mode": 33188,
+            "payload_digest": "10a36cbc18d4a98ba9e71e3a91385e661daef8e95ea368ca41191be2b8a21137",
+            "entry_digest": "bddaa1e7b507f6a5155fa7ce3b9b352fe41ebc81953f58d3b23026f8248ea523",
+            "owners": [
+              "@exact:delivery"
+            ]
+          },
+          {
+            "path": "Sources/Algorand",
+            "kind": "non_file",
+            "mode": 0,
+            "payload_digest": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+            "entry_digest": "bd475225b0243283060cdb96cfcfbeabecbd00976db2b687622f78a9f26bba7a",
+            "owners": [
+              "@exact:delivery"
+            ]
+          },
+          {
+            "path": "Sources/Algorand/Account.swift",
+            "kind": "file",
+            "mode": 33188,
+            "payload_digest": "8bd76b7465572c0a138be7a775ace0cbf977b4c111a4625d8c96d5f22144d334",
+            "entry_digest": "c0ccce6b6ecf95b038ccc17020f13eea278fbc4f208ee76a3294b618f7d4ce03",
+            "owners": [
+              "algorand"
+            ]
+          },
+          {
+            "path": "Sources/Algorand/Address+PostQuantum.swift",
+            "kind": "file",
+            "mode": 33188,
+            "payload_digest": "284e33ab48c863c5f062d79a6d1cc39ccc42f7262e95ee878fd3b335e368660c",
+            "entry_digest": "1bae3c4de928c71c02c02ade4e000135bd73584a0d1896d6dfdd6ff0a2e0d11e",
+            "owners": [
+              "algorand"
+            ]
+          },
+          {
+            "path": "Sources/Algorand/Address.swift",
+            "kind": "file",
+            "mode": 33188,
+            "payload_digest": "fd98cef9c1b9f973f904daa3fed5a3acc0534326f89943d9338a79a3c7e8a041",
+            "entry_digest": "3303da7b987ca62f56a7626c95db8b9ac3e6076150fb28ccb99955fd6202d656",
+            "owners": [
+              "algorand"
+            ]
+          },
+          {
+            "path": "Sources/Algorand/AlgodClient.swift",
+            "kind": "file",
+            "mode": 33188,
+            "payload_digest": "2634be8fcbf4a4607e028717bdd9ed619e48eaf54cb58a69630900f279b0ba34",
+            "entry_digest": "6a413263dee1fb7287def1f662dfc3a2cd3ea9544a28f4431b59ae3a1b5873a6",
+            "owners": [
+              "algorand"
+            ]
+          },
+          {
+            "path": "Sources/Algorand/Algorand.docc/Algorand.md",
+            "kind": "file",
+            "mode": 33188,
+            "payload_digest": "5ea603179b1e755f3ae8bae088197023db33a698dbe2320b43a22bba4557aa6b",
+            "entry_digest": "fe61c9f56e7dedfd23c1945559d592afa69e228274a8e858f9a60383eeb068a5",
+            "owners": [
+              "@exact:delivery"
+            ]
+          },
+          {
+            "path": "Sources/Algorand/Algorand.docc/GettingStarted.md",
+            "kind": "file",
+            "mode": 33188,
+            "payload_digest": "15ee2462bee9172dac73e2b935676adb6e1be953e5fa0935a9f85851c1c655e0",
+            "entry_digest": "70587ca4c468ac177395ce5603069bbf8bf73affac10c69af6e28ad238297bc0",
+            "owners": [
+              "@exact:delivery"
+            ]
+          },
+          {
+            "path": "Sources/Algorand/AlgorandConfiguration.swift",
+            "kind": "file",
+            "mode": 33188,
+            "payload_digest": "521fd79e9df2cf9c748bf56f389feb951a2d61813c74c1c477bc8d0f729303de",
+            "entry_digest": "74eee3972da43df44ec84319f4ea6bd4f63c4bbc0de7aa31a5ab300346fd854c",
+            "owners": [
+              "algorand"
+            ]
+          },
+          {
+            "path": "Sources/Algorand/AlgorandConsensus.swift",
+            "kind": "file",
+            "mode": 33188,
+            "payload_digest": "2b7a42f68e11bebbe96cfb998010bf0a32de3b78915860aae9b81f5f19e5e5d5",
+            "entry_digest": "096a81d02138c26e602f17a8bde54b09778e60a1f97e73455640798045c981c6",
+            "owners": [
+              "algorand"
+            ]
+          },
+          {
+            "path": "Sources/Algorand/AlgorandError.swift",
+            "kind": "file",
+            "mode": 33188,
+            "payload_digest": "a2150aff80a3c0b56995fe51dde5236a34f1715731f26c50e8b2dca5c58538f1",
+            "entry_digest": "a8e07b66fd5f596c1b577a521b84b0be2b43045a1182c88fce12cfa95ff2b3ed",
+            "owners": [
+              "algorand"
+            ]
+          },
+          {
+            "path": "Sources/Algorand/AmountError.swift",
+            "kind": "file",
+            "mode": 33188,
+            "payload_digest": "fe32bc8856f6e5f7a88572dc3a37e4d7edeb8e5bf216d2a3f92d84abbfd69d38",
+            "entry_digest": "3adb9e12ba73247ad3f158f2cca07218a6e2c33ebcfff1da25c8828e95affb81",
+            "owners": [
+              "algorand"
+            ]
+          },
+          {
+            "path": "Sources/Algorand/ApplicationTransaction.swift",
+            "kind": "file",
+            "mode": 33188,
+            "payload_digest": "9c399718b7089f0d352ffe0f5ff4a3dcb533ebbb7766d1d144aac1ae38cd91ac",
+            "entry_digest": "01b701db530a974a515dd5ba80c3df76ecdc162ceca912429db7946669b90a01",
+            "owners": [
+              "algorand"
+            ]
+          },
+          {
+            "path": "Sources/Algorand/AssetTransaction.swift",
+            "kind": "file",
+            "mode": 33188,
+            "payload_digest": "eb6968f39baab0fe9928b33956c1b663011055f6918b8348cc5a67d27a584202",
+            "entry_digest": "215c0de6cb84c69563a14b906b2b861714cd0b1a08a96f54e0ba08d88e3b0226",
+            "owners": [
+              "algorand"
+            ]
+          },
+          {
+            "path": "Sources/Algorand/AtomicTransactionGroup+Fees.swift",
+            "kind": "file",
+            "mode": 33188,
+            "payload_digest": "7cd0c4c7e93b00bf5686110607c63179de9aaf403cfab4a076cf3fa5937cb451",
+            "entry_digest": "89ff0301eec6f3b329426b46443651c39c463a395fb82b4baa4be528722c94f1",
+            "owners": [
+              "algorand"
+            ]
+          },
+          {
+            "path": "Sources/Algorand/AtomicTransactionGroup.swift",
+            "kind": "file",
+            "mode": 33188,
+            "payload_digest": "ad2b03bb9596ac63aee3a3ea385a7ee1e22a4dc42a151d032e96851d2369675f",
+            "entry_digest": "13bfe969cb927f5c26d0b8a61d18b216f8099337aa279b5d527f372b74643b27",
+            "owners": [
+              "algorand"
+            ]
+          },
+          {
+            "path": "Sources/Algorand/BIP39Wordlist.swift",
+            "kind": "file",
+            "mode": 33188,
+            "payload_digest": "fe238a505f049d3e76258f900dff0e812486c04c60a743a4bde47946a0af9fd1",
+            "entry_digest": "f6a9ccf2efeabd89f7c6524dfdfb9c70949977abf8bd1af46e492e4b96a168b3",
+            "owners": [
+              "algorand"
+            ]
+          },
+          {
+            "path": "Sources/Algorand/CanonicalBoxReferences.swift",
+            "kind": "file",
+            "mode": 33188,
+            "payload_digest": "ca35eb6dac36f4f826c5542b05ff57c188a787c5063709629da03318bf66ed27",
+            "entry_digest": "808b8864059be2ae216739bad2c203eaca216259367a7bed0485c53e8b6135dd",
+            "owners": [
+              "algorand"
+            ]
+          },
+          {
+            "path": "Sources/Algorand/CanonicalTransactionFields.swift",
+            "kind": "file",
+            "mode": 33188,
+            "payload_digest": "e811a33c312292b0de2e8589ccdcceb687f0fd175d51a036875cfe6bd60c40c1",
+            "entry_digest": "bc41d4bf26a2b323ebe63c0bdef1e6b9a796fa753ca1a559ed1345025e554a0d",
+            "owners": [
+              "algorand"
+            ]
+          },
+          {
+            "path": "Sources/Algorand/Edwards25519.swift",
+            "kind": "file",
+            "mode": 33188,
+            "payload_digest": "62b817500555c09399346662646dfd1301d8b8a5fa66c75d8f5bea3e1f24d5bf",
+            "entry_digest": "6f89bf47126062d4b1eb1bf45195b5d88ced9418066a2f99fa84d7df52d38dc9",
+            "owners": [
+              "algorand"
+            ]
+          },
+          {
+            "path": "Sources/Algorand/EndpointURL.swift",
+            "kind": "file",
+            "mode": 33188,
+            "payload_digest": "1c6fa3965bc3f9c0bd761acd5916ee62a0b5b9f98a5f6bc8cd90bb4d3d63ae5a",
+            "entry_digest": "9ca8d6df7da1cd7bdfc9e75a35e87b336df0dd7f73c8177dd45e166be6b19aa7",
+            "owners": [
+              "algorand"
+            ]
+          },
+          {
+            "path": "Sources/Algorand/FeeError.swift",
+            "kind": "file",
+            "mode": 33188,
+            "payload_digest": "115a95474727ec68d97b4149aabaac14f1405ef25646c2fcc063b3c800bc6cb3",
+            "entry_digest": "1d1cde746641fdd46216efc53c214c6283c0785ea8b22b6148ab0685961812b8",
+            "owners": [
+              "algorand"
+            ]
+          },
+          {
+            "path": "Sources/Algorand/FeeStrategy.swift",
+            "kind": "file",
+            "mode": 33188,
+            "payload_digest": "2572c8bae02c6a49cda45a2c32833389f32bd8805e9ef490dae5a5c6cd7f07db",
+            "entry_digest": "26419da220f0a52011a4d302ae53c4d1e4570138e4be1f3530aa1351f1e65ab0",
+            "owners": [
+              "algorand"
+            ]
+          },
+          {
+            "path": "Sources/Algorand/IndexerClient.swift",
+            "kind": "file",
+            "mode": 33188,
+            "payload_digest": "503fceea9589cb1b508c9b60d5456c5071ced1359ffba789e43ab00281fa97c8",
+            "entry_digest": "a9801f9dfcb945986f81d3477cb63a03bfc7923564c07ae4c553b8800d78a6e2",
+            "owners": [
+              "algorand"
+            ]
+          },
+          {
+            "path": "Sources/Algorand/KeyRegistrationTransaction.swift",
+            "kind": "file",
+            "mode": 33188,
+            "payload_digest": "6489b442d8478e457f4d29be9325aa04a959c16b261253a7d8b9fc77516aa7f4",
+            "entry_digest": "3471972ac9a8e326762ebae7db95ebd5e5468177580df22dcfff17e77bb0e855",
+            "owners": [
+              "algorand"
+            ]
+          },
+          {
+            "path": "Sources/Algorand/MessagePackWriter.swift",
+            "kind": "file",
+            "mode": 33188,
+            "payload_digest": "a50f42ea54fa431b6f7b18bb260fd6604124c0cb4f8c77bacc11f31e5b2c9d2a",
+            "entry_digest": "a25e7e99ca2679aa24f4aedf148ce2b0bc16b9100d862c0a31f41dbf5c40dc33",
+            "owners": [
+              "algorand"
+            ]
+          },
+          {
+            "path": "Sources/Algorand/MicroAlgos.swift",
+            "kind": "file",
+            "mode": 33188,
+            "payload_digest": "9bd59cd6f78b767893fc60f80c894510f1d438306dc9cb6be711800b0f4b6a23",
+            "entry_digest": "7b8b8b749a900d4e416f9d00b398f59905fcb2fca1dba60cfc7a51011fcfef5d",
+            "owners": [
+              "algorand"
+            ]
+          },
+          {
+            "path": "Sources/Algorand/Mnemonic.swift",
+            "kind": "file",
+            "mode": 33188,
+            "payload_digest": "54a348ce33df39cffce301cff6e2d69f348a2c55f2dafa53ba60d031b2648073",
+            "entry_digest": "96e7be9a403512578df377da9aa33be7589d5a94e2658babab61620db3ce223c",
+            "owners": [
+              "algorand"
+            ]
+          },
+          {
+            "path": "Sources/Algorand/PQScheme.swift",
+            "kind": "file",
+            "mode": 33188,
+            "payload_digest": "5d4a37fc40c15840993283d3abcd93c42d9494f6e7c34b47ab2b5e2760e8ef95",
+            "entry_digest": "22ba94d0f0c0cebd6b71b063a45ceea45dff27d84cb435ee0e8e07ffd843f361",
+            "owners": [
+              "algorand"
+            ]
+          },
+          {
+            "path": "Sources/Algorand/PQSignature.swift",
+            "kind": "file",
+            "mode": 33188,
+            "payload_digest": "300e75e1d9fed2f203392b7fa68d1103acad235acda2cb9a97a7a77f1cdc9a35",
+            "entry_digest": "478bc2cd91adc95de6208edcc19ff6eb6f3c003bca48bb45dcb9636a25f44067",
+            "owners": [
+              "algorand"
+            ]
+          },
+          {
+            "path": "Sources/Algorand/PaymentTransaction.swift",
+            "kind": "file",
+            "mode": 33188,
+            "payload_digest": "4ae166f3dccf3d2db46442f29e7f6179517c3c39f7975d17f862d9fb56442553",
+            "entry_digest": "45d307febba493ef7a75185154fe881792a725da64087acbcd10d1c2be1478a5",
+            "owners": [
+              "algorand"
+            ]
+          },
+          {
+            "path": "Sources/Algorand/SHA512_256.swift",
+            "kind": "file",
+            "mode": 33188,
+            "payload_digest": "abdcc908e3dc0901de59e8cfbacd6d92bb4ac1fd85c44394a515d8432a275f24",
+            "entry_digest": "5d78ddfc78acd66e98e2a3196b7df46293ed2c076552b818f7e9f062cddeea19",
+            "owners": [
+              "algorand"
+            ]
+          },
+          {
+            "path": "Sources/Algorand/SecureRandom.swift",
+            "kind": "file",
+            "mode": 33188,
+            "payload_digest": "a38b4aa4a89e93852da6a2bde3922909297f3f3b28a16d34036828138b595043",
+            "entry_digest": "180abdcb54190cbed547c5621df026172cae085999f61aecde5aa114d61e64a2",
+            "owners": [
+              "algorand"
+            ]
+          },
+          {
+            "path": "Sources/Algorand/SignedTransaction.swift",
+            "kind": "file",
+            "mode": 33188,
+            "payload_digest": "9cf0132b6986af74f49f931d77ca7fd6876a381c80b7d2d0835de851506a41bc",
+            "entry_digest": "13028a1c04712b525bfbdf9cd83c79e9a16cad16774070c8c97dcf4f3825c5f1",
+            "owners": [
+              "algorand"
+            ]
+          },
+          {
+            "path": "Sources/Algorand/SimulateRequest+MessagePack.swift",
+            "kind": "file",
+            "mode": 33188,
+            "payload_digest": "b955aa9d132f702310d6369db0022e04ce2f145bda752fd1a5307e2ce8f559c9",
+            "entry_digest": "8cb26bcd6b9a785d6cffd732d5fa4cd2fa3b88d6ae3f250aaa5f17dd1650b52e",
+            "owners": [
+              "algorand"
+            ]
+          },
+          {
+            "path": "Sources/Algorand/Transaction+Signing.swift",
+            "kind": "file",
+            "mode": 33188,
+            "payload_digest": "3b2368e4e8f13a4547489e142eabfe39087e1c340405e78cd9023a893f0fcd0f",
+            "entry_digest": "8b0ffd10357cd09997d53bade2742fecd79853015c7c28e3fcdb8208592e850e",
+            "owners": [
+              "algorand"
+            ]
+          },
+          {
+            "path": "Sources/Algorand/Transaction.swift",
+            "kind": "file",
+            "mode": 33188,
+            "payload_digest": "e3d64e0302e1d900277bd14aef08d61b1346991bb56c005e7e5784dd8bfa2dcf",
+            "entry_digest": "7b9b95301620cb8661c05e87024c544a380d942464a836ed868733d29efef5f5",
+            "owners": [
+              "algorand"
+            ]
+          },
+          {
+            "path": "Sources/Algorand/TransactionAuthorization.swift",
+            "kind": "file",
+            "mode": 33188,
+            "payload_digest": "f1c81c2ad7f37f4818854f07f56aee6bed65acff0926f4f67d0527e818ec8a6a",
+            "entry_digest": "984fa5f069e1f3b8b5aadceb58df91471578bbea23afe935bf4be267bb7baf78",
+            "owners": [
+              "algorand"
+            ]
+          },
+          {
+            "path": "Sources/Algorand/TransactionSigner.swift",
+            "kind": "file",
+            "mode": 33188,
+            "payload_digest": "4ecc3ae192209dabd1fd0967ab2faaaf094aee495a1eeabd0590c61cd1ca69c7",
+            "entry_digest": "dc7fbdacf596c189e753ff2488c389af565c7bfc9e965a44e81d0efab8f9e303",
+            "owners": [
+              "algorand"
+            ]
+          },
+          {
+            "path": "Sources/Algorand/TransactionUsage.swift",
+            "kind": "file",
+            "mode": 33188,
+            "payload_digest": "1cf8121d41c3afb72b18939fe5436b7101594eb03e9f7c961d35efd87fec7e5e",
+            "entry_digest": "5198a31e331a4b5f2c3649ef172952152c63a06e9960185ea6d0f73e13a0239e",
+            "owners": [
+              "algorand"
+            ]
+          },
+          {
+            "path": "Tests/AlgorandTests",
+            "kind": "non_file",
+            "mode": 0,
+            "payload_digest": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+            "entry_digest": "3221960cdf8577eda93fce7c07fa33ac2faf337c0c5ee2f991ec88bab7ec31b5",
+            "owners": [
+              "@exact:test"
+            ]
+          },
+          {
+            "path": "Tests/AlgorandTests/AccountTests.swift",
+            "kind": "file",
+            "mode": 33188,
+            "payload_digest": "70e228e07d5d717db82f8154d8391fa78dc8de4826463e3d0443a92c1630edd9",
+            "entry_digest": "790cc93d8981779d823e1f87f029cfa307d89d97e05294ae0754b7bca8650e8a",
+            "owners": [
+              "@exact:test"
+            ]
+          },
+          {
+            "path": "Tests/AlgorandTests/AddressTests.swift",
+            "kind": "file",
+            "mode": 33188,
+            "payload_digest": "4838c2287f55f3e96d374a62d8716f2b3aa9aa3c9b2083ec7078544e7c21be58",
+            "entry_digest": "ccb191f41ca1b7336af61025111f2a845462a97e5fcd286937374662a8fb939e",
+            "owners": [
+              "@exact:test"
+            ]
+          },
+          {
+            "path": "Tests/AlgorandTests/ApplicationTransactionTests.swift",
+            "kind": "file",
+            "mode": 33188,
+            "payload_digest": "459d19f2107a5f9bfb51c227ae20d763bdcf876f9af44ee61539ec1ab5d0a1dd",
+            "entry_digest": "e87df2f5f08c43086d31a98892aeb885ecb7498cc55c99faa3ee5d5e22c1d73d",
+            "owners": [
+              "@exact:test"
+            ]
+          },
+          {
+            "path": "Tests/AlgorandTests/AssetManagementTests.swift",
+            "kind": "file",
+            "mode": 33188,
+            "payload_digest": "0e60e34980e05f8c52ce8baa9f09a91b00c639ccc2f385fe4b83522aa6d1a177",
+            "entry_digest": "58c034b9671f9a70ee97dc30f3b6213c10d660c959189bf92372bccee34b0395",
+            "owners": [
+              "@exact:test"
+            ]
+          },
+          {
+            "path": "Tests/AlgorandTests/AssetTests.swift",
+            "kind": "file",
+            "mode": 33188,
+            "payload_digest": "27242a8f19c7d9f0dcc62f0467eb7bed3d1dac62c3625bfcc979a2a16e553da2",
+            "entry_digest": "c088a18284b34c5051e174ae1042889bbb853a34824aeada21310671e5cba48f",
+            "owners": [
+              "@exact:test"
+            ]
+          },
+          {
+            "path": "Tests/AlgorandTests/AtomicTransactionGroupTests.swift",
+            "kind": "file",
+            "mode": 33188,
+            "payload_digest": "c3fd1a18948007af3e3f4adf9748fdf08e7f9a816043903cd0b04a288c5112b4",
+            "entry_digest": "3e8db94aee93464860e80a9268418cebbb5e6b7cba71992b9db1759dc6a993c2",
+            "owners": [
+              "@exact:test"
+            ]
+          },
+          {
+            "path": "Tests/AlgorandTests/CanonicalBoxReferenceTests.swift",
+            "kind": "file",
+            "mode": 33188,
+            "payload_digest": "aa5911dcca122d794a2e0d63365125f5241e44a76b51f180a049106219547f32",
+            "entry_digest": "8292458a050120198ed5b384ab6dc061730e5cc9e76511b8626af8ee34340506",
+            "owners": [
+              "@exact:test"
+            ]
+          },
+          {
+            "path": "Tests/AlgorandTests/CanonicalEncodingTests.swift",
+            "kind": "file",
+            "mode": 33188,
+            "payload_digest": "988cfa3e9c3706b46d41b173d854f054861e81dd343df70621cb05ef18153039",
+            "entry_digest": "da49fa422403ed8be075e7713ca86665928d81c532b827b9693ab577a899da50",
+            "owners": [
+              "@exact:test"
+            ]
+          },
+          {
+            "path": "Tests/AlgorandTests/ComprehensiveIntegrationTest.swift",
+            "kind": "file",
+            "mode": 33188,
+            "payload_digest": "e8ddaa0ec0dc683a53f1efabfa18f928522b214862873d62d0ae8c73a3adbea4",
+            "entry_digest": "b1d16b7bb71d262beab4d25afdca428c452e957141bda61c4cb209fe6d7acb10",
+            "owners": [
+              "@exact:test"
+            ]
+          },
+          {
+            "path": "Tests/AlgorandTests/DeferredVectors.swift",
+            "kind": "file",
+            "mode": 33188,
+            "payload_digest": "687a66670d858ded0a9027370f08af4aa1973b602be7b6a21e3997c1236090d2",
+            "entry_digest": "e192a61efe03d425310aecc02def4065a7ede6062c7ede9261d9af88e5d0146a",
+            "owners": [
+              "@exact:test"
+            ]
+          },
+          {
+            "path": "Tests/AlgorandTests/FeeModelTests.swift",
+            "kind": "file",
+            "mode": 33188,
+            "payload_digest": "201ec3f7ad90929d6f102c11807bb023cad9a8c09a1ed940e13fefc3406a141d",
+            "entry_digest": "f851ff4205f362c101f39c5ee8d091e0507f575f23fae9237d4d2851702ddff8",
+            "owners": [
+              "@exact:test"
+            ]
+          },
+          {
+            "path": "Tests/AlgorandTests/IntegrationTests.swift",
+            "kind": "file",
+            "mode": 33188,
+            "payload_digest": "60b0044762d277f647d4aad4d4f8384d2633f9dc45e30f9f06f38154c228b0c4",
+            "entry_digest": "e25873a2582ff8e2af2faa73e02160c3d184f8cb6c3e55ec206c1467eb9e8ce4",
+            "owners": [
+              "@exact:test"
+            ]
+          },
+          {
+            "path": "Tests/AlgorandTests/KeyRegistrationTests.swift",
+            "kind": "file",
+            "mode": 33188,
+            "payload_digest": "1fabb1fb7465c45fc505522fad49843d46600ba80e7850fd3a9478fd291af330",
+            "entry_digest": "a13a4fde9ce7b543c37d73bb9c23c9630cfb6d94924ee9fe6ad2625ec0b6acbc",
+            "owners": [
+              "@exact:test"
+            ]
+          },
+          {
+            "path": "Tests/AlgorandTests/MicroAlgosTests.swift",
+            "kind": "file",
+            "mode": 33188,
+            "payload_digest": "634d45669f8c9b8ba23d92688613256c6e21b4a1c8a0727af51d65bffcc6c29d",
+            "entry_digest": "b1fd55a7d55ceb267a24c0a00e514280341cb59a37d7941f8d973a1e9470592b",
+            "owners": [
+              "@exact:test"
+            ]
+          },
+          {
+            "path": "Tests/AlgorandTests/MnemonicTests.swift",
+            "kind": "file",
+            "mode": 33188,
+            "payload_digest": "0d60d87d179e56179ccbadc882640b42dc883899e0918f9d690f476f967c21dc",
+            "entry_digest": "5e21c6a54741f8a615db899b51cf5201d689f98608d916b3eff2c07ca7c5e1f3",
+            "owners": [
+              "@exact:test"
+            ]
+          },
+          {
+            "path": "Tests/AlgorandTests/PaymentTransactionTests.swift",
+            "kind": "file",
+            "mode": 33188,
+            "payload_digest": "cdd0c8451486c75341026da6e9da4fab960d6ddbe79d11befd39809ad26f0d76",
+            "entry_digest": "bd6876285a6feeeda62f90cfdf81941946ade8dd24d7822d32b89c9f4dd1470e",
+            "owners": [
+              "@exact:test"
+            ]
+          },
+          {
+            "path": "Tests/AlgorandTests/PostQuantumVectorTests.swift",
+            "kind": "file",
+            "mode": 33188,
+            "payload_digest": "98aeab92c1f9083b362776ea0a0e75b06facd0c36770662562a7e5b8de8fede3",
+            "entry_digest": "041b486f38809650ba7293db4cb77862f7299fa2228a1164281cddd47d6ddece",
+            "owners": [
+              "@exact:test"
+            ]
+          },
+          {
+            "path": "Tests/AlgorandTests/PostQuantumVectors.swift",
+            "kind": "file",
+            "mode": 33188,
+            "payload_digest": "fadb29fe6cddbb562c078a1d260b7f57146b487a96675e22522a4e83aa1bfa64",
+            "entry_digest": "bf234c02e99fc30c6985a17166d47f2ec3b1c8e5b189312c3c01c2251eb6fd1a",
+            "owners": [
+              "@exact:test"
+            ]
+          },
+          {
+            "path": "Tests/AlgorandTests/ProofOfWorkTest.swift",
+            "kind": "file",
+            "mode": 33188,
+            "payload_digest": "f05d9dee8411d606ecf951c29e5943a9f6372376131dad721e7852c8e71c546d",
+            "entry_digest": "75e77c26e042507abfcd056248e8af571684cbcdd121b96cf118802eb7e92de4",
+            "owners": [
+              "@exact:test"
+            ]
+          },
+          {
+            "path": "Tests/AlgorandTests/SHA512_256Tests.swift",
+            "kind": "file",
+            "mode": 33188,
+            "payload_digest": "40b19243b3009a121aa2d612a69cd861ed68c28fc43d3ce273d77d75d521e606",
+            "entry_digest": "8a13a8c8914498ec547acbcd714032804a8efdfc380764b418e03d49c6c34ddd",
+            "owners": [
+              "@exact:test"
+            ]
+          },
+          {
+            "path": "Tests/AlgorandTests/SafetyAndSurfaceTests.swift",
+            "kind": "file",
+            "mode": 33188,
+            "payload_digest": "181e62e95de455467a51a78e64d50b29d2daf9eb6dd5303e6433e58b1b99a52e",
+            "entry_digest": "b4d5a8e7a36a9756f8c2cccef7ded88849a7bd4fcb3f81e5754dfe0829752309",
+            "owners": [
+              "@exact:test"
+            ]
+          },
+          {
+            "path": "Tests/AlgorandTests/SignedTransactionEnvelopeTests.swift",
+            "kind": "file",
+            "mode": 33188,
+            "payload_digest": "86ab2d9f89dacedfe642cc1427fe61692cc4d25d60785c10262d04de906ea2c3",
+            "entry_digest": "77e1c966a5d66289c556797dbf283419ea9a1ef92394939691e357d981f52d7e",
+            "owners": [
+              "@exact:test"
+            ]
+          },
+          {
+            "path": "specs/algorand",
+            "kind": "non_file",
+            "mode": 0,
+            "payload_digest": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+            "entry_digest": "d1acb97e3907b3f0da0150b24522716a823a5be6688ca5096b45e9629cd1c37a",
+            "owners": [
+              "@exact:delivery"
+            ]
+          },
+          {
+            "path": "specs/algorand/algorand.spec.md",
+            "kind": "file",
+            "mode": 33188,
+            "payload_digest": "23d9c268b1c28c117b7bb792d8928a5ff1f40530970b6a3da285c033422c2633",
+            "entry_digest": "550139c275dca05c3790aeddd35f6a77f50bb97428084652d6ed00b6ffcae78f",
+            "owners": [
+              "algorand"
+            ]
+          },
+          {
+            "path": "specs/algorand/context.md",
+            "kind": "file",
+            "mode": 33188,
+            "payload_digest": "5bc6fa99ce59190ef151504320db9f938679939786a6409c60c9dab4e93a451c",
+            "entry_digest": "80090c613e03bbfda9869d9cf583b749c546cfef4a5299ed25f8418eca9a0f8e",
+            "owners": [
+              "algorand"
+            ]
+          },
+          {
+            "path": "specs/algorand/requirements.md",
+            "kind": "file",
+            "mode": 33188,
+            "payload_digest": "75251c26f23362026d94dd232f7645d9e5cfd6b3f286d6b6e75621f932c86a0d",
+            "entry_digest": "5d72bc77d51df3dd649dfb9e14ef2a50a1528fac4a7e98857c5016bd822184a0",
+            "owners": [
+              "algorand"
+            ]
+          },
+          {
+            "path": "specs/algorand/tasks.md",
+            "kind": "file",
+            "mode": 33188,
+            "payload_digest": "5fade87407ad9fc9f595af05f53cedc078085f3a6f67dd0722ee8d3e5b58d0f7",
+            "entry_digest": "750101ae045684aa867c3aaa7c07c776f0d8fa3cf030cac90a67cd64665df330",
+            "owners": [
+              "algorand"
+            ]
+          },
+          {
+            "path": "specs/algorand/testing.md",
+            "kind": "file",
+            "mode": 33188,
+            "payload_digest": "f5f37053abbd175467d044394f814e98fe69d3d5edfdcb385581b57c2f1be3bb",
+            "entry_digest": "adbb4bab85e86cb21dbb91a58b1a96fc792e71a85d74bfc6afe3a109670add63",
+            "owners": [
+              "algorand"
+            ]
+          }
+        ]
+      },
+      "semantic_succession": {
+        "schema_version": 1,
+        "tuples": [
+          {
+            "predecessor_id": "CHG-0001-adopt-specsync-5-0-1-and-trust-1-0-0-governance-for-the-swift-algorand-sdk",
+            "path": "Sources/Algorand/Account.swift",
+            "module": "algorand",
+            "predecessor_entry_digest": "8332f00df35701c7d5b6756dbc1df217f8b544549e2e22031a7bde9e4140513a",
+            "successor_entry_digest": "c0ccce6b6ecf95b038ccc17020f13eea278fbc4f208ee76a3294b618f7d4ce03"
+          },
+          {
+            "predecessor_id": "CHG-0001-adopt-specsync-5-0-1-and-trust-1-0-0-governance-for-the-swift-algorand-sdk",
+            "path": "Sources/Algorand/Address.swift",
+            "module": "algorand",
+            "predecessor_entry_digest": "6926b4316063acb417e6d8c6f03128b6d976c9f0e51eac2c485fd3ab0c239eaa",
+            "successor_entry_digest": "3303da7b987ca62f56a7626c95db8b9ac3e6076150fb28ccb99955fd6202d656"
+          },
+          {
+            "predecessor_id": "CHG-0001-adopt-specsync-5-0-1-and-trust-1-0-0-governance-for-the-swift-algorand-sdk",
+            "path": "Sources/Algorand/AlgodClient.swift",
+            "module": "algorand",
+            "predecessor_entry_digest": "aea7a77da359da87f6cb2545046f3c037a94be6847565f701d5d286a793c9c15",
+            "successor_entry_digest": "6a413263dee1fb7287def1f662dfc3a2cd3ea9544a28f4431b59ae3a1b5873a6"
+          },
+          {
+            "predecessor_id": "CHG-0001-adopt-specsync-5-0-1-and-trust-1-0-0-governance-for-the-swift-algorand-sdk",
+            "path": "Sources/Algorand/AlgorandConfiguration.swift",
+            "module": "algorand",
+            "predecessor_entry_digest": "d222b99a442fc315f44065fe3b91afbb3f61e8c16ed60f84e6937a917c1dc11a",
+            "successor_entry_digest": "74eee3972da43df44ec84319f4ea6bd4f63c4bbc0de7aa31a5ab300346fd854c"
+          },
+          {
+            "predecessor_id": "CHG-0001-adopt-specsync-5-0-1-and-trust-1-0-0-governance-for-the-swift-algorand-sdk",
+            "path": "Sources/Algorand/AlgorandError.swift",
+            "module": "algorand",
+            "predecessor_entry_digest": "43822d8bb65ca64d71a091a6495b04633bc294c2346f4ab66deeadea3b34487b",
+            "successor_entry_digest": "a8e07b66fd5f596c1b577a521b84b0be2b43045a1182c88fce12cfa95ff2b3ed"
+          },
+          {
+            "predecessor_id": "CHG-0001-adopt-specsync-5-0-1-and-trust-1-0-0-governance-for-the-swift-algorand-sdk",
+            "path": "Sources/Algorand/IndexerClient.swift",
+            "module": "algorand",
+            "predecessor_entry_digest": "d057ead84ee1c58f5f60f9f2906c490d9a728be11bd2dc3e81c3f6e756d361e2",
+            "successor_entry_digest": "a9801f9dfcb945986f81d3477cb63a03bfc7923564c07ae4c553b8800d78a6e2"
+          },
+          {
+            "predecessor_id": "CHG-0001-adopt-specsync-5-0-1-and-trust-1-0-0-governance-for-the-swift-algorand-sdk",
+            "path": "Sources/Algorand/MessagePackWriter.swift",
+            "module": "algorand",
+            "predecessor_entry_digest": "cff2b4961db874f37538db4daf8463da87dd9c3b36de67f9462a5b17293807f8",
+            "successor_entry_digest": "a25e7e99ca2679aa24f4aedf148ce2b0bc16b9100d862c0a31f41dbf5c40dc33"
+          },
+          {
+            "predecessor_id": "CHG-0001-adopt-specsync-5-0-1-and-trust-1-0-0-governance-for-the-swift-algorand-sdk",
+            "path": "Sources/Algorand/MicroAlgos.swift",
+            "module": "algorand",
+            "predecessor_entry_digest": "f359463efb86de1ece3fc226852fca17309a47c626637ec4038e9c8ae98cf43f",
+            "successor_entry_digest": "7b8b8b749a900d4e416f9d00b398f59905fcb2fca1dba60cfc7a51011fcfef5d"
+          },
+          {
+            "predecessor_id": "CHG-0001-adopt-specsync-5-0-1-and-trust-1-0-0-governance-for-the-swift-algorand-sdk",
+            "path": "Sources/Algorand/Mnemonic.swift",
+            "module": "algorand",
+            "predecessor_entry_digest": "f9112eca1194e0b65714b5b7de6bd665b0fcab1992da9f2561eeeeb7571051d3",
+            "successor_entry_digest": "96e7be9a403512578df377da9aa33be7589d5a94e2658babab61620db3ce223c"
+          },
+          {
+            "predecessor_id": "CHG-0001-adopt-specsync-5-0-1-and-trust-1-0-0-governance-for-the-swift-algorand-sdk",
+            "path": "Sources/Algorand/SHA512_256.swift",
+            "module": "algorand",
+            "predecessor_entry_digest": "600cea6902c5af235ccfa244aad40afc6d2d9c350ab833840b3706a8635dc935",
+            "successor_entry_digest": "5d78ddfc78acd66e98e2a3196b7df46293ed2c076552b818f7e9f062cddeea19"
+          },
+          {
+            "predecessor_id": "canonical-messagepack-encoding-conformance-for-consensus-v42-omit-empty-fields-messagepack-booleans-box-reference",
+            "path": "Sources/Algorand/Account.swift",
+            "module": "algorand",
+            "predecessor_entry_digest": "8332f00df35701c7d5b6756dbc1df217f8b544549e2e22031a7bde9e4140513a",
+            "successor_entry_digest": "c0ccce6b6ecf95b038ccc17020f13eea278fbc4f208ee76a3294b618f7d4ce03"
+          },
+          {
+            "predecessor_id": "canonical-messagepack-encoding-conformance-for-consensus-v42-omit-empty-fields-messagepack-booleans-box-reference",
+            "path": "Sources/Algorand/Address.swift",
+            "module": "algorand",
+            "predecessor_entry_digest": "6926b4316063acb417e6d8c6f03128b6d976c9f0e51eac2c485fd3ab0c239eaa",
+            "successor_entry_digest": "3303da7b987ca62f56a7626c95db8b9ac3e6076150fb28ccb99955fd6202d656"
+          },
+          {
+            "predecessor_id": "canonical-messagepack-encoding-conformance-for-consensus-v42-omit-empty-fields-messagepack-booleans-box-reference",
+            "path": "Sources/Algorand/AlgodClient.swift",
+            "module": "algorand",
+            "predecessor_entry_digest": "aea7a77da359da87f6cb2545046f3c037a94be6847565f701d5d286a793c9c15",
+            "successor_entry_digest": "6a413263dee1fb7287def1f662dfc3a2cd3ea9544a28f4431b59ae3a1b5873a6"
+          },
+          {
+            "predecessor_id": "canonical-messagepack-encoding-conformance-for-consensus-v42-omit-empty-fields-messagepack-booleans-box-reference",
+            "path": "Sources/Algorand/AlgorandConfiguration.swift",
+            "module": "algorand",
+            "predecessor_entry_digest": "d222b99a442fc315f44065fe3b91afbb3f61e8c16ed60f84e6937a917c1dc11a",
+            "successor_entry_digest": "74eee3972da43df44ec84319f4ea6bd4f63c4bbc0de7aa31a5ab300346fd854c"
+          },
+          {
+            "predecessor_id": "canonical-messagepack-encoding-conformance-for-consensus-v42-omit-empty-fields-messagepack-booleans-box-reference",
+            "path": "Sources/Algorand/AlgorandError.swift",
+            "module": "algorand",
+            "predecessor_entry_digest": "43822d8bb65ca64d71a091a6495b04633bc294c2346f4ab66deeadea3b34487b",
+            "successor_entry_digest": "a8e07b66fd5f596c1b577a521b84b0be2b43045a1182c88fce12cfa95ff2b3ed"
+          },
+          {
+            "predecessor_id": "canonical-messagepack-encoding-conformance-for-consensus-v42-omit-empty-fields-messagepack-booleans-box-reference",
+            "path": "Sources/Algorand/IndexerClient.swift",
+            "module": "algorand",
+            "predecessor_entry_digest": "d057ead84ee1c58f5f60f9f2906c490d9a728be11bd2dc3e81c3f6e756d361e2",
+            "successor_entry_digest": "a9801f9dfcb945986f81d3477cb63a03bfc7923564c07ae4c553b8800d78a6e2"
+          },
+          {
+            "predecessor_id": "canonical-messagepack-encoding-conformance-for-consensus-v42-omit-empty-fields-messagepack-booleans-box-reference",
+            "path": "Sources/Algorand/MessagePackWriter.swift",
+            "module": "algorand",
+            "predecessor_entry_digest": "cff2b4961db874f37538db4daf8463da87dd9c3b36de67f9462a5b17293807f8",
+            "successor_entry_digest": "a25e7e99ca2679aa24f4aedf148ce2b0bc16b9100d862c0a31f41dbf5c40dc33"
+          },
+          {
+            "predecessor_id": "canonical-messagepack-encoding-conformance-for-consensus-v42-omit-empty-fields-messagepack-booleans-box-reference",
+            "path": "Sources/Algorand/MicroAlgos.swift",
+            "module": "algorand",
+            "predecessor_entry_digest": "f359463efb86de1ece3fc226852fca17309a47c626637ec4038e9c8ae98cf43f",
+            "successor_entry_digest": "7b8b8b749a900d4e416f9d00b398f59905fcb2fca1dba60cfc7a51011fcfef5d"
+          },
+          {
+            "predecessor_id": "canonical-messagepack-encoding-conformance-for-consensus-v42-omit-empty-fields-messagepack-booleans-box-reference",
+            "path": "Sources/Algorand/Mnemonic.swift",
+            "module": "algorand",
+            "predecessor_entry_digest": "f9112eca1194e0b65714b5b7de6bd665b0fcab1992da9f2561eeeeb7571051d3",
+            "successor_entry_digest": "96e7be9a403512578df377da9aa33be7589d5a94e2658babab61620db3ce223c"
+          },
+          {
+            "predecessor_id": "canonical-messagepack-encoding-conformance-for-consensus-v42-omit-empty-fields-messagepack-booleans-box-reference",
+            "path": "Sources/Algorand/SHA512_256.swift",
+            "module": "algorand",
+            "predecessor_entry_digest": "600cea6902c5af235ccfa244aad40afc6d2d9c350ab833840b3706a8635dc935",
+            "successor_entry_digest": "5d78ddfc78acd66e98e2a3196b7df46293ed2c076552b818f7e9f062cddeea19"
+          },
+          {
+            "predecessor_id": "consensus-v42-fee-model-feestrategy-on-every-builder-and-initializer-per-transaction-usage-and-a-group-pooled-fee",
+            "path": "Sources/Algorand/Account.swift",
+            "module": "algorand",
+            "predecessor_entry_digest": "8332f00df35701c7d5b6756dbc1df217f8b544549e2e22031a7bde9e4140513a",
+            "successor_entry_digest": "c0ccce6b6ecf95b038ccc17020f13eea278fbc4f208ee76a3294b618f7d4ce03"
+          },
+          {
+            "predecessor_id": "consensus-v42-fee-model-feestrategy-on-every-builder-and-initializer-per-transaction-usage-and-a-group-pooled-fee",
+            "path": "Sources/Algorand/Address.swift",
+            "module": "algorand",
+            "predecessor_entry_digest": "6926b4316063acb417e6d8c6f03128b6d976c9f0e51eac2c485fd3ab0c239eaa",
+            "successor_entry_digest": "3303da7b987ca62f56a7626c95db8b9ac3e6076150fb28ccb99955fd6202d656"
+          },
+          {
+            "predecessor_id": "consensus-v42-fee-model-feestrategy-on-every-builder-and-initializer-per-transaction-usage-and-a-group-pooled-fee",
+            "path": "Sources/Algorand/AlgodClient.swift",
+            "module": "algorand",
+            "predecessor_entry_digest": "aea7a77da359da87f6cb2545046f3c037a94be6847565f701d5d286a793c9c15",
+            "successor_entry_digest": "6a413263dee1fb7287def1f662dfc3a2cd3ea9544a28f4431b59ae3a1b5873a6"
+          },
+          {
+            "predecessor_id": "consensus-v42-fee-model-feestrategy-on-every-builder-and-initializer-per-transaction-usage-and-a-group-pooled-fee",
+            "path": "Sources/Algorand/AlgorandConfiguration.swift",
+            "module": "algorand",
+            "predecessor_entry_digest": "d222b99a442fc315f44065fe3b91afbb3f61e8c16ed60f84e6937a917c1dc11a",
+            "successor_entry_digest": "74eee3972da43df44ec84319f4ea6bd4f63c4bbc0de7aa31a5ab300346fd854c"
+          },
+          {
+            "predecessor_id": "consensus-v42-fee-model-feestrategy-on-every-builder-and-initializer-per-transaction-usage-and-a-group-pooled-fee",
+            "path": "Sources/Algorand/AlgorandError.swift",
+            "module": "algorand",
+            "predecessor_entry_digest": "43822d8bb65ca64d71a091a6495b04633bc294c2346f4ab66deeadea3b34487b",
+            "successor_entry_digest": "a8e07b66fd5f596c1b577a521b84b0be2b43045a1182c88fce12cfa95ff2b3ed"
+          },
+          {
+            "predecessor_id": "consensus-v42-fee-model-feestrategy-on-every-builder-and-initializer-per-transaction-usage-and-a-group-pooled-fee",
+            "path": "Sources/Algorand/AssetTransaction.swift",
+            "module": "algorand",
+            "predecessor_entry_digest": "21b887c12a69ce64c611ee630dbe45c59856e894a30ccefeb4948d8d15d5e99e",
+            "successor_entry_digest": "215c0de6cb84c69563a14b906b2b861714cd0b1a08a96f54e0ba08d88e3b0226"
+          },
+          {
+            "predecessor_id": "consensus-v42-fee-model-feestrategy-on-every-builder-and-initializer-per-transaction-usage-and-a-group-pooled-fee",
+            "path": "Sources/Algorand/IndexerClient.swift",
+            "module": "algorand",
+            "predecessor_entry_digest": "d057ead84ee1c58f5f60f9f2906c490d9a728be11bd2dc3e81c3f6e756d361e2",
+            "successor_entry_digest": "a9801f9dfcb945986f81d3477cb63a03bfc7923564c07ae4c553b8800d78a6e2"
+          },
+          {
+            "predecessor_id": "consensus-v42-fee-model-feestrategy-on-every-builder-and-initializer-per-transaction-usage-and-a-group-pooled-fee",
+            "path": "Sources/Algorand/MessagePackWriter.swift",
+            "module": "algorand",
+            "predecessor_entry_digest": "cff2b4961db874f37538db4daf8463da87dd9c3b36de67f9462a5b17293807f8",
+            "successor_entry_digest": "a25e7e99ca2679aa24f4aedf148ce2b0bc16b9100d862c0a31f41dbf5c40dc33"
+          },
+          {
+            "predecessor_id": "consensus-v42-fee-model-feestrategy-on-every-builder-and-initializer-per-transaction-usage-and-a-group-pooled-fee",
+            "path": "Sources/Algorand/MicroAlgos.swift",
+            "module": "algorand",
+            "predecessor_entry_digest": "f359463efb86de1ece3fc226852fca17309a47c626637ec4038e9c8ae98cf43f",
+            "successor_entry_digest": "7b8b8b749a900d4e416f9d00b398f59905fcb2fca1dba60cfc7a51011fcfef5d"
+          },
+          {
+            "predecessor_id": "consensus-v42-fee-model-feestrategy-on-every-builder-and-initializer-per-transaction-usage-and-a-group-pooled-fee",
+            "path": "Sources/Algorand/Mnemonic.swift",
+            "module": "algorand",
+            "predecessor_entry_digest": "f9112eca1194e0b65714b5b7de6bd665b0fcab1992da9f2561eeeeb7571051d3",
+            "successor_entry_digest": "96e7be9a403512578df377da9aa33be7589d5a94e2658babab61620db3ce223c"
+          },
+          {
+            "predecessor_id": "consensus-v42-fee-model-feestrategy-on-every-builder-and-initializer-per-transaction-usage-and-a-group-pooled-fee",
+            "path": "Sources/Algorand/SHA512_256.swift",
+            "module": "algorand",
+            "predecessor_entry_digest": "600cea6902c5af235ccfa244aad40afc6d2d9c350ab833840b3706a8635dc935",
+            "successor_entry_digest": "5d78ddfc78acd66e98e2a3196b7df46293ed2c076552b818f7e9f062cddeea19"
+          },
+          {
+            "predecessor_id": "consensus-v42-fee-model-feestrategy-on-every-builder-and-initializer-per-transaction-usage-and-a-group-pooled-fee",
+            "path": "specs/algorand/algorand.spec.md",
+            "module": "algorand",
+            "predecessor_entry_digest": "1f1fde881958a1444306feb033b2e262bdef4eff3c577440f0fb4221188f2491",
+            "successor_entry_digest": "550139c275dca05c3790aeddd35f6a77f50bb97428084652d6ed00b6ffcae78f"
+          },
+          {
+            "predecessor_id": "consensus-v42-fee-model-feestrategy-on-every-builder-and-initializer-per-transaction-usage-and-a-group-pooled-fee",
+            "path": "specs/algorand/requirements.md",
+            "module": "algorand",
+            "predecessor_entry_digest": "9d7813e615db6bbfc3fb4c268bc77c833d92a86f42daaf348800660703286d46",
+            "successor_entry_digest": "5d72bc77d51df3dd649dfb9e14ef2a50a1528fac4a7e98857c5016bd822184a0"
+          },
+          {
+            "predecessor_id": "post-quantum-signedtransaction-envelope-for-consensus-v42-sgnr-rekey-inference-pqsig-with-falcon-1024-address",
+            "path": "Sources/Algorand/Account.swift",
+            "module": "algorand",
+            "predecessor_entry_digest": "8332f00df35701c7d5b6756dbc1df217f8b544549e2e22031a7bde9e4140513a",
+            "successor_entry_digest": "c0ccce6b6ecf95b038ccc17020f13eea278fbc4f208ee76a3294b618f7d4ce03"
+          },
+          {
+            "predecessor_id": "post-quantum-signedtransaction-envelope-for-consensus-v42-sgnr-rekey-inference-pqsig-with-falcon-1024-address",
+            "path": "Sources/Algorand/Address.swift",
+            "module": "algorand",
+            "predecessor_entry_digest": "6926b4316063acb417e6d8c6f03128b6d976c9f0e51eac2c485fd3ab0c239eaa",
+            "successor_entry_digest": "3303da7b987ca62f56a7626c95db8b9ac3e6076150fb28ccb99955fd6202d656"
+          },
+          {
+            "predecessor_id": "post-quantum-signedtransaction-envelope-for-consensus-v42-sgnr-rekey-inference-pqsig-with-falcon-1024-address",
+            "path": "Sources/Algorand/AlgodClient.swift",
+            "module": "algorand",
+            "predecessor_entry_digest": "aea7a77da359da87f6cb2545046f3c037a94be6847565f701d5d286a793c9c15",
+            "successor_entry_digest": "6a413263dee1fb7287def1f662dfc3a2cd3ea9544a28f4431b59ae3a1b5873a6"
+          },
+          {
+            "predecessor_id": "post-quantum-signedtransaction-envelope-for-consensus-v42-sgnr-rekey-inference-pqsig-with-falcon-1024-address",
+            "path": "Sources/Algorand/AlgorandConfiguration.swift",
+            "module": "algorand",
+            "predecessor_entry_digest": "d222b99a442fc315f44065fe3b91afbb3f61e8c16ed60f84e6937a917c1dc11a",
+            "successor_entry_digest": "74eee3972da43df44ec84319f4ea6bd4f63c4bbc0de7aa31a5ab300346fd854c"
+          },
+          {
+            "predecessor_id": "post-quantum-signedtransaction-envelope-for-consensus-v42-sgnr-rekey-inference-pqsig-with-falcon-1024-address",
+            "path": "Sources/Algorand/AlgorandError.swift",
+            "module": "algorand",
+            "predecessor_entry_digest": "43822d8bb65ca64d71a091a6495b04633bc294c2346f4ab66deeadea3b34487b",
+            "successor_entry_digest": "a8e07b66fd5f596c1b577a521b84b0be2b43045a1182c88fce12cfa95ff2b3ed"
+          },
+          {
+            "predecessor_id": "post-quantum-signedtransaction-envelope-for-consensus-v42-sgnr-rekey-inference-pqsig-with-falcon-1024-address",
+            "path": "Sources/Algorand/IndexerClient.swift",
+            "module": "algorand",
+            "predecessor_entry_digest": "d057ead84ee1c58f5f60f9f2906c490d9a728be11bd2dc3e81c3f6e756d361e2",
+            "successor_entry_digest": "a9801f9dfcb945986f81d3477cb63a03bfc7923564c07ae4c553b8800d78a6e2"
+          },
+          {
+            "predecessor_id": "post-quantum-signedtransaction-envelope-for-consensus-v42-sgnr-rekey-inference-pqsig-with-falcon-1024-address",
+            "path": "Sources/Algorand/MessagePackWriter.swift",
+            "module": "algorand",
+            "predecessor_entry_digest": "cff2b4961db874f37538db4daf8463da87dd9c3b36de67f9462a5b17293807f8",
+            "successor_entry_digest": "a25e7e99ca2679aa24f4aedf148ce2b0bc16b9100d862c0a31f41dbf5c40dc33"
+          },
+          {
+            "predecessor_id": "post-quantum-signedtransaction-envelope-for-consensus-v42-sgnr-rekey-inference-pqsig-with-falcon-1024-address",
+            "path": "Sources/Algorand/MicroAlgos.swift",
+            "module": "algorand",
+            "predecessor_entry_digest": "f359463efb86de1ece3fc226852fca17309a47c626637ec4038e9c8ae98cf43f",
+            "successor_entry_digest": "7b8b8b749a900d4e416f9d00b398f59905fcb2fca1dba60cfc7a51011fcfef5d"
+          },
+          {
+            "predecessor_id": "post-quantum-signedtransaction-envelope-for-consensus-v42-sgnr-rekey-inference-pqsig-with-falcon-1024-address",
+            "path": "Sources/Algorand/Mnemonic.swift",
+            "module": "algorand",
+            "predecessor_entry_digest": "f9112eca1194e0b65714b5b7de6bd665b0fcab1992da9f2561eeeeb7571051d3",
+            "successor_entry_digest": "96e7be9a403512578df377da9aa33be7589d5a94e2658babab61620db3ce223c"
+          },
+          {
+            "predecessor_id": "post-quantum-signedtransaction-envelope-for-consensus-v42-sgnr-rekey-inference-pqsig-with-falcon-1024-address",
+            "path": "Sources/Algorand/SHA512_256.swift",
+            "module": "algorand",
+            "predecessor_entry_digest": "600cea6902c5af235ccfa244aad40afc6d2d9c350ab833840b3706a8635dc935",
+            "successor_entry_digest": "5d78ddfc78acd66e98e2a3196b7df46293ed2c076552b818f7e9f062cddeea19"
+          }
+        ]
+      },
+      "passed": true,
+      "commands": [
+        {
+          "command": "specsync check --spec algorand",
+          "success": true,
+          "exit_code": 0
+        }
+      ],
+      "requirement_ids": [
+        "REQ-algorand-029",
+        "REQ-algorand-030",
+        "REQ-algorand-031",
+        "REQ-algorand-032",
+        "REQ-algorand-033",
+        "REQ-algorand-034"
+      ]
+    }
+  ]
+}

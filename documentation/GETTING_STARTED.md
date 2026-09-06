@@ -10,11 +10,12 @@ Add the package to your `Package.swift`:
 
 ```swift
 dependencies: [
-    .package(url: "https://github.com/CorvidLabs/swift-algorand.git", from: "0.3.2")
+    .package(url: "https://github.com/CorvidLabs/swift-algorand.git", .upToNextMinor(from: "0.3.2"))
 ]
 ```
 
-Then add the library product to the target that uses it:
+`.upToNextMinor` pins the `0.3.x` line; `from:` would accept a `0.4.0` that, pre-1.0, may break
+your build. Then add the library product to the target that uses it:
 
 ```swift
 .executableTarget(
@@ -78,11 +79,11 @@ let params = try await algod.transactionParams()
 // Create receiver address
 let receiver = try Address(string: "RECEIVER_ADDRESS_HERE")
 
-// Build transaction
+// Build transaction. `MicroAlgos(checkedAlgos:)` throws on NaN, negative, or out-of-range input.
 let transaction = try PaymentTransactionBuilder()
     .sender(account.address)
     .receiver(receiver)
-    .amount(MicroAlgos(algos: 1.0))
+    .amount(try MicroAlgos(checkedAlgos: 1.0))
     .params(params)
     .note("My first transaction!")
     .build()
@@ -104,7 +105,8 @@ if let round = confirmed.confirmedRound {
 ```
 
 `waitForConfirmation` polls for up to 10 rounds by default; pass `timeout:` to change that.
-It throws rather than returning if the transaction hits a pool error.
+It throws rather than returning if the transaction hits a pool error. A `404` from the node
+for a transaction it has not seen yet is treated as "not yet" and polling continues.
 
 ## Next Steps
 
@@ -117,9 +119,11 @@ It throws rather than returning if the transaction hits a pool error.
 
 ### Error Handling
 
-Every SDK failure is an `AlgorandError`. Its cases are `invalidAddress`, `invalidMnemonic`,
-`invalidTransaction`, `networkError`, `encodingError`, `decodingError`, `invalidResponse`,
-and `apiError(statusCode:message:)`.
+Most SDK failures are an `AlgorandError`. Its cases are `invalidAddress`, `invalidMnemonic`,
+`invalidTransaction`, `invalidURL`, `networkError`, `encodingError`, `decodingError`,
+`invalidResponse`, and `apiError(statusCode:message:)`. Amount conversion and checked
+arithmetic throw `AmountError`; the fee model throws `FeeError`; attaching a signature that
+cannot authorize a transaction throws `TransactionAuthorizationError`.
 
 ```swift
 do {

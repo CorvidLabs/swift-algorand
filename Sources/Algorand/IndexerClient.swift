@@ -90,6 +90,7 @@ public actor IndexerClient {
      - Parameters:
        - baseURL: The base URL string of the indexer
        - apiToken: Optional API token for authentication
+     - Throws: `AlgorandError.invalidURL` if `baseURL` is not an absolute http(s) URL
      */
     public init(
         baseURL: String,
@@ -97,9 +98,7 @@ public actor IndexerClient {
         requestTimeout: TimeInterval = 30,
         resourceTimeout: TimeInterval = 60
     ) throws {
-        guard let url = URL(string: baseURL) else {
-            throw AlgorandError.invalidAddress("Invalid base URL")
-        }
+        let url = try EndpointURL.parse(baseURL, role: "indexer")
         self.init(
             baseURL: url,
             apiToken: apiToken,
@@ -132,7 +131,10 @@ public actor IndexerClient {
         currencyGreaterThan: UInt64? = nil,
         currencyLessThan: UInt64? = nil
     ) async throws -> AccountsResponse {
-        var components = URLComponents(url: baseURL.appendingPathComponent("/v2/accounts"), resolvingAgainstBaseURL: false)!
+        let accountsURL = baseURL.appendingPathComponent("/v2/accounts")
+        guard var components = URLComponents(url: accountsURL, resolvingAgainstBaseURL: false) else {
+            throw AlgorandError.invalidURL("Could not build URL components for accounts search")
+        }
         var queryItems: [URLQueryItem] = [
             URLQueryItem(name: "limit", value: "\(limit)")
         ]
@@ -545,26 +547,85 @@ public struct AssetResponse: Codable, Sendable {
 /// Asset from indexer
 public struct IndexerAsset: Codable, Sendable {
     public let index: UInt64
-    public let params: AssetParams
 
-    public struct AssetParams: Codable, Sendable {
-        public let name: String?
-        public let unitName: String?
-        public let total: UInt64
-        public let decimals: UInt64
+    /// The asset's parameters, in the same model algod returns for `GET /v2/assets/{id}`.
+    ///
+    /// The `0.3.x` line declared a nested `IndexerAsset.AssetParams` carrying four of the twelve
+    /// fields, which discarded the creator, the role addresses, the URL, and the metadata hash,
+    /// and shadowed the top-level ``AssetParams`` - the asset *creation* parameters - anywhere
+    /// inside `IndexerAsset`. The indexer's asset parameters are go-algorand's `model.AssetParams`,
+    /// the object ``AssetParamsResponse`` already decodes.
+    public let params: AssetParamsResponse
 
-        enum CodingKeys: String, CodingKey {
-            case name
-            case unitName = "unit-name"
-            case total
-            case decimals
-        }
+    /// The nested name the `0.3.x` line gave the indexer's asset parameters.
+    @available(
+        *,
+        deprecated,
+        renamed: "AssetParamsResponse",
+        message: "IndexerAsset.params is an AssetParamsResponse, the same model algod returns"
+    )
+    public typealias AssetParams = AssetParamsResponse
+
+    enum CodingKeys: String, CodingKey {
+        case index
+        case params
     }
 }
 
-/// Block response
+/**
+ Block response
+
+ The block header as the indexer returns it from `GET /v2/blocks/{round}`, with the block's
+ transactions decoded through ``IndexerTransaction``. The `0.3.x` `BlockResponse` was an empty
+ struct: ``IndexerClient/block(_:)`` decoded successfully and returned nothing at all.
+ */
 public struct BlockResponse: Codable, Sendable {
-    // Add block fields as needed
+    /// The round this block belongs to.
+    public let round: UInt64
+
+    /// The block's creation time, in seconds since the Unix epoch.
+    public let timestamp: UInt64?
+
+    /// The genesis ID of the network.
+    public let genesisID: String?
+
+    /// The genesis hash of the network, base64-encoded.
+    public let genesisHash: String?
+
+    /// The hash of the previous block, base64-encoded.
+    public let previousBlockHash: String?
+
+    /// The sortition seed, base64-encoded.
+    public let seed: String?
+
+    /// The root of the transaction commitment tree, base64-encoded.
+    public let transactionsRoot: String?
+
+    /// The SHA-256 root of the transaction commitment tree, base64-encoded.
+    public let transactionsRootSha256: String?
+
+    /// The number of transactions in the ledger through this block.
+    public let txnCounter: UInt64?
+
+    /// The block proposer, present from consensus v41 onward.
+    public let proposer: String?
+
+    /// The block's transactions, when the indexer includes them.
+    public let transactions: [IndexerTransaction]?
+
+    enum CodingKeys: String, CodingKey {
+        case round
+        case timestamp
+        case genesisID = "genesis-id"
+        case genesisHash = "genesis-hash"
+        case previousBlockHash = "previous-block-hash"
+        case seed
+        case transactionsRoot = "transactions-root"
+        case transactionsRootSha256 = "transactions-root-sha256"
+        case txnCounter = "txn-counter"
+        case proposer
+        case transactions
+    }
 }
 
 /// Application response

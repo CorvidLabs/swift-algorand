@@ -89,13 +89,15 @@ Add `kSecAttrAccessible` to the save query to control when the item is readable 
 
 ### Do not rely on in-process zeroing
 
-`Account` keeps its private key in a container that overwrites its buffer on
-deallocation. Treat that as defence in depth, not a boundary. Swift's `Data` is
-copy-on-write, so any copy made before that point - by `mnemonic()`, by signing, by
-Foundation internals - has its own buffer that the wipe never sees, and Swift makes no
-guarantee that the write is not optimized away. If an attacker can read your process
-memory, assume the key is readable. Keep keys out of long-lived processes and prefer
-short-lived signing contexts.
+`Account` keeps its key as a `Curve25519.Signing.PrivateKey`, never as a `Data` copy of the
+seed, so the seed lives in the cryptography library's own storage: swift-crypto's
+`SecureBytes` on Linux, which overwrites itself on deallocation, and CryptoKit's on Apple
+platforms. Treat that as defence in depth, not a boundary. The seed you pass to
+`Account(privateKey:)`, the phrase you pass to `Account(mnemonic:)`, and the phrase
+`mnemonic()` returns are all your values; Swift's `Data` and `String` are copy-on-write and
+nothing in the SDK can reach every copy. If an attacker can read your process memory, assume
+the key is readable. Keep keys out of long-lived processes and prefer short-lived signing
+contexts - or keep them out of the process entirely behind a `TransactionSigner`.
 
 ## Transaction Security
 

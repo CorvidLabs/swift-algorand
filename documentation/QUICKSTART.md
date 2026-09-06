@@ -60,7 +60,7 @@ let package = Package(
     name: "algorand-testnet-check",
     platforms: [.macOS(.v13)],
     dependencies: [
-        .package(url: "https://github.com/CorvidLabs/swift-algorand.git", from: "0.3.2")
+        .package(url: "https://github.com/CorvidLabs/swift-algorand.git", .upToNextMinor(from: "0.3.2"))
     ],
     targets: [
         .executableTarget(
@@ -175,7 +175,7 @@ let params = try await algod.transactionParams()
 let transaction = try PaymentTransactionBuilder()
     .sender(account.address)
     .receiver(receiverAddress)
-    .amount(MicroAlgos(algos: 1.0))
+    .amount(try MicroAlgos(checkedAlgos: 1.0))
     .params(params)
     .build()
 
@@ -218,8 +218,8 @@ for txn in txns.transactions {
 - **Indexer**: `http://localhost:8980`
 - **Token**: 64 `a` characters
 
-`AlgorandConfiguration.localnet()`, `.testnet()`, and `.mainnet()` return these values if
-you would rather not hardcode them.
+`try AlgorandConfiguration.localnet()`, `.testnet()`, and `.mainnet()` return these values if
+you would rather not hardcode them; they throw rather than force-unwrap the endpoint literals.
 
 ## Common Tasks
 

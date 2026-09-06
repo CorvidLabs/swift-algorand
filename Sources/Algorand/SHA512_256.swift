@@ -5,9 +5,12 @@
 
  Note: SHA-512/256 is NOT just truncated SHA-512, it uses different initialization vectors.
  This is a complete implementation of SHA-512/256 as specified in FIPS 180-4.
+
+ Internal: it exists to compute Algorand checksums, transaction identifiers, and group identifiers,
+ and is not a general-purpose hashing API of this package.
  */
-public enum SHA512_256 {
-    public static func hash(data: Data) -> Data {
+internal enum SHA512_256 {
+    internal static func hash(data: Data) -> Data {
         var hasher = SHA512_256Hasher()
         hasher.update(data: data)
         return hasher.finalize()

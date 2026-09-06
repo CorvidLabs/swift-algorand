@@ -1,58 +1,11 @@
----
-module: algorand
-version: 7
-status: active
-files:
-  - Package.swift
-  - Sources/Algorand/Account.swift
-  - Sources/Algorand/Address+PostQuantum.swift
-  - Sources/Algorand/Address.swift
-  - Sources/Algorand/AlgodClient.swift
-  - Sources/Algorand/AlgorandConfiguration.swift
-  - Sources/Algorand/AlgorandConsensus.swift
-  - Sources/Algorand/AlgorandError.swift
-  - Sources/Algorand/AmountError.swift
-  - Sources/Algorand/ApplicationTransaction.swift
-  - Sources/Algorand/AssetTransaction.swift
-  - Sources/Algorand/AtomicTransactionGroup+Fees.swift
-  - Sources/Algorand/AtomicTransactionGroup.swift
-  - Sources/Algorand/BIP39Wordlist.swift
-  - Sources/Algorand/CanonicalBoxReferences.swift
-  - Sources/Algorand/CanonicalTransactionFields.swift
-  - Sources/Algorand/Edwards25519.swift
-  - Sources/Algorand/EndpointURL.swift
-  - Sources/Algorand/FeeError.swift
-  - Sources/Algorand/FeeStrategy.swift
-  - Sources/Algorand/IndexerClient.swift
-  - Sources/Algorand/KeyRegistrationTransaction.swift
-  - Sources/Algorand/MessagePackWriter.swift
-  - Sources/Algorand/MicroAlgos.swift
-  - Sources/Algorand/Mnemonic.swift
-  - Sources/Algorand/PQScheme.swift
-  - Sources/Algorand/PQSignature.swift
-  - Sources/Algorand/PaymentTransaction.swift
-  - Sources/Algorand/SHA512_256.swift
-  - Sources/Algorand/SecureRandom.swift
-  - Sources/Algorand/SignedTransaction.swift
-  - Sources/Algorand/SimulateRequest+MessagePack.swift
-  - Sources/Algorand/Transaction+Signing.swift
-  - Sources/Algorand/Transaction.swift
-  - Sources/Algorand/TransactionAuthorization.swift
-  - Sources/Algorand/TransactionSigner.swift
-  - Sources/Algorand/TransactionUsage.swift
+# algorand
 
-db_tables: []
-depends_on: []
----
+## MODIFIED
 
-# Swift Algorand SDK
-
-## Purpose
-
+### SPEC SECTION Purpose
 Provide the existing Swift SDK primitives for Algorand accounts, canonical addresses and mnemonics, checked amounts, transactions priced under the consensus v42 usage-based fee model, signing (Ed25519 and, since consensus v42, native post-quantum Falcon-1024 through a caller-supplied signer), atomic groups with a pooled fee requirement, and asynchronous Algod and Indexer clients whose requests reach the endpoints they name, across the package's supported Apple and Linux platforms.
 
-## Public API
-
+### SPEC SECTION Public API
 ### Contract groups
 
 | Existing surface | Contract |
@@ -456,8 +409,7 @@ SpecSync 6.0.0 extracts the following 384 unique public symbols from the 36 cano
 | `txnCounter` |
 | `proposer` |
 
-## Invariants
-
+### SPEC SECTION Invariants
 1. Address, mnemonic, key, signature, transaction, and MessagePack representations must preserve the existing Algorand protocol encodings and validation behavior, where the transaction encoding is go-algorand v5.0.1-stable's canonical omit-empty form.
 2. Transaction builders must reject incomplete or invalid inputs rather than construct an apparently valid transaction.
 3. Network clients use asynchronous APIs and surface transport, decoding, and protocol failures as errors.
@@ -474,8 +426,7 @@ SpecSync 6.0.0 extracts the following 384 unique public symbols from the 36 cano
 14. `Account` holds its key as a `Curve25519.Signing.PrivateKey` and never as a `Data` copy of the seed; the seed is materialised as bytes only by `mnemonic()`. SECURITY.md describes what the cryptography library's storage does and does not guarantee and never presents zeroing as a security boundary.
 15. `AlgodClient.waitForConfirmation` treats HTTP 404 from `GET /v2/transactions/pending/{id}` as "not seen yet" and keeps polling in the same query-then-wait order; `applicationBox` builds `?name=b64:<base64>` through `URLComponents` with the value percent-encoded to the unreserved set; a client base URL must be an absolute http(s) URL or `AlgorandError.invalidURL` is thrown; `AlgorandConfiguration`'s well-known factories throw rather than force-unwrap their endpoint literals.
 
-## Behavioral Examples
-
+### SPEC SECTION Behavioral Examples
 ```
 Given a valid account and complete payment parameters
 When a payment transaction is built, signed, and encoded
@@ -536,8 +487,7 @@ When waitForConfirmation polls with a timeout of one round
 Then the node's 404 is tolerated, the client waits for the round, and it throws networkError("Transaction not confirmed after 1 rounds") rather than apiError(404)
 ```
 
-## Error Cases
-
+### SPEC SECTION Error Cases
 | Error | When | Behavior |
 |-------|------|----------|
 | Invalid or non-canonical address or mnemonic | Input fails protocol validation or is not the canonical rendering | Return `AlgorandError.invalidAddress` or `AlgorandError.invalidMnemonic` without creating a value |
@@ -559,26 +509,54 @@ Then the node's 404 is tolerated, the client waits for the round, and it throws 
 
 `AlgorandError.invalidURL` is the one `AlgorandError` case added, by the safety and 1.0 API-surface change, which also added `AmountError`. `TransactionAuthorizationError` is the one error type added by the post-quantum envelope change and `FeeError` the one added by the fee-model change; Ed25519 signature bytes are carried verbatim and never validated locally. A box reference naming an application absent from `apfa` appends that application rather than failing, up to the limit above.
 
-## Dependencies
-
-- Swift 6.0 or newer
-- `swift-crypto` for cross-platform cryptographic primitives
-- Foundation networking and Swift concurrency
-- Swift-DocC plugin for independent documentation publication
-
-## Change Log
-
-| Version | Date | Changes |
-|---------|------|---------|
-| 1 | 2026-07-12 | Initial spec |
-| 2 | 2026-07-14 | Adopt SpecSync 5.0.1 and Trust 1.0.0 governance with complete source, export, and requirement coverage. |
-| 3 | 2026-09-05 | CHG-0001-adopt-specsync-5-0-1-and-trust-1-0-0-governance-for-the-swift-algorand-sdk: Adopt SpecSync 5.0.1 and Trust 1.0.0 governance for the Swift Algorand SDK |
-| 4 | 2026-09-05 | canonical-messagepack-encoding-conformance-for-consensus-v42-omit-empty-fields-messagepack-booleans-box-reference: Canonical MessagePack encoding conformance for consensus v42: omit-empty fields, MessagePack booleans, box reference indexes, and grouped transaction IDs |
-| 5 | 2026-09-05 | post-quantum-signedtransaction-envelope-for-consensus-v42-sgnr-rekey-inference-pqsig-with-falcon-1024-address: Post-quantum SignedTransaction envelope for consensus v42: sgnr rekey inference, pqsig with Falcon-1024 address derivation, a callback TransactionSigner, and bin16 signatures |
-| 6 | 2026-09-05 | consensus-v42-fee-model-feestrategy-on-every-builder-and-initializer-per-transaction-usage-and-a-group-pooled-fee: Consensus v42 fee model: FeeStrategy on every builder and initializer, per-transaction usage, and a group-pooled fee requirement |
-| 7 | 2026-09-05 | safety-and-1-0-api-surface-canonical-addresses-strict-mnemonics-checked-amounts-an-internal-encoder-and-hash-client: Safety and 1.0 API surface: canonical addresses, strict mnemonics, checked amounts, an internal encoder and hash, client fixes, key storage, and a gated DocC plugin |
-
-## Complete API and source inventory
-
+### SPEC SECTION Complete API and source inventory
 The active spec maps all 36 canonical Swift source files and documents all 384 unique public symbols extracted by SpecSync 6.0.0. The inventory is organized by accounts and cryptography, canonical protocol encoding, signed-transaction envelopes and post-quantum authorization, the consensus v42 fee model, transaction families, atomic grouping, Algod, Indexer, response models, configuration, and errors. The two files added for canonical encoding, `CanonicalTransactionFields.swift` and `CanonicalBoxReferences.swift`, and the `Edwards25519.swift` point predicate added for post-quantum address derivation are internal and contribute no public symbol. The other six files added by the post-quantum envelope change (`Address+PostQuantum.swift`, `PQScheme.swift`, `PQSignature.swift`, `Transaction+Signing.swift`, `TransactionAuthorization.swift`, `TransactionSigner.swift`) contribute the 17 names listed after the original inventory. The five files added by the consensus v42 fee-model change (`AlgorandConsensus.swift`, `AtomicTransactionGroup+Fees.swift`, `FeeError.swift`, `FeeStrategy.swift`, `TransactionUsage.swift`) contribute the 17 names listed after those. The safety and 1.0 API-surface change added three files: `AmountError.swift` contributes `AmountError`, `divisionByZero`, and `notRepresentable`; `EndpointURL.swift` and `SimulateRequest+MessagePack.swift` are internal and contribute no public symbol. Its other 14 new names come from `MicroAlgos.swift`, `AssetTransaction.swift`, `AlgorandError.swift`, `AlgorandConfiguration.swift`, and `IndexerClient.swift`, and it made `MessagePackWriter.swift` and `SHA512_256.swift` contribute no public symbol. `Package.swift` and the DocC catalog under `Sources/Algorand/Algorand.docc` are exact-only delivery inputs of the still-accepted CHG-0001 and are unchanged by this change.
 
+## ADDED
+
+### REQUIREMENT REQ-algorand-029
+`Address.init(string:)` SHALL accept a string only if it has 58 characters of the uppercase RFC 4648 base32 alphabet, its 36 decoded bytes carry a valid SHA-512/256 checksum, and re-encoding those bytes reproduces the input exactly, which is go-algorand's `UnmarshalChecksumAddress` rule; otherwise it SHALL throw `AlgorandError.invalidAddress`. `description` SHALL be the canonical rendering, and `Address.init(bytes:)` SHALL produce a string `init(string:)` accepts.
+
+Acceptance Criteria
+- `canonicalAddressRoundTrips`, `lowercaseAddressesAreRejected`, `nonCanonicalTrailingBitsAreRejected` (the three same-checksum variants of a real TestNet address whose final character carries stray bits), `malformedAddressesAreRejected`, and `addressDecodesFromJSONCanonicallyOnly` pass.
+- The legacy `AddressTests` pass unchanged, and no frozen test asserts a lowercase address.
+
+*Rationale: the previous decoder folded case and dropped trailing bits, so four distinct strings decoded to one address and `description` could be a string no other Algorand tool accepts.*
+
+### REQUIREMENT REQ-algorand-030
+`Mnemonic.decode` SHALL unpack the 24 key words to 33 bytes and SHALL throw `AlgorandError.invalidMnemonic` unless the 33rd byte is zero, the check py-algorand-sdk's `to_private_key` makes, before verifying the checksum word; `Mnemonic.isValid` and `Account.init(mnemonic:)` SHALL follow. Every mnemonic `Mnemonic.encode` and `Mnemonic.generate` produce SHALL be canonical.
+
+Acceptance Criteria
+- `nonCanonicalMnemonicsAreRejected` shows all 255 non-canonical spellings of a key rejected with a message containing `Non-canonical` and the canonical spelling accepted.
+- `crossSDKMnemonicVectorsStillDecode` keeps the all-zero and all-42 py-algorand-sdk vectors, `malformedMnemonicsAreRejected` and `generatedMnemonicsRoundTrip` pass, and the legacy `MnemonicTests` (6 tests) pass unchanged, so nothing depended on lenient decoding.
+
+### REQUIREMENT REQ-algorand-031
+`MicroAlgos` SHALL offer `adding(_:)`, `subtracting(_:)`, `multiplied(by:)`, and `divided(by:)`, which throw `AmountError.overflow` or `AmountError.divisionByZero` where `+`, `-`, `*`, and `/` trap, and `init(checkedAlgos:)`, which rounds to the nearest microAlgo and throws `AmountError.notRepresentable` for a NaN, infinite, negative, or out-of-range value. `AssetParams` SHALL offer `baseUnits(for:)` with the same contract. The operators, `init(algos:)`, and `toBaseUnits(_:)` SHALL remain with unchanged semantics, marked `@available(*, deprecated)` with a message naming the replacement, and no library code SHALL use them.
+
+Acceptance Criteria
+- `checkedArithmeticHappyPath`, `checkedArithmeticThrowsInsteadOfTrapping`, `checkedAlgosInitializer` (including 2^64 microAlgos exactly), `assetBaseUnits` (including `Double(UInt64.max)`, which rounds to 2^64), and `amountErrorsDescribeThemselves` pass.
+- The legacy `MicroAlgosTests`, `AssetTests`, `IntegrationTests`, and `ComprehensiveIntegrationTest` compile and pass unchanged through the deprecated symbols; their deprecation warnings are the only ones in the test build, and a forced full recompile of `Sources/Algorand` emits none.
+- The fee-model files (`FeeStrategy.swift`, `TransactionUsage.swift`, `AtomicTransactionGroup+Fees.swift`) are unchanged from the base tree and use no deprecated symbol.
+
+### REQUIREMENT REQ-algorand-032
+`MessagePackWriter`, `MessagePackValue`, and `SHA512_256` SHALL be `internal`, and `MessagePackValue` SHALL gain `case raw(Data)`, which the writer splices verbatim. Every transaction, envelope, and group-identifier encoding SHALL be byte-identical to the base tree.
+
+Acceptance Criteria
+- `specsync check --strict` reports 384/384 exports documented with no row for `MessagePackWriter`, `write`, `MessagePackValue`, `string`, `binary`, `map`, `array`, `bool`, or `SHA512_256`.
+- `rawValuesAreSplicedVerbatim` passes, and the golden-vector suites `CanonicalEncodingTests`, `CanonicalBoxReferenceTests`, `SignedTransactionEnvelopeTests`, `PostQuantumVectorTests`, and `FeeModelTests` pass unchanged, byte-for-byte.
+
+### REQUIREMENT REQ-algorand-033
+`AlgorandError` SHALL gain `invalidURL(String)`, thrown by `AlgodClient.init(baseURL: String)` and `IndexerClient.init(baseURL: String)` for anything but an absolute http(s) URL and by request construction that cannot assemble a URL. `AlgodClient.applicationBox(_:name:)` SHALL take the raw box name as `Data` and request `/v2/applications/{id}/box?name=b64:<base64>` with the value percent-encoded to the unreserved set. `simulateTransaction` SHALL post `Content-Type: application/msgpack` with the body `{"txn-groups":[{"txns":[<raw signed txns>]}]}` plus only the flags that are set, and decode the JSON response; `SimulateRequestTransactionGroup.txns` SHALL be `[Data]` with an `init(signedTransactions:)`. `waitForConfirmation` SHALL treat the node's 404 as "not yet" without reordering the poll and SHALL throw `AlgorandError.invalidTransaction` if `timeout` overflows the round counter. No library code SHALL force-unwrap. `PendingTransaction.txn` and `TransactionData` SHALL be removed; `BlockResponse` SHALL carry the block header and its transactions; `IndexerAsset.params` SHALL be an `AssetParamsResponse` with a deprecated `IndexerAsset.AssetParams` typealias.
+
+Acceptance Criteria
+- `invalidBaseURLsAreInvalidURL`, `builtInEndpointsResolve`, `boxURLIsWellFormed` (`?name=b64%3A%2B%2F8%3D`, no `%3F`), `simulateBodyIsMessagePack` (exact bytes), `simulateFlagsAreOmittedOrCanonical`, `simulateGroupFromSignedTransactions`, `responsesDecode`, `blockResponseDecodes`, `indexerAssetDecodesFullParameters`, and `notYetKnownMatchesOnly404` pass.
+- The serialized `Transport` suite passes through a `URLProtocol` stub: `waitForConfirmationToleratesA404` (status, 404, wait-for-block, confirmed, in that order), `waitForConfirmationSurfacesOtherFailures`, `waitForConfirmationRejectsOverflowingTimeout`, `applicationBoxSendsALiveQueryURL`, and `simulatePostsMessagePack` (`Content-Type: application/msgpack`, body equal to the encoder's output).
+- Live, read-only, on TestNet v42: a payment signed by an unfunded throwaway account simulates with HTTP 200 and `failure-message` `overspend`; `GET /v2/transactions/pending/{unknown}` answers 404 and `waitForConfirmation(timeout: 1)` then throws `networkError("Transaction not confirmed after 1 rounds")`; `applicationBox` on an application with a box whose base64 name contains `+` returns the box, while the base tree's `%3F` URL answers the router's `{"message":"Not Found"}`.
+- `grep -rn '!' Sources/Algorand` finds no force unwrap, `try!`, or `as!`.
+
+### REQUIREMENT REQ-algorand-034
+`Account` SHALL store its key as a `Curve25519.Signing.PrivateKey` inside a private reference-typed box, SHALL never hold a `Data` copy of the seed, and SHALL keep its public API (`init()`, `init(mnemonic:)`, `init(privateKey:)`, `mnemonic()`, `sign(_:)`, `verify(signature:for:)`, `address`, `publicKey`). Root `SECURITY.md` SHALL state what the key storage guarantees on each platform (swift-crypto's `SecureBytes` with `memset_s` on Linux, backed by BoringSSL; CryptoKit on Apple platforms), what it does not (caller-owned copies, swap, core dumps, a process that can read memory), and SHALL never present zeroing as a security boundary.
+
+Acceptance Criteria
+- `accountKeyStorageIsStable` shows a key surviving `mnemonic()` by cross-verification, a mnemonic round trip restoring the same address and public key, and a copied `Account` signing for the same key; `AccountTests`, `CanonicalEncodingTests`, and `SignedTransactionEnvelopeTests` keep every existing signature vector.
+- `SECURITY.md` and `documentation/SECURITY.md` contain no claim that the SDK zeroes key material as a boundary, and name BoringSSL for Linux.
