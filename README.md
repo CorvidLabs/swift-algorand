@@ -5,7 +5,7 @@
 [![License](https://img.shields.io/github/license/CorvidLabs/swift-algorand)](https://github.com/CorvidLabs/swift-algorand/blob/main/LICENSE)
 [![Version](https://img.shields.io/github/v/release/CorvidLabs/swift-algorand)](https://github.com/CorvidLabs/swift-algorand/releases)
 
-> **Pre-1.0 Notice**: This SDK is under active development. The API may change between minor versions until 1.0. The latest release is in the `0.3.x` line.
+> **Pre-1.0 Notice**: This SDK is under active development. The API may change between minor versions until 1.0. This documentation targets the `0.4.x` line.
 
 A modern Swift SDK for the Algorand blockchain. Built with Swift 6 and async/await.
 
@@ -26,13 +26,13 @@ Add Algorand to your `Package.swift`:
 
 ```swift
 dependencies: [
-    .package(url: "https://github.com/CorvidLabs/swift-algorand.git", .upToNextMinor(from: "0.3.2"))
+    .package(url: "https://github.com/CorvidLabs/swift-algorand.git", .upToNextMinor(from: "0.4.0"))
 ]
 ```
 
-`.upToNextMinor` pins to the `0.3.x` line. This is deliberate: SwiftPM's `from:` means
-`.upToNextMajor`, so `from: "0.3.2"` would accept any version below `1.0.0` — including a
-`0.4.0` that, per the pre-1.0 notice above, may break your build. Use `from:` only once 1.0
+`.upToNextMinor` pins to the `0.4.x` line. This is deliberate: SwiftPM's `from:` means
+`.upToNextMajor`, so `from: "0.4.0"` would accept any version below `1.0.0` — including a
+`0.5.0` that, per the pre-1.0 notice above, may break your build. Use `from:` only once 1.0
 has shipped.
 
 Then add the dependency to your target:

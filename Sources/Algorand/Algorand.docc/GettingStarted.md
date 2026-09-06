@@ -12,16 +12,16 @@ Add swift-algorand to your `Package.swift`:
 
 ```swift
 dependencies: [
-    .package(url: "https://github.com/CorvidLabs/swift-algorand.git", from: "0.1.0")
+    .package(url: "https://github.com/CorvidLabs/swift-algorand.git", .upToNextMinor(from: "0.4.0"))
 ]
 ```
 
-Then add `"Algorand"` to your target's dependencies:
+Then add the library product to your target's dependencies:
 
 ```swift
 .target(
     name: "MyApp",
-    dependencies: ["Algorand"]
+    dependencies: [.product(name: "Algorand", package: "swift-algorand")]
 )
 ```
 
@@ -55,7 +55,7 @@ let words = try account.mnemonic()
 Connect to a local Algorand node:
 
 ```swift
-let config = AlgorandConfiguration.localnet()
+let config = try AlgorandConfiguration.localnet()
 let client = AlgodClient(
     baseURL: config.algodURL,
     apiToken: config.apiToken
@@ -65,7 +65,7 @@ let client = AlgodClient(
 Or connect to TestNet:
 
 ```swift
-let config = AlgorandConfiguration.testnet()
+let config = try AlgorandConfiguration.testnet()
 let client = AlgodClient(
     baseURL: config.algodURL,
     apiToken: "your-api-token"
@@ -84,13 +84,13 @@ let params = try await client.transactionParams()
 let payment = try PaymentTransactionBuilder()
     .sender(account.address)
     .receiver(try Address(string: "RECIPIENT..."))
-    .amount(MicroAlgos(algos: 1.0))
+    .amount(MicroAlgos(checkedAlgos: 1.0))
     .params(params)
     .build()
 
 // Sign and send
-let signed = try SignedTransaction.sign(transaction: payment, with: account)
-let txID = try await client.sendTransaction(signed.encode())
+let signed = try SignedTransaction.sign(payment, with: account)
+let txID = try await client.sendTransaction(signed)
 
 // Wait for confirmation
 let confirmed = try await client.waitForConfirmation(
@@ -152,7 +152,7 @@ let signed = try SignedAtomicTransactionGroup.sign(
     with: [0: sender1, 1: sender2]
 )
 
-let txID = try await client.sendTransactionGroup(signed.encode())
+let txID = try await client.sendTransactionGroup(signed)
 ```
 
 ## Query the Indexer
@@ -160,16 +160,17 @@ let txID = try await client.sendTransactionGroup(signed.encode())
 Search historical data with the Indexer client:
 
 ```swift
-let indexer = IndexerClient(
-    baseURL: config.indexerURL!
-)
+guard let indexerURL = config.indexerURL else {
+    throw AlgorandError.invalidURL("No Indexer URL is configured")
+}
+let indexer = IndexerClient(baseURL: indexerURL)
 
 // Look up an account
-let info = try await indexer.account(account.address.description)
+let info = try await indexer.account(account.address)
 
 // Search transactions
 let txns = try await indexer.searchTransactions(
-    address: account.address.description,
+    address: account.address,
     limit: 10
 )
 ```

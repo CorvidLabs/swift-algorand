@@ -1,0 +1,39 @@
+{
+  "approvals": [
+    {
+      "gate": "definition",
+      "actor": "0xLeif",
+      "timestamp": 1788706197,
+      "digest": "56238a3361e9978733f04ff0b3c12c54c2e65a232bc35c1a9d5471e6e13f63c0",
+      "note": null,
+      "approved_scope": {
+        "schema_version": 1,
+        "change_id": "prepare-0-4-0-release-documentation-and-migration-notes-for-the-merged-sdk-changes",
+        "title": "Prepare 0.4.0 release documentation and migration notes for the merged SDK changes",
+        "description": "Prepare 0.4.0 release documentation and migration notes for the merged SDK changes",
+        "kind": "documentation",
+        "affected_specs": [],
+        "affected_paths": [
+          "CHANGELOG.md",
+          "README.md",
+          "Sources/Algorand/Algorand.docc/GettingStarted.md",
+          "documentation/GETTING_STARTED.md",
+          "documentation/QUICKSTART.md"
+        ],
+        "no_spec_change": true,
+        "no_spec_change_rationale": "Release documentation only; SDK behavior and canonical requirements remain unchanged.",
+        "acceptance_criteria": [
+          "Installation snippets pin the 0.4.x line starting at 0.4.0; DocC examples use explicit package products, throwing configuration factories, checked amounts, and the nonoptional indexer URL; CHANGELOG.md describes changes since 0.3.2, source-breaking migrations, and the externally supplied Falcon signer; scoped SpecSync and Trust verification pass before release. Prepare only, without publishing a tag or release."
+        ],
+        "dependencies": [],
+        "supersedes": [],
+        "answers": {
+          "architecture_risk": "no",
+          "public_contract": "no"
+        }
+      },
+      "approved_delta_digests": {}
+    }
+  ],
+  "reopenings": []
+}
