@@ -7,11 +7,11 @@
   "title": "Prepare 0.4.0 release documentation and migration notes for the merged SDK changes",
   "description": "Prepare 0.4.0 release documentation and migration notes for the merged SDK changes",
   "kind": "documentation",
-  "state": "verifying",
+  "state": "accepted",
   "canonical_applied": true,
   "base_commit": "bd193ad4dcc66d0c9f938fa97f5c41298588649c",
   "created_at": 1788706088,
-  "updated_at": 1788707693,
+  "updated_at": 1788707741,
   "affected_specs": [],
   "affected_paths": [
     "README.md",
