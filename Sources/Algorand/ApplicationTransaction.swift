@@ -72,7 +72,7 @@ public struct ApplicationCallTransaction: Transaction {
         foreignAssets: [UInt64]? = nil,
         boxes: [(UInt64, Data)]? = nil,
         extraPages: UInt64? = nil,
-        fee: MicroAlgos = MicroAlgos(1000),
+        fee: MicroAlgos = AlgorandConsensus.v42.minimumFee,
         firstValid: UInt64,
         lastValid: UInt64,
         genesisID: String,
@@ -102,6 +102,105 @@ public struct ApplicationCallTransaction: Transaction {
         self.note = note
         self.lease = lease
         self.rekeyTo = rekeyTo
+    }
+
+    /**
+     Creates an application call from suggested parameters, pricing its fee with a ``FeeStrategy``.
+
+     The validity window, genesis ID, and genesis hash come from `params`; the fee is
+     `fee.fee(for:params:)` over a draft of this transaction carrying `min-fee`.
+
+     - Parameters:
+       - sender: As in the header-field initializer.
+       - applicationID: As in the header-field initializer.
+       - onCompletion: As in the header-field initializer.
+       - approvalProgram: As in the header-field initializer.
+       - clearStateProgram: As in the header-field initializer.
+       - globalStateSchema: As in the header-field initializer.
+       - localStateSchema: As in the header-field initializer.
+       - appArguments: As in the header-field initializer.
+       - accounts: As in the header-field initializer.
+       - foreignApps: As in the header-field initializer.
+       - foreignAssets: As in the header-field initializer.
+       - boxes: As in the header-field initializer.
+       - extraPages: As in the header-field initializer.
+       - fee: How to price the fee. Defaults to ``FeeStrategy/minimum``.
+       - params: The suggested parameters from ``AlgodClient/transactionParams()``.
+       - validRounds: How many rounds past the first the transaction stays valid; at most 1000.
+       - note: As in the header-field initializer.
+       - lease: As in the header-field initializer.
+       - rekeyTo: As in the header-field initializer.
+     - Throws: ``FeeError/overflow(_:)`` if the fee does not fit, or `AlgorandError` if the
+       validity window overflows or the draft cannot be encoded.
+     */
+    public init(
+        sender: Address,
+        applicationID: UInt64,
+        onCompletion: OnCompletion = .noOp,
+        approvalProgram: Data? = nil,
+        clearStateProgram: Data? = nil,
+        globalStateSchema: StateSchema? = nil,
+        localStateSchema: StateSchema? = nil,
+        appArguments: [Data]? = nil,
+        accounts: [Address]? = nil,
+        foreignApps: [UInt64]? = nil,
+        foreignAssets: [UInt64]? = nil,
+        boxes: [(UInt64, Data)]? = nil,
+        extraPages: UInt64? = nil,
+        fee: FeeStrategy = .minimum,
+        params: TransactionParams,
+        validRounds: UInt64 = 1000,
+        note: Data? = nil,
+        lease: Data? = nil,
+        rekeyTo: Address? = nil
+    ) throws {
+        let window = try params.validityWindow(rounds: validRounds)
+        let draft = ApplicationCallTransaction(
+            sender: sender,
+            applicationID: applicationID,
+            onCompletion: onCompletion,
+            approvalProgram: approvalProgram,
+            clearStateProgram: clearStateProgram,
+            globalStateSchema: globalStateSchema,
+            localStateSchema: localStateSchema,
+            appArguments: appArguments,
+            accounts: accounts,
+            foreignApps: foreignApps,
+            foreignAssets: foreignAssets,
+            boxes: boxes,
+            extraPages: extraPages,
+            fee: MicroAlgos(params.minFee),
+            firstValid: window.first,
+            lastValid: window.last,
+            genesisID: params.genesisID,
+            genesisHash: params.genesisHash,
+            note: note,
+            lease: lease,
+            rekeyTo: rekeyTo
+        )
+        self.init(
+            sender: sender,
+            applicationID: applicationID,
+            onCompletion: onCompletion,
+            approvalProgram: approvalProgram,
+            clearStateProgram: clearStateProgram,
+            globalStateSchema: globalStateSchema,
+            localStateSchema: localStateSchema,
+            appArguments: appArguments,
+            accounts: accounts,
+            foreignApps: foreignApps,
+            foreignAssets: foreignAssets,
+            boxes: boxes,
+            extraPages: extraPages,
+            fee: try fee.fee(for: draft, params: params),
+            firstValid: window.first,
+            lastValid: window.last,
+            genesisID: params.genesisID,
+            genesisHash: params.genesisHash,
+            note: note,
+            lease: lease,
+            rekeyTo: rekeyTo
+        )
     }
 
     /**
@@ -189,7 +288,7 @@ extension ApplicationCallTransaction {
         foreignAssets: [UInt64]? = nil,
         boxes: [(UInt64, Data)]? = nil,
         extraPages: UInt64? = nil,
-        fee: MicroAlgos = MicroAlgos(1000),
+        fee: MicroAlgos = AlgorandConsensus.v42.minimumFee,
         firstValid: UInt64,
         lastValid: UInt64,
         genesisID: String,
@@ -223,6 +322,72 @@ extension ApplicationCallTransaction {
         )
     }
 
+    /**
+     Creates an application (applicationID = 0) from suggested parameters, pricing its fee with a ``FeeStrategy``.
+
+     - Parameters:
+       - sender: As in the header-field factory.
+       - approvalProgram: As in the header-field factory.
+       - clearStateProgram: As in the header-field factory.
+       - globalStateSchema: As in the header-field factory.
+       - localStateSchema: As in the header-field factory.
+       - appArguments: As in the header-field factory.
+       - accounts: As in the header-field factory.
+       - foreignApps: As in the header-field factory.
+       - foreignAssets: As in the header-field factory.
+       - boxes: As in the header-field factory.
+       - extraPages: As in the header-field factory.
+       - fee: How to price the fee. Defaults to ``FeeStrategy/minimum``.
+       - params: The suggested parameters from ``AlgodClient/transactionParams()``.
+       - validRounds: How many rounds past the first the transaction stays valid; at most 1000.
+       - note: As in the header-field factory.
+       - lease: As in the header-field factory.
+       - rekeyTo: As in the header-field factory.
+     - Throws: ``FeeError/overflow(_:)`` if the fee does not fit, or `AlgorandError` if the
+       validity window overflows or the draft cannot be encoded.
+     */
+    public static func create(
+        sender: Address,
+        approvalProgram: Data,
+        clearStateProgram: Data,
+        globalStateSchema: StateSchema,
+        localStateSchema: StateSchema,
+        appArguments: [Data]? = nil,
+        accounts: [Address]? = nil,
+        foreignApps: [UInt64]? = nil,
+        foreignAssets: [UInt64]? = nil,
+        boxes: [(UInt64, Data)]? = nil,
+        extraPages: UInt64? = nil,
+        fee: FeeStrategy = .minimum,
+        params: TransactionParams,
+        validRounds: UInt64 = 1000,
+        note: Data? = nil,
+        lease: Data? = nil,
+        rekeyTo: Address? = nil
+    ) throws -> ApplicationCallTransaction {
+        return try ApplicationCallTransaction(
+            sender: sender,
+            applicationID: 0,
+            onCompletion: .noOp,
+            approvalProgram: approvalProgram,
+            clearStateProgram: clearStateProgram,
+            globalStateSchema: globalStateSchema,
+            localStateSchema: localStateSchema,
+            appArguments: appArguments,
+            accounts: accounts,
+            foreignApps: foreignApps,
+            foreignAssets: foreignAssets,
+            boxes: boxes,
+            extraPages: extraPages,
+            fee: fee,
+            params: params,
+            validRounds: validRounds,
+            note: note,
+            lease: lease,
+            rekeyTo: rekeyTo
+        )
+    }
+
     /// Updates an application
     public static func update(
         sender: Address,
@@ -234,7 +399,7 @@ extension ApplicationCallTransaction {
         foreignApps: [UInt64]? = nil,
         foreignAssets: [UInt64]? = nil,
         boxes: [(UInt64, Data)]? = nil,
-        fee: MicroAlgos = MicroAlgos(1000),
+        fee: MicroAlgos = AlgorandConsensus.v42.minimumFee,
         firstValid: UInt64,
         lastValid: UInt64,
         genesisID: String,
@@ -265,6 +430,65 @@ extension ApplicationCallTransaction {
         )
     }
 
+    /**
+     Updates an application, from suggested parameters and a ``FeeStrategy``.
+
+     - Parameters:
+       - sender: As in the header-field factory.
+       - applicationID: As in the header-field factory.
+       - approvalProgram: As in the header-field factory.
+       - clearStateProgram: As in the header-field factory.
+       - appArguments: As in the header-field factory.
+       - accounts: As in the header-field factory.
+       - foreignApps: As in the header-field factory.
+       - foreignAssets: As in the header-field factory.
+       - boxes: As in the header-field factory.
+       - fee: How to price the fee. Defaults to ``FeeStrategy/minimum``.
+       - params: The suggested parameters from ``AlgodClient/transactionParams()``.
+       - validRounds: How many rounds past the first the transaction stays valid; at most 1000.
+       - note: As in the header-field factory.
+       - lease: As in the header-field factory.
+       - rekeyTo: As in the header-field factory.
+     - Throws: ``FeeError/overflow(_:)`` if the fee does not fit, or `AlgorandError` if the
+       validity window overflows or the draft cannot be encoded.
+     */
+    public static func update(
+        sender: Address,
+        applicationID: UInt64,
+        approvalProgram: Data,
+        clearStateProgram: Data,
+        appArguments: [Data]? = nil,
+        accounts: [Address]? = nil,
+        foreignApps: [UInt64]? = nil,
+        foreignAssets: [UInt64]? = nil,
+        boxes: [(UInt64, Data)]? = nil,
+        fee: FeeStrategy = .minimum,
+        params: TransactionParams,
+        validRounds: UInt64 = 1000,
+        note: Data? = nil,
+        lease: Data? = nil,
+        rekeyTo: Address? = nil
+    ) throws -> ApplicationCallTransaction {
+        return try ApplicationCallTransaction(
+            sender: sender,
+            applicationID: applicationID,
+            onCompletion: .updateApplication,
+            approvalProgram: approvalProgram,
+            clearStateProgram: clearStateProgram,
+            appArguments: appArguments,
+            accounts: accounts,
+            foreignApps: foreignApps,
+            foreignAssets: foreignAssets,
+            boxes: boxes,
+            fee: fee,
+            params: params,
+            validRounds: validRounds,
+            note: note,
+            lease: lease,
+            rekeyTo: rekeyTo
+        )
+    }
+
     /// Deletes an application
     public static func delete(
         sender: Address,
@@ -274,7 +498,7 @@ extension ApplicationCallTransaction {
         foreignApps: [UInt64]? = nil,
         foreignAssets: [UInt64]? = nil,
         boxes: [(UInt64, Data)]? = nil,
-        fee: MicroAlgos = MicroAlgos(1000),
+        fee: MicroAlgos = AlgorandConsensus.v42.minimumFee,
         firstValid: UInt64,
         lastValid: UInt64,
         genesisID: String,
@@ -303,6 +527,59 @@ extension ApplicationCallTransaction {
         )
     }
 
+    /**
+     Deletes an application, from suggested parameters and a ``FeeStrategy``.
+
+     - Parameters:
+       - sender: As in the header-field factory.
+       - applicationID: As in the header-field factory.
+       - appArguments: As in the header-field factory.
+       - accounts: As in the header-field factory.
+       - foreignApps: As in the header-field factory.
+       - foreignAssets: As in the header-field factory.
+       - boxes: As in the header-field factory.
+       - fee: How to price the fee. Defaults to ``FeeStrategy/minimum``.
+       - params: The suggested parameters from ``AlgodClient/transactionParams()``.
+       - validRounds: How many rounds past the first the transaction stays valid; at most 1000.
+       - note: As in the header-field factory.
+       - lease: As in the header-field factory.
+       - rekeyTo: As in the header-field factory.
+     - Throws: ``FeeError/overflow(_:)`` if the fee does not fit, or `AlgorandError` if the
+       validity window overflows or the draft cannot be encoded.
+     */
+    public static func delete(
+        sender: Address,
+        applicationID: UInt64,
+        appArguments: [Data]? = nil,
+        accounts: [Address]? = nil,
+        foreignApps: [UInt64]? = nil,
+        foreignAssets: [UInt64]? = nil,
+        boxes: [(UInt64, Data)]? = nil,
+        fee: FeeStrategy = .minimum,
+        params: TransactionParams,
+        validRounds: UInt64 = 1000,
+        note: Data? = nil,
+        lease: Data? = nil,
+        rekeyTo: Address? = nil
+    ) throws -> ApplicationCallTransaction {
+        return try ApplicationCallTransaction(
+            sender: sender,
+            applicationID: applicationID,
+            onCompletion: .deleteApplication,
+            appArguments: appArguments,
+            accounts: accounts,
+            foreignApps: foreignApps,
+            foreignAssets: foreignAssets,
+            boxes: boxes,
+            fee: fee,
+            params: params,
+            validRounds: validRounds,
+            note: note,
+            lease: lease,
+            rekeyTo: rekeyTo
+        )
+    }
+
     /// Opts into an application
     public static func optIn(
         sender: Address,
@@ -312,7 +589,7 @@ extension ApplicationCallTransaction {
         foreignApps: [UInt64]? = nil,
         foreignAssets: [UInt64]? = nil,
         boxes: [(UInt64, Data)]? = nil,
-        fee: MicroAlgos = MicroAlgos(1000),
+        fee: MicroAlgos = AlgorandConsensus.v42.minimumFee,
         firstValid: UInt64,
         lastValid: UInt64,
         genesisID: String,
@@ -341,6 +618,59 @@ extension ApplicationCallTransaction {
         )
     }
 
+    /**
+     Opts into an application, from suggested parameters and a ``FeeStrategy``.
+
+     - Parameters:
+       - sender: As in the header-field factory.
+       - applicationID: As in the header-field factory.
+       - appArguments: As in the header-field factory.
+       - accounts: As in the header-field factory.
+       - foreignApps: As in the header-field factory.
+       - foreignAssets: As in the header-field factory.
+       - boxes: As in the header-field factory.
+       - fee: How to price the fee. Defaults to ``FeeStrategy/minimum``.
+       - params: The suggested parameters from ``AlgodClient/transactionParams()``.
+       - validRounds: How many rounds past the first the transaction stays valid; at most 1000.
+       - note: As in the header-field factory.
+       - lease: As in the header-field factory.
+       - rekeyTo: As in the header-field factory.
+     - Throws: ``FeeError/overflow(_:)`` if the fee does not fit, or `AlgorandError` if the
+       validity window overflows or the draft cannot be encoded.
+     */
+    public static func optIn(
+        sender: Address,
+        applicationID: UInt64,
+        appArguments: [Data]? = nil,
+        accounts: [Address]? = nil,
+        foreignApps: [UInt64]? = nil,
+        foreignAssets: [UInt64]? = nil,
+        boxes: [(UInt64, Data)]? = nil,
+        fee: FeeStrategy = .minimum,
+        params: TransactionParams,
+        validRounds: UInt64 = 1000,
+        note: Data? = nil,
+        lease: Data? = nil,
+        rekeyTo: Address? = nil
+    ) throws -> ApplicationCallTransaction {
+        return try ApplicationCallTransaction(
+            sender: sender,
+            applicationID: applicationID,
+            onCompletion: .optIn,
+            appArguments: appArguments,
+            accounts: accounts,
+            foreignApps: foreignApps,
+            foreignAssets: foreignAssets,
+            boxes: boxes,
+            fee: fee,
+            params: params,
+            validRounds: validRounds,
+            note: note,
+            lease: lease,
+            rekeyTo: rekeyTo
+        )
+    }
+
     /// Closes out from an application
     public static func closeOut(
         sender: Address,
@@ -350,7 +680,7 @@ extension ApplicationCallTransaction {
         foreignApps: [UInt64]? = nil,
         foreignAssets: [UInt64]? = nil,
         boxes: [(UInt64, Data)]? = nil,
-        fee: MicroAlgos = MicroAlgos(1000),
+        fee: MicroAlgos = AlgorandConsensus.v42.minimumFee,
         firstValid: UInt64,
         lastValid: UInt64,
         genesisID: String,
@@ -379,6 +709,59 @@ extension ApplicationCallTransaction {
         )
     }
 
+    /**
+     Closes out from an application, from suggested parameters and a ``FeeStrategy``.
+
+     - Parameters:
+       - sender: As in the header-field factory.
+       - applicationID: As in the header-field factory.
+       - appArguments: As in the header-field factory.
+       - accounts: As in the header-field factory.
+       - foreignApps: As in the header-field factory.
+       - foreignAssets: As in the header-field factory.
+       - boxes: As in the header-field factory.
+       - fee: How to price the fee. Defaults to ``FeeStrategy/minimum``.
+       - params: The suggested parameters from ``AlgodClient/transactionParams()``.
+       - validRounds: How many rounds past the first the transaction stays valid; at most 1000.
+       - note: As in the header-field factory.
+       - lease: As in the header-field factory.
+       - rekeyTo: As in the header-field factory.
+     - Throws: ``FeeError/overflow(_:)`` if the fee does not fit, or `AlgorandError` if the
+       validity window overflows or the draft cannot be encoded.
+     */
+    public static func closeOut(
+        sender: Address,
+        applicationID: UInt64,
+        appArguments: [Data]? = nil,
+        accounts: [Address]? = nil,
+        foreignApps: [UInt64]? = nil,
+        foreignAssets: [UInt64]? = nil,
+        boxes: [(UInt64, Data)]? = nil,
+        fee: FeeStrategy = .minimum,
+        params: TransactionParams,
+        validRounds: UInt64 = 1000,
+        note: Data? = nil,
+        lease: Data? = nil,
+        rekeyTo: Address? = nil
+    ) throws -> ApplicationCallTransaction {
+        return try ApplicationCallTransaction(
+            sender: sender,
+            applicationID: applicationID,
+            onCompletion: .closeOut,
+            appArguments: appArguments,
+            accounts: accounts,
+            foreignApps: foreignApps,
+            foreignAssets: foreignAssets,
+            boxes: boxes,
+            fee: fee,
+            params: params,
+            validRounds: validRounds,
+            note: note,
+            lease: lease,
+            rekeyTo: rekeyTo
+        )
+    }
+
     /// Clears state from an application
     public static func clearState(
         sender: Address,
@@ -388,7 +771,7 @@ extension ApplicationCallTransaction {
         foreignApps: [UInt64]? = nil,
         foreignAssets: [UInt64]? = nil,
         boxes: [(UInt64, Data)]? = nil,
-        fee: MicroAlgos = MicroAlgos(1000),
+        fee: MicroAlgos = AlgorandConsensus.v42.minimumFee,
         firstValid: UInt64,
         lastValid: UInt64,
         genesisID: String,
@@ -417,6 +800,59 @@ extension ApplicationCallTransaction {
         )
     }
 
+    /**
+     Clears state from an application, from suggested parameters and a ``FeeStrategy``.
+
+     - Parameters:
+       - sender: As in the header-field factory.
+       - applicationID: As in the header-field factory.
+       - appArguments: As in the header-field factory.
+       - accounts: As in the header-field factory.
+       - foreignApps: As in the header-field factory.
+       - foreignAssets: As in the header-field factory.
+       - boxes: As in the header-field factory.
+       - fee: How to price the fee. Defaults to ``FeeStrategy/minimum``.
+       - params: The suggested parameters from ``AlgodClient/transactionParams()``.
+       - validRounds: How many rounds past the first the transaction stays valid; at most 1000.
+       - note: As in the header-field factory.
+       - lease: As in the header-field factory.
+       - rekeyTo: As in the header-field factory.
+     - Throws: ``FeeError/overflow(_:)`` if the fee does not fit, or `AlgorandError` if the
+       validity window overflows or the draft cannot be encoded.
+     */
+    public static func clearState(
+        sender: Address,
+        applicationID: UInt64,
+        appArguments: [Data]? = nil,
+        accounts: [Address]? = nil,
+        foreignApps: [UInt64]? = nil,
+        foreignAssets: [UInt64]? = nil,
+        boxes: [(UInt64, Data)]? = nil,
+        fee: FeeStrategy = .minimum,
+        params: TransactionParams,
+        validRounds: UInt64 = 1000,
+        note: Data? = nil,
+        lease: Data? = nil,
+        rekeyTo: Address? = nil
+    ) throws -> ApplicationCallTransaction {
+        return try ApplicationCallTransaction(
+            sender: sender,
+            applicationID: applicationID,
+            onCompletion: .clearState,
+            appArguments: appArguments,
+            accounts: accounts,
+            foreignApps: foreignApps,
+            foreignAssets: foreignAssets,
+            boxes: boxes,
+            fee: fee,
+            params: params,
+            validRounds: validRounds,
+            note: note,
+            lease: lease,
+            rekeyTo: rekeyTo
+        )
+    }
+
     /// Calls an application with NoOp
     public static func call(
         sender: Address,
@@ -426,7 +862,7 @@ extension ApplicationCallTransaction {
         foreignApps: [UInt64]? = nil,
         foreignAssets: [UInt64]? = nil,
         boxes: [(UInt64, Data)]? = nil,
-        fee: MicroAlgos = MicroAlgos(1000),
+        fee: MicroAlgos = AlgorandConsensus.v42.minimumFee,
         firstValid: UInt64,
         lastValid: UInt64,
         genesisID: String,
@@ -449,6 +885,59 @@ extension ApplicationCallTransaction {
             lastValid: lastValid,
             genesisID: genesisID,
             genesisHash: genesisHash,
+            note: note,
+            lease: lease,
+            rekeyTo: rekeyTo
+        )
+    }
+
+    /**
+     Calls an application with NoOp, from suggested parameters and a ``FeeStrategy``.
+
+     - Parameters:
+       - sender: As in the header-field factory.
+       - applicationID: As in the header-field factory.
+       - appArguments: As in the header-field factory.
+       - accounts: As in the header-field factory.
+       - foreignApps: As in the header-field factory.
+       - foreignAssets: As in the header-field factory.
+       - boxes: As in the header-field factory.
+       - fee: How to price the fee. Defaults to ``FeeStrategy/minimum``.
+       - params: The suggested parameters from ``AlgodClient/transactionParams()``.
+       - validRounds: How many rounds past the first the transaction stays valid; at most 1000.
+       - note: As in the header-field factory.
+       - lease: As in the header-field factory.
+       - rekeyTo: As in the header-field factory.
+     - Throws: ``FeeError/overflow(_:)`` if the fee does not fit, or `AlgorandError` if the
+       validity window overflows or the draft cannot be encoded.
+     */
+    public static func call(
+        sender: Address,
+        applicationID: UInt64,
+        appArguments: [Data]? = nil,
+        accounts: [Address]? = nil,
+        foreignApps: [UInt64]? = nil,
+        foreignAssets: [UInt64]? = nil,
+        boxes: [(UInt64, Data)]? = nil,
+        fee: FeeStrategy = .minimum,
+        params: TransactionParams,
+        validRounds: UInt64 = 1000,
+        note: Data? = nil,
+        lease: Data? = nil,
+        rekeyTo: Address? = nil
+    ) throws -> ApplicationCallTransaction {
+        return try ApplicationCallTransaction(
+            sender: sender,
+            applicationID: applicationID,
+            onCompletion: .noOp,
+            appArguments: appArguments,
+            accounts: accounts,
+            foreignApps: foreignApps,
+            foreignAssets: foreignAssets,
+            boxes: boxes,
+            fee: fee,
+            params: params,
+            validRounds: validRounds,
             note: note,
             lease: lease,
             rekeyTo: rekeyTo

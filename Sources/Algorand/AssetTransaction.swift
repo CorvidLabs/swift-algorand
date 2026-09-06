@@ -98,7 +98,7 @@ public struct AssetCreateTransaction: Transaction {
     public init(
         sender: Address,
         assetParams: AssetParams,
-        fee: MicroAlgos = MicroAlgos(1000),
+        fee: MicroAlgos = AlgorandConsensus.v42.minimumFee,
         firstValid: UInt64,
         lastValid: UInt64,
         genesisID: String,
@@ -117,6 +117,61 @@ public struct AssetCreateTransaction: Transaction {
         self.note = note
         self.lease = lease
         self.rekeyTo = rekeyTo
+    }
+
+    /**
+     Creates an asset-creation transaction from suggested parameters, pricing its fee with a ``FeeStrategy``.
+
+     The validity window, genesis ID, and genesis hash come from `params`; the fee is
+     `fee.fee(for:params:)` over a draft of this transaction carrying `min-fee`.
+
+     - Parameters:
+       - sender: As in the header-field initializer.
+       - assetParams: As in the header-field initializer.
+       - fee: How to price the fee. Defaults to ``FeeStrategy/minimum``.
+       - params: The suggested parameters from ``AlgodClient/transactionParams()``.
+       - validRounds: How many rounds past the first the transaction stays valid; at most 1000.
+       - note: As in the header-field initializer.
+       - lease: As in the header-field initializer.
+       - rekeyTo: As in the header-field initializer.
+     - Throws: ``FeeError/overflow(_:)`` if the fee does not fit, or `AlgorandError` if the
+       validity window overflows or the draft cannot be encoded.
+     */
+    public init(
+        sender: Address,
+        assetParams: AssetParams,
+        fee: FeeStrategy = .minimum,
+        params: TransactionParams,
+        validRounds: UInt64 = 1000,
+        note: Data? = nil,
+        lease: Data? = nil,
+        rekeyTo: Address? = nil
+    ) throws {
+        let window = try params.validityWindow(rounds: validRounds)
+        let draft = AssetCreateTransaction(
+            sender: sender,
+            assetParams: assetParams,
+            fee: MicroAlgos(params.minFee),
+            firstValid: window.first,
+            lastValid: window.last,
+            genesisID: params.genesisID,
+            genesisHash: params.genesisHash,
+            note: note,
+            lease: lease,
+            rekeyTo: rekeyTo
+        )
+        self.init(
+            sender: sender,
+            assetParams: assetParams,
+            fee: try fee.fee(for: draft, params: params),
+            firstValid: window.first,
+            lastValid: window.last,
+            genesisID: params.genesisID,
+            genesisHash: params.genesisHash,
+            note: note,
+            lease: lease,
+            rekeyTo: rekeyTo
+        )
     }
 
     /**
@@ -176,7 +231,7 @@ public struct AssetOptInTransaction: Transaction {
     public init(
         sender: Address,
         assetID: UInt64,
-        fee: MicroAlgos = MicroAlgos(1000),
+        fee: MicroAlgos = AlgorandConsensus.v42.minimumFee,
         firstValid: UInt64,
         lastValid: UInt64,
         genesisID: String,
@@ -195,6 +250,61 @@ public struct AssetOptInTransaction: Transaction {
         self.note = note
         self.lease = lease
         self.rekeyTo = rekeyTo
+    }
+
+    /**
+     Creates an asset opt-in from suggested parameters, pricing its fee with a ``FeeStrategy``.
+
+     The validity window, genesis ID, and genesis hash come from `params`; the fee is
+     `fee.fee(for:params:)` over a draft of this transaction carrying `min-fee`.
+
+     - Parameters:
+       - sender: As in the header-field initializer.
+       - assetID: As in the header-field initializer.
+       - fee: How to price the fee. Defaults to ``FeeStrategy/minimum``.
+       - params: The suggested parameters from ``AlgodClient/transactionParams()``.
+       - validRounds: How many rounds past the first the transaction stays valid; at most 1000.
+       - note: As in the header-field initializer.
+       - lease: As in the header-field initializer.
+       - rekeyTo: As in the header-field initializer.
+     - Throws: ``FeeError/overflow(_:)`` if the fee does not fit, or `AlgorandError` if the
+       validity window overflows or the draft cannot be encoded.
+     */
+    public init(
+        sender: Address,
+        assetID: UInt64,
+        fee: FeeStrategy = .minimum,
+        params: TransactionParams,
+        validRounds: UInt64 = 1000,
+        note: Data? = nil,
+        lease: Data? = nil,
+        rekeyTo: Address? = nil
+    ) throws {
+        let window = try params.validityWindow(rounds: validRounds)
+        let draft = AssetOptInTransaction(
+            sender: sender,
+            assetID: assetID,
+            fee: MicroAlgos(params.minFee),
+            firstValid: window.first,
+            lastValid: window.last,
+            genesisID: params.genesisID,
+            genesisHash: params.genesisHash,
+            note: note,
+            lease: lease,
+            rekeyTo: rekeyTo
+        )
+        self.init(
+            sender: sender,
+            assetID: assetID,
+            fee: try fee.fee(for: draft, params: params),
+            firstValid: window.first,
+            lastValid: window.last,
+            genesisID: params.genesisID,
+            genesisHash: params.genesisHash,
+            note: note,
+            lease: lease,
+            rekeyTo: rekeyTo
+        )
     }
 
     /**
@@ -248,7 +358,7 @@ public struct AssetFreezeTransaction: Transaction {
         assetID: UInt64,
         freezeAccount: Address,
         frozen: Bool,
-        fee: MicroAlgos = MicroAlgos(1000),
+        fee: MicroAlgos = AlgorandConsensus.v42.minimumFee,
         firstValid: UInt64,
         lastValid: UInt64,
         genesisID: String,
@@ -269,6 +379,69 @@ public struct AssetFreezeTransaction: Transaction {
         self.note = note
         self.lease = lease
         self.rekeyTo = rekeyTo
+    }
+
+    /**
+     Creates an asset freeze from suggested parameters, pricing its fee with a ``FeeStrategy``.
+
+     The validity window, genesis ID, and genesis hash come from `params`; the fee is
+     `fee.fee(for:params:)` over a draft of this transaction carrying `min-fee`.
+
+     - Parameters:
+       - sender: As in the header-field initializer.
+       - assetID: As in the header-field initializer.
+       - freezeAccount: As in the header-field initializer.
+       - frozen: As in the header-field initializer.
+       - fee: How to price the fee. Defaults to ``FeeStrategy/minimum``.
+       - params: The suggested parameters from ``AlgodClient/transactionParams()``.
+       - validRounds: How many rounds past the first the transaction stays valid; at most 1000.
+       - note: As in the header-field initializer.
+       - lease: As in the header-field initializer.
+       - rekeyTo: As in the header-field initializer.
+     - Throws: ``FeeError/overflow(_:)`` if the fee does not fit, or `AlgorandError` if the
+       validity window overflows or the draft cannot be encoded.
+     */
+    public init(
+        sender: Address,
+        assetID: UInt64,
+        freezeAccount: Address,
+        frozen: Bool,
+        fee: FeeStrategy = .minimum,
+        params: TransactionParams,
+        validRounds: UInt64 = 1000,
+        note: Data? = nil,
+        lease: Data? = nil,
+        rekeyTo: Address? = nil
+    ) throws {
+        let window = try params.validityWindow(rounds: validRounds)
+        let draft = AssetFreezeTransaction(
+            sender: sender,
+            assetID: assetID,
+            freezeAccount: freezeAccount,
+            frozen: frozen,
+            fee: MicroAlgos(params.minFee),
+            firstValid: window.first,
+            lastValid: window.last,
+            genesisID: params.genesisID,
+            genesisHash: params.genesisHash,
+            note: note,
+            lease: lease,
+            rekeyTo: rekeyTo
+        )
+        self.init(
+            sender: sender,
+            assetID: assetID,
+            freezeAccount: freezeAccount,
+            frozen: frozen,
+            fee: try fee.fee(for: draft, params: params),
+            firstValid: window.first,
+            lastValid: window.last,
+            genesisID: params.genesisID,
+            genesisHash: params.genesisHash,
+            note: note,
+            lease: lease,
+            rekeyTo: rekeyTo
+        )
     }
 
     /**
@@ -328,7 +501,7 @@ public struct AssetConfigTransaction: Transaction {
         freeze: Address? = nil,
         clawback: Address? = nil,
         strictEmptyAddressChecking: Bool = false,
-        fee: MicroAlgos = MicroAlgos(1000),
+        fee: MicroAlgos = AlgorandConsensus.v42.minimumFee,
         firstValid: UInt64,
         lastValid: UInt64,
         genesisID: String,
@@ -352,6 +525,81 @@ public struct AssetConfigTransaction: Transaction {
         self.note = note
         self.lease = lease
         self.rekeyTo = rekeyTo
+    }
+
+    /**
+     Creates an asset configuration from suggested parameters, pricing its fee with a ``FeeStrategy``.
+
+     The validity window, genesis ID, and genesis hash come from `params`; the fee is
+     `fee.fee(for:params:)` over a draft of this transaction carrying `min-fee`.
+
+     - Parameters:
+       - sender: As in the header-field initializer.
+       - assetID: As in the header-field initializer.
+       - manager: As in the header-field initializer.
+       - reserve: As in the header-field initializer.
+       - freeze: As in the header-field initializer.
+       - clawback: As in the header-field initializer.
+       - strictEmptyAddressChecking: As in the header-field initializer.
+       - fee: How to price the fee. Defaults to ``FeeStrategy/minimum``.
+       - params: The suggested parameters from ``AlgodClient/transactionParams()``.
+       - validRounds: How many rounds past the first the transaction stays valid; at most 1000.
+       - note: As in the header-field initializer.
+       - lease: As in the header-field initializer.
+       - rekeyTo: As in the header-field initializer.
+     - Throws: ``FeeError/overflow(_:)`` if the fee does not fit, or `AlgorandError` if the
+       validity window overflows or the draft cannot be encoded.
+     */
+    public init(
+        sender: Address,
+        assetID: UInt64,
+        manager: Address? = nil,
+        reserve: Address? = nil,
+        freeze: Address? = nil,
+        clawback: Address? = nil,
+        strictEmptyAddressChecking: Bool = false,
+        fee: FeeStrategy = .minimum,
+        params: TransactionParams,
+        validRounds: UInt64 = 1000,
+        note: Data? = nil,
+        lease: Data? = nil,
+        rekeyTo: Address? = nil
+    ) throws {
+        let window = try params.validityWindow(rounds: validRounds)
+        let draft = AssetConfigTransaction(
+            sender: sender,
+            assetID: assetID,
+            manager: manager,
+            reserve: reserve,
+            freeze: freeze,
+            clawback: clawback,
+            strictEmptyAddressChecking: strictEmptyAddressChecking,
+            fee: MicroAlgos(params.minFee),
+            firstValid: window.first,
+            lastValid: window.last,
+            genesisID: params.genesisID,
+            genesisHash: params.genesisHash,
+            note: note,
+            lease: lease,
+            rekeyTo: rekeyTo
+        )
+        self.init(
+            sender: sender,
+            assetID: assetID,
+            manager: manager,
+            reserve: reserve,
+            freeze: freeze,
+            clawback: clawback,
+            strictEmptyAddressChecking: strictEmptyAddressChecking,
+            fee: try fee.fee(for: draft, params: params),
+            firstValid: window.first,
+            lastValid: window.last,
+            genesisID: params.genesisID,
+            genesisHash: params.genesisHash,
+            note: note,
+            lease: lease,
+            rekeyTo: rekeyTo
+        )
     }
 
     /**
@@ -397,7 +645,7 @@ extension AssetConfigTransaction {
     public static func destroy(
         sender: Address,
         assetID: UInt64,
-        fee: MicroAlgos = MicroAlgos(1000),
+        fee: MicroAlgos = AlgorandConsensus.v42.minimumFee,
         firstValid: UInt64,
         lastValid: UInt64,
         genesisID: String,
@@ -421,6 +669,43 @@ extension AssetConfigTransaction {
     }
 
     /**
+     Destroys an asset (sender must be manager and hold all units), from suggested parameters and a ``FeeStrategy``.
+
+     - Parameters:
+       - sender: As in the header-field factory.
+       - assetID: As in the header-field factory.
+       - fee: How to price the fee. Defaults to ``FeeStrategy/minimum``.
+       - params: The suggested parameters from ``AlgodClient/transactionParams()``.
+       - validRounds: How many rounds past the first the transaction stays valid; at most 1000.
+       - note: As in the header-field factory.
+       - lease: As in the header-field factory.
+       - rekeyTo: As in the header-field factory.
+     - Throws: ``FeeError/overflow(_:)`` if the fee does not fit, or `AlgorandError` if the
+       validity window overflows or the draft cannot be encoded.
+     */
+    public static func destroy(
+        sender: Address,
+        assetID: UInt64,
+        fee: FeeStrategy = .minimum,
+        params: TransactionParams,
+        validRounds: UInt64 = 1000,
+        note: Data? = nil,
+        lease: Data? = nil,
+        rekeyTo: Address? = nil
+    ) throws -> AssetConfigTransaction {
+        return try AssetConfigTransaction(
+            sender: sender,
+            assetID: assetID,
+            fee: fee,
+            params: params,
+            validRounds: validRounds,
+            note: note,
+            lease: lease,
+            rekeyTo: rekeyTo
+        )
+    }
+
+    /**
      Updates asset configuration addresses
      */
     public static func update(
@@ -431,7 +716,7 @@ extension AssetConfigTransaction {
         freeze: Address? = nil,
         clawback: Address? = nil,
         strictEmptyAddressChecking: Bool = false,
-        fee: MicroAlgos = MicroAlgos(1000),
+        fee: MicroAlgos = AlgorandConsensus.v42.minimumFee,
         firstValid: UInt64,
         lastValid: UInt64,
         genesisID: String,
@@ -453,6 +738,58 @@ extension AssetConfigTransaction {
             lastValid: lastValid,
             genesisID: genesisID,
             genesisHash: genesisHash,
+            note: note,
+            lease: lease,
+            rekeyTo: rekeyTo
+        )
+    }
+
+    /**
+     Updates asset configuration addresses, from suggested parameters and a ``FeeStrategy``.
+
+     - Parameters:
+       - sender: As in the header-field factory.
+       - assetID: As in the header-field factory.
+       - manager: As in the header-field factory.
+       - reserve: As in the header-field factory.
+       - freeze: As in the header-field factory.
+       - clawback: As in the header-field factory.
+       - strictEmptyAddressChecking: As in the header-field factory.
+       - fee: How to price the fee. Defaults to ``FeeStrategy/minimum``.
+       - params: The suggested parameters from ``AlgodClient/transactionParams()``.
+       - validRounds: How many rounds past the first the transaction stays valid; at most 1000.
+       - note: As in the header-field factory.
+       - lease: As in the header-field factory.
+       - rekeyTo: As in the header-field factory.
+     - Throws: ``FeeError/overflow(_:)`` if the fee does not fit, or `AlgorandError` if the
+       validity window overflows or the draft cannot be encoded.
+     */
+    public static func update(
+        sender: Address,
+        assetID: UInt64,
+        manager: Address? = nil,
+        reserve: Address? = nil,
+        freeze: Address? = nil,
+        clawback: Address? = nil,
+        strictEmptyAddressChecking: Bool = false,
+        fee: FeeStrategy = .minimum,
+        params: TransactionParams,
+        validRounds: UInt64 = 1000,
+        note: Data? = nil,
+        lease: Data? = nil,
+        rekeyTo: Address? = nil
+    ) throws -> AssetConfigTransaction {
+        return try AssetConfigTransaction(
+            sender: sender,
+            assetID: assetID,
+            manager: manager,
+            reserve: reserve,
+            freeze: freeze,
+            clawback: clawback,
+            strictEmptyAddressChecking: strictEmptyAddressChecking,
+            fee: fee,
+            params: params,
+            validRounds: validRounds,
             note: note,
             lease: lease,
             rekeyTo: rekeyTo
@@ -482,7 +819,7 @@ public struct AssetTransferTransaction: Transaction {
         assetID: UInt64,
         amount: UInt64,
         closeRemainderTo: Address? = nil,
-        fee: MicroAlgos = MicroAlgos(1000),
+        fee: MicroAlgos = AlgorandConsensus.v42.minimumFee,
         firstValid: UInt64,
         lastValid: UInt64,
         genesisID: String,
@@ -504,6 +841,73 @@ public struct AssetTransferTransaction: Transaction {
         self.note = note
         self.lease = lease
         self.rekeyTo = rekeyTo
+    }
+
+    /**
+     Creates an asset transfer from suggested parameters, pricing its fee with a ``FeeStrategy``.
+
+     The validity window, genesis ID, and genesis hash come from `params`; the fee is
+     `fee.fee(for:params:)` over a draft of this transaction carrying `min-fee`.
+
+     - Parameters:
+       - sender: As in the header-field initializer.
+       - receiver: As in the header-field initializer.
+       - assetID: As in the header-field initializer.
+       - amount: As in the header-field initializer.
+       - closeRemainderTo: As in the header-field initializer.
+       - fee: How to price the fee. Defaults to ``FeeStrategy/minimum``.
+       - params: The suggested parameters from ``AlgodClient/transactionParams()``.
+       - validRounds: How many rounds past the first the transaction stays valid; at most 1000.
+       - note: As in the header-field initializer.
+       - lease: As in the header-field initializer.
+       - rekeyTo: As in the header-field initializer.
+     - Throws: ``FeeError/overflow(_:)`` if the fee does not fit, or `AlgorandError` if the
+       validity window overflows or the draft cannot be encoded.
+     */
+    public init(
+        sender: Address,
+        receiver: Address,
+        assetID: UInt64,
+        amount: UInt64,
+        closeRemainderTo: Address? = nil,
+        fee: FeeStrategy = .minimum,
+        params: TransactionParams,
+        validRounds: UInt64 = 1000,
+        note: Data? = nil,
+        lease: Data? = nil,
+        rekeyTo: Address? = nil
+    ) throws {
+        let window = try params.validityWindow(rounds: validRounds)
+        let draft = AssetTransferTransaction(
+            sender: sender,
+            receiver: receiver,
+            assetID: assetID,
+            amount: amount,
+            closeRemainderTo: closeRemainderTo,
+            fee: MicroAlgos(params.minFee),
+            firstValid: window.first,
+            lastValid: window.last,
+            genesisID: params.genesisID,
+            genesisHash: params.genesisHash,
+            note: note,
+            lease: lease,
+            rekeyTo: rekeyTo
+        )
+        self.init(
+            sender: sender,
+            receiver: receiver,
+            assetID: assetID,
+            amount: amount,
+            closeRemainderTo: closeRemainderTo,
+            fee: try fee.fee(for: draft, params: params),
+            firstValid: window.first,
+            lastValid: window.last,
+            genesisID: params.genesisID,
+            genesisHash: params.genesisHash,
+            note: note,
+            lease: lease,
+            rekeyTo: rekeyTo
+        )
     }
 
     /**
@@ -560,7 +964,7 @@ public struct AssetClawbackTransaction: Transaction {
         assetSender: Address,
         assetReceiver: Address,
         amount: UInt64,
-        fee: MicroAlgos = MicroAlgos(1000),
+        fee: MicroAlgos = AlgorandConsensus.v42.minimumFee,
         firstValid: UInt64,
         lastValid: UInt64,
         genesisID: String,
@@ -582,6 +986,73 @@ public struct AssetClawbackTransaction: Transaction {
         self.note = note
         self.lease = lease
         self.rekeyTo = rekeyTo
+    }
+
+    /**
+     Creates an asset clawback from suggested parameters, pricing its fee with a ``FeeStrategy``.
+
+     The validity window, genesis ID, and genesis hash come from `params`; the fee is
+     `fee.fee(for:params:)` over a draft of this transaction carrying `min-fee`.
+
+     - Parameters:
+       - sender: As in the header-field initializer.
+       - assetID: As in the header-field initializer.
+       - assetSender: As in the header-field initializer.
+       - assetReceiver: As in the header-field initializer.
+       - amount: As in the header-field initializer.
+       - fee: How to price the fee. Defaults to ``FeeStrategy/minimum``.
+       - params: The suggested parameters from ``AlgodClient/transactionParams()``.
+       - validRounds: How many rounds past the first the transaction stays valid; at most 1000.
+       - note: As in the header-field initializer.
+       - lease: As in the header-field initializer.
+       - rekeyTo: As in the header-field initializer.
+     - Throws: ``FeeError/overflow(_:)`` if the fee does not fit, or `AlgorandError` if the
+       validity window overflows or the draft cannot be encoded.
+     */
+    public init(
+        sender: Address,
+        assetID: UInt64,
+        assetSender: Address,
+        assetReceiver: Address,
+        amount: UInt64,
+        fee: FeeStrategy = .minimum,
+        params: TransactionParams,
+        validRounds: UInt64 = 1000,
+        note: Data? = nil,
+        lease: Data? = nil,
+        rekeyTo: Address? = nil
+    ) throws {
+        let window = try params.validityWindow(rounds: validRounds)
+        let draft = AssetClawbackTransaction(
+            sender: sender,
+            assetID: assetID,
+            assetSender: assetSender,
+            assetReceiver: assetReceiver,
+            amount: amount,
+            fee: MicroAlgos(params.minFee),
+            firstValid: window.first,
+            lastValid: window.last,
+            genesisID: params.genesisID,
+            genesisHash: params.genesisHash,
+            note: note,
+            lease: lease,
+            rekeyTo: rekeyTo
+        )
+        self.init(
+            sender: sender,
+            assetID: assetID,
+            assetSender: assetSender,
+            assetReceiver: assetReceiver,
+            amount: amount,
+            fee: try fee.fee(for: draft, params: params),
+            firstValid: window.first,
+            lastValid: window.last,
+            genesisID: params.genesisID,
+            genesisHash: params.genesisHash,
+            note: note,
+            lease: lease,
+            rekeyTo: rekeyTo
+        )
     }
 
     /**

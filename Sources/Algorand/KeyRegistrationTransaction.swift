@@ -28,7 +28,7 @@ public struct KeyRegistrationTransaction: Transaction {
         voteKeyDilution: UInt64? = nil,
         nonparticipation: Bool? = nil,
         stateProofPK: Data? = nil,
-        fee: MicroAlgos = MicroAlgos(1000),
+        fee: MicroAlgos = AlgorandConsensus.v42.minimumFee,
         firstValid: UInt64,
         lastValid: UInt64,
         genesisID: String,
@@ -53,6 +53,85 @@ public struct KeyRegistrationTransaction: Transaction {
         self.note = note
         self.lease = lease
         self.rekeyTo = rekeyTo
+    }
+
+    /**
+     Creates a key registration from suggested parameters, pricing its fee with a ``FeeStrategy``.
+
+     The validity window, genesis ID, and genesis hash come from `params`; the fee is
+     `fee.fee(for:params:)` over a draft of this transaction carrying `min-fee`.
+
+     - Parameters:
+       - sender: As in the header-field initializer.
+       - votePK: As in the header-field initializer.
+       - selectionPK: As in the header-field initializer.
+       - voteFirst: As in the header-field initializer.
+       - voteLast: As in the header-field initializer.
+       - voteKeyDilution: As in the header-field initializer.
+       - nonparticipation: As in the header-field initializer.
+       - stateProofPK: As in the header-field initializer.
+       - fee: How to price the fee. Defaults to ``FeeStrategy/minimum``.
+       - params: The suggested parameters from ``AlgodClient/transactionParams()``.
+       - validRounds: How many rounds past the first the transaction stays valid; at most 1000.
+       - note: As in the header-field initializer.
+       - lease: As in the header-field initializer.
+       - rekeyTo: As in the header-field initializer.
+     - Throws: ``FeeError/overflow(_:)`` if the fee does not fit, or `AlgorandError` if the
+       validity window overflows or the draft cannot be encoded.
+     */
+    public init(
+        sender: Address,
+        votePK: Data? = nil,
+        selectionPK: Data? = nil,
+        voteFirst: UInt64? = nil,
+        voteLast: UInt64? = nil,
+        voteKeyDilution: UInt64? = nil,
+        nonparticipation: Bool? = nil,
+        stateProofPK: Data? = nil,
+        fee: FeeStrategy = .minimum,
+        params: TransactionParams,
+        validRounds: UInt64 = 1000,
+        note: Data? = nil,
+        lease: Data? = nil,
+        rekeyTo: Address? = nil
+    ) throws {
+        let window = try params.validityWindow(rounds: validRounds)
+        let draft = KeyRegistrationTransaction(
+            sender: sender,
+            votePK: votePK,
+            selectionPK: selectionPK,
+            voteFirst: voteFirst,
+            voteLast: voteLast,
+            voteKeyDilution: voteKeyDilution,
+            nonparticipation: nonparticipation,
+            stateProofPK: stateProofPK,
+            fee: MicroAlgos(params.minFee),
+            firstValid: window.first,
+            lastValid: window.last,
+            genesisID: params.genesisID,
+            genesisHash: params.genesisHash,
+            note: note,
+            lease: lease,
+            rekeyTo: rekeyTo
+        )
+        self.init(
+            sender: sender,
+            votePK: votePK,
+            selectionPK: selectionPK,
+            voteFirst: voteFirst,
+            voteLast: voteLast,
+            voteKeyDilution: voteKeyDilution,
+            nonparticipation: nonparticipation,
+            stateProofPK: stateProofPK,
+            fee: try fee.fee(for: draft, params: params),
+            firstValid: window.first,
+            lastValid: window.last,
+            genesisID: params.genesisID,
+            genesisHash: params.genesisHash,
+            note: note,
+            lease: lease,
+            rekeyTo: rekeyTo
+        )
     }
 
     /**
@@ -102,7 +181,7 @@ extension KeyRegistrationTransaction {
         voteLast: UInt64,
         voteKeyDilution: UInt64,
         stateProofPK: Data? = nil,
-        fee: MicroAlgos = MicroAlgos(1000),
+        fee: MicroAlgos = AlgorandConsensus.v42.minimumFee,
         firstValid: UInt64,
         lastValid: UInt64,
         genesisID: String,
@@ -130,10 +209,62 @@ extension KeyRegistrationTransaction {
         )
     }
 
+    /**
+     Registers account online for consensus participation, from suggested parameters and a ``FeeStrategy``.
+
+     - Parameters:
+       - sender: As in the header-field factory.
+       - votePK: As in the header-field factory.
+       - selectionPK: As in the header-field factory.
+       - voteFirst: As in the header-field factory.
+       - voteLast: As in the header-field factory.
+       - voteKeyDilution: As in the header-field factory.
+       - stateProofPK: As in the header-field factory.
+       - fee: How to price the fee. Defaults to ``FeeStrategy/minimum``.
+       - params: The suggested parameters from ``AlgodClient/transactionParams()``.
+       - validRounds: How many rounds past the first the transaction stays valid; at most 1000.
+       - note: As in the header-field factory.
+       - lease: As in the header-field factory.
+       - rekeyTo: As in the header-field factory.
+     - Throws: ``FeeError/overflow(_:)`` if the fee does not fit, or `AlgorandError` if the
+       validity window overflows or the draft cannot be encoded.
+     */
+    public static func online(
+        sender: Address,
+        votePK: Data,
+        selectionPK: Data,
+        voteFirst: UInt64,
+        voteLast: UInt64,
+        voteKeyDilution: UInt64,
+        stateProofPK: Data? = nil,
+        fee: FeeStrategy = .minimum,
+        params: TransactionParams,
+        validRounds: UInt64 = 1000,
+        note: Data? = nil,
+        lease: Data? = nil,
+        rekeyTo: Address? = nil
+    ) throws -> KeyRegistrationTransaction {
+        return try KeyRegistrationTransaction(
+            sender: sender,
+            votePK: votePK,
+            selectionPK: selectionPK,
+            voteFirst: voteFirst,
+            voteLast: voteLast,
+            voteKeyDilution: voteKeyDilution,
+            stateProofPK: stateProofPK,
+            fee: fee,
+            params: params,
+            validRounds: validRounds,
+            note: note,
+            lease: lease,
+            rekeyTo: rekeyTo
+        )
+    }
+
     /// Takes account offline (stops consensus participation)
     public static func offline(
         sender: Address,
-        fee: MicroAlgos = MicroAlgos(1000),
+        fee: MicroAlgos = AlgorandConsensus.v42.minimumFee,
         firstValid: UInt64,
         lastValid: UInt64,
         genesisID: String,
@@ -155,10 +286,44 @@ extension KeyRegistrationTransaction {
         )
     }
 
+    /**
+     Takes account offline (stops consensus participation), from suggested parameters and a ``FeeStrategy``.
+
+     - Parameters:
+       - sender: As in the header-field factory.
+       - fee: How to price the fee. Defaults to ``FeeStrategy/minimum``.
+       - params: The suggested parameters from ``AlgodClient/transactionParams()``.
+       - validRounds: How many rounds past the first the transaction stays valid; at most 1000.
+       - note: As in the header-field factory.
+       - lease: As in the header-field factory.
+       - rekeyTo: As in the header-field factory.
+     - Throws: ``FeeError/overflow(_:)`` if the fee does not fit, or `AlgorandError` if the
+       validity window overflows or the draft cannot be encoded.
+     */
+    public static func offline(
+        sender: Address,
+        fee: FeeStrategy = .minimum,
+        params: TransactionParams,
+        validRounds: UInt64 = 1000,
+        note: Data? = nil,
+        lease: Data? = nil,
+        rekeyTo: Address? = nil
+    ) throws -> KeyRegistrationTransaction {
+        return try KeyRegistrationTransaction(
+            sender: sender,
+            fee: fee,
+            params: params,
+            validRounds: validRounds,
+            note: note,
+            lease: lease,
+            rekeyTo: rekeyTo
+        )
+    }
+
     /// Marks account as nonparticipating (permanently offline)
     public static func nonparticipating(
         sender: Address,
-        fee: MicroAlgos = MicroAlgos(1000),
+        fee: MicroAlgos = AlgorandConsensus.v42.minimumFee,
         firstValid: UInt64,
         lastValid: UInt64,
         genesisID: String,
@@ -175,6 +340,41 @@ extension KeyRegistrationTransaction {
             lastValid: lastValid,
             genesisID: genesisID,
             genesisHash: genesisHash,
+            note: note,
+            lease: lease,
+            rekeyTo: rekeyTo
+        )
+    }
+
+    /**
+     Marks account as nonparticipating (permanently offline), from suggested parameters and a ``FeeStrategy``.
+
+     - Parameters:
+       - sender: As in the header-field factory.
+       - fee: How to price the fee. Defaults to ``FeeStrategy/minimum``.
+       - params: The suggested parameters from ``AlgodClient/transactionParams()``.
+       - validRounds: How many rounds past the first the transaction stays valid; at most 1000.
+       - note: As in the header-field factory.
+       - lease: As in the header-field factory.
+       - rekeyTo: As in the header-field factory.
+     - Throws: ``FeeError/overflow(_:)`` if the fee does not fit, or `AlgorandError` if the
+       validity window overflows or the draft cannot be encoded.
+     */
+    public static func nonparticipating(
+        sender: Address,
+        fee: FeeStrategy = .minimum,
+        params: TransactionParams,
+        validRounds: UInt64 = 1000,
+        note: Data? = nil,
+        lease: Data? = nil,
+        rekeyTo: Address? = nil
+    ) throws -> KeyRegistrationTransaction {
+        return try KeyRegistrationTransaction(
+            sender: sender,
+            nonparticipation: true,
+            fee: fee,
+            params: params,
+            validRounds: validRounds,
             note: note,
             lease: lease,
             rekeyTo: rekeyTo

@@ -1,0 +1,115 @@
+{
+  "schema_version": 1,
+  "workflow_version": 2,
+  "workflow_origin_version": 2,
+  "id": "consensus-v42-fee-model-feestrategy-on-every-builder-and-initializer-per-transaction-usage-and-a-group-pooled-fee",
+  "slug": "consensus-v42-fee-model-feestrategy-on-every-builder-and-initializer-per-transaction-usage-and-a-group-pooled-fee",
+  "title": "Consensus v42 fee model: FeeStrategy on every builder and initializer, per-transaction usage, and a group-pooled fee requirement",
+  "description": "Consensus v42 fee model: FeeStrategy on every builder and initializer, per-transaction usage, and a group-pooled fee requirement",
+  "kind": "feature",
+  "state": "accepted",
+  "canonical_applied": true,
+  "base_commit": "4bea6067a5414895918dafcb4fb0cebcf408f4af",
+  "created_at": 1788646406,
+  "updated_at": 1788646553,
+  "affected_specs": [
+    "algorand"
+  ],
+  "affected_paths": [
+    "Sources/Algorand",
+    "Tests/AlgorandTests",
+    "specs/algorand"
+  ],
+  "no_spec_change": false,
+  "no_spec_change_rationale": null,
+  "acceptance_criteria": [
+    "Every transaction builder, initializer, and factory accepts a FeeStrategy (.minimum default, .flat, .suggested) resolved against TransactionParams, so a payment built from params whose min-fee is 2000 carries fee 2000 and reproduces the pay_min_fee_from_params golden bytes and transaction ID; .minimum prices consensus v42 usage (one minimum fee plus 100 micro-units per note byte over 1024, application-argument byte over 2048, and program byte over 8192; two minimum fees for a Falcon-1024 envelope) so a 2000-byte-note payment carries 1098 at min-fee 1000; AtomicTransactionGroup and SignedAtomicTransactionGroup expose the pooled usage and requiredFee(minFee:), and checkFees(minFee:) throws FeeError.insufficient with both numbers; every overflow throws FeeError.overflow and nothing saturates; AlgorandConsensus.v42 names the certified protocol and its 1000 microAlgo minimum fee; transactions with an explicit fee encode byte-identically to the base tree (47-line harness diff empty); on a live TestNet v42 node, read-only simulate reports group-usage equal to the SDK usage for a pooled two-payment group (2000000), a 2000-byte-note payment (1097600), an app create with 4000 argument bytes (1195200) and one with 12000 program bytes (1380800), and a mixed pooled group (2292800), each reaching overspend past signature verification; XCTest stays 98 / 20 skipped / 0 failures, Swift Testing grows 76 to 97 with 0 issues on macOS and on Linux swift:6.0-jammy three runs out of three, without editing any predecessor test file; swift build is warning-free; no existing signature is source-breaking."
+  ],
+  "selected_artifacts": [
+    "context",
+    "requirements",
+    "plan",
+    "tasks",
+    "testing",
+    "docs",
+    "research",
+    "design"
+  ],
+  "dependencies": [],
+  "supersedes": [
+    {
+      "predecessor_id": "canonical-messagepack-encoding-conformance-for-consensus-v42-omit-empty-fields-messagepack-booleans-box-reference",
+      "obligations": [
+        {
+          "path": "Sources/Algorand/ApplicationTransaction.swift",
+          "module": "algorand",
+          "predecessor_entry_digest": "08ce6414919ef6053e809aa0e408c914354a2aa35838e8d78d0ca68dcfb4f32c"
+        },
+        {
+          "path": "Sources/Algorand/AssetTransaction.swift",
+          "module": "algorand",
+          "predecessor_entry_digest": "ed79480af750692b60e5709cc8865f37bcedb51ed5f471f242903d3976953320"
+        },
+        {
+          "path": "Sources/Algorand/KeyRegistrationTransaction.swift",
+          "module": "algorand",
+          "predecessor_entry_digest": "1d386f7551f110803e999e307425dacc552ee9026f9aa1c28bfc618ead494864"
+        },
+        {
+          "path": "Sources/Algorand/PaymentTransaction.swift",
+          "module": "algorand",
+          "predecessor_entry_digest": "ad20e93a06c19aca15aadef245df7e3a31501061153020aaab4a303b5cfe633c"
+        },
+        {
+          "path": "Sources/Algorand/Transaction.swift",
+          "module": "algorand",
+          "predecessor_entry_digest": "68f1bed8a0c649082653caf7cab0154fdbd7e1ccd97461a1c0184a33f455a582"
+        }
+      ]
+    },
+    {
+      "predecessor_id": "post-quantum-signedtransaction-envelope-for-consensus-v42-sgnr-rekey-inference-pqsig-with-falcon-1024-address",
+      "obligations": [
+        {
+          "path": "Sources/Algorand/ApplicationTransaction.swift",
+          "module": "algorand",
+          "predecessor_entry_digest": "08ce6414919ef6053e809aa0e408c914354a2aa35838e8d78d0ca68dcfb4f32c"
+        },
+        {
+          "path": "Sources/Algorand/AssetTransaction.swift",
+          "module": "algorand",
+          "predecessor_entry_digest": "ed79480af750692b60e5709cc8865f37bcedb51ed5f471f242903d3976953320"
+        },
+        {
+          "path": "Sources/Algorand/KeyRegistrationTransaction.swift",
+          "module": "algorand",
+          "predecessor_entry_digest": "1d386f7551f110803e999e307425dacc552ee9026f9aa1c28bfc618ead494864"
+        },
+        {
+          "path": "Sources/Algorand/PaymentTransaction.swift",
+          "module": "algorand",
+          "predecessor_entry_digest": "ad20e93a06c19aca15aadef245df7e3a31501061153020aaab4a303b5cfe633c"
+        },
+        {
+          "path": "Sources/Algorand/Transaction.swift",
+          "module": "algorand",
+          "predecessor_entry_digest": "68f1bed8a0c649082653caf7cab0154fdbd7e1ccd97461a1c0184a33f455a582"
+        },
+        {
+          "path": "specs/algorand/algorand.spec.md",
+          "module": "algorand",
+          "predecessor_entry_digest": "9daaf797f568f8db241aff0e1ab1bc11896f4ca476d6378be248563fffa5158e"
+        },
+        {
+          "path": "specs/algorand/requirements.md",
+          "module": "algorand",
+          "predecessor_entry_digest": "e446f365e31d97ee121c1543794f9e3764d9df59da4c388fdb4e0f57f0115f97"
+        }
+      ]
+    }
+  ],
+  "answers": {
+    "architecture_risk": "yes",
+    "public_contract": "yes"
+  }
+}

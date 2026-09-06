@@ -217,3 +217,51 @@ Acceptance Criteria
 - `testPostQuantumSizesAreEnforced`, `testRekeyedPostQuantumSignerCarriesSgnr`, and `testAuthorizationErrorsDescribeThemselves` pass.
 - No `AlgorandError` case is added; `TransactionAuthorizationError` is the only new error type.
 
+### REQ-algorand-024
+
+Every transaction builder, params-based initializer, and params-based factory SHALL accept a `FeeStrategy` — `.minimum` (the default), `.flat(MicroAlgos)`, or `.suggested` — and SHALL resolve it against `TransactionParams` for the transaction alone: `.minimum` is `ceil(usage * min-fee / 1_000_000)`, `.flat` is carried verbatim including zero, and `.suggested` is `max(minimum, fee * (encoded size + 75))` when the per-byte `fee` is non-zero and the minimum otherwise. `TransactionParams` SHALL decode the per-byte `fee`, defaulting to 0 when absent, and SHALL offer a public memberwise initializer. The header-field initializers and factories SHALL keep their signatures and SHALL default `fee` to `AlgorandConsensus.v42.minimumFee`.
+
+Acceptance Criteria
+- `testMinimumStrategyReadsMinFeeFromParams` reproduces the `pay_min_fee_from_params` golden bytes and transaction ID through both `PaymentTransactionBuilder` and `PaymentTransaction.init(sender:receiver:amount:fee:params:validRounds:note:lease:rekeyTo:closeRemainderTo:)`.
+- `testMinimumStrategyPricesUsage`, `testFlatStrategyIsCarriedVerbatim`, `testSuggestedStrategyFloorsAtMinimum`, `testStrategyResolvesForAnyTransaction`, `testBuilderFeeOverloads`, `testParamsInitializersAndFactoriesAcrossTypes` (all eight params-based initializers and all eleven params-based factories), `testHeaderFieldInitializersDefaultToTheCertifiedMinimum`, `testTransactionParamsDecodesFeePerByte`, and `testValidRoundsOverflowIsAnError` pass.
+- Every pre-existing XCTest compiles and passes unchanged: 98 executed, 20 skipped, 0 failures.
+
+*Rationale: 21 initializer and factory defaults and the builder's stored `fee` hardcoded `MicroAlgos(1000)` while `TransactionParams.minFee` was decoded and never read; the header-field forms cannot read parameters they are not given, so they keep a named protocol constant instead of a magic number.*
+
+### REQ-algorand-025
+
+`Transaction.feeUsage()` SHALL return the consensus v42 usage in micro-units: `1_000_000` plus `100` per note byte beyond 1024. `ApplicationCallTransaction.feeUsage()` SHALL add `100` per application-argument byte beyond 2048, summed over every argument, and `100` per approval-plus-clear-state program byte beyond 8192; `extraPages`, boxes, accounts, foreign references, and schemas SHALL contribute nothing. `PQScheme.feeUsage` SHALL be `2_000_000` for Falcon-1024 and 0 for any other scheme, `TransactionAuthorization.feeUsage` SHALL be 0 for Ed25519, and `SignedTransaction.feeUsage()` SHALL be the sum of the transaction's and the authorization's usage. `TransactionUsage.fee(minFee:)` SHALL be `ceil(micros * minFee / 1_000_000)` computed at full 128-bit width.
+
+Acceptance Criteria
+- `testHeaderUsageIsOneFeePlusNoteSurcharge` reports 1000000, 1000000, 1000100, 1097600, and 1307200 micro-units for notes of 0, 1024, 1025, 2000, and 4096 bytes, and fees of 1000, 1000, 1001, 1098, 1308 at `minFee` 1000 and 2000, 2000, 2001, 2196, 2615 at `minFee` 2000.
+- `testNonApplicationTypesUseHeaderUsageOnly`, `testApplicationUsagePricesArgumentsAndPrograms`, `testSignatureUsage`, and `testFeeRoundsUpOnce` pass.
+- Live: a TestNet v42 node's `group-usage` equals the SDK's usage for a 2000-byte-note payment (1097600), an application create with 4000 argument bytes (1195200), and one with 12000 program bytes over five extra pages (1380800).
+
+### REQ-algorand-026
+
+`AtomicTransactionGroup.feeUsage()` SHALL sum the members' usage as Ed25519-signed transactions, `SignedAtomicTransactionGroup.feeUsage()` SHALL sum the envelopes' usage including post-quantum contributions, `requiredFee(minFee:)` on both SHALL be a single rounding over the pooled usage, and `SignedAtomicTransactionGroup.checkFees(minFee:)` SHALL return the requirement or throw `FeeError.insufficient(required:paid:)` when the members' fees sum to less. No per-transaction fee check SHALL be made: a member may carry a zero fee when another member covers it.
+
+Acceptance Criteria
+- `testGroupUsageIsPooled` shows two members whose own requirements are 1001 each pooling to 2001, not 2002.
+- `testSignedGroupCheckFees` accepts a group paying 2000 on the first member and 0 on the second, and reports `insufficient(required: 2000, paid: 1999)` when one microAlgo short.
+- `testSignedGroupCountsPostQuantumEnvelopes` raises a two-member requirement from 2000 to 4000 for one Falcon-1024 envelope, equal to `group.feeUsage().adding(PQScheme.falcon1024.feeUsage)`.
+- Live: the pooled two-payment group simulates on TestNet v42 with `group-usage` 2000000 and `group-fees-paid` 2000, and the mixed payment-plus-application group with `group-usage` 2292800, both reaching `overspend` past signature verification.
+
+### REQ-algorand-027
+
+Fee arithmetic SHALL never saturate: `TransactionUsage.adding(_:)`, `TransactionUsage.fee(minFee:)`, `FeeStrategy.suggested`, and the paid-fee total in `checkFees(minFee:)` SHALL throw `FeeError.overflow` when a value exceeds 64 bits, and a validity window past `UInt64.max` SHALL throw `AlgorandError.invalidTransaction`. `FeeError` SHALL be the only error type added; no `AlgorandError` case is added and `MicroAlgos` arithmetic is untouched.
+
+Acceptance Criteria
+- `testOverflowThrowsInsteadOfSaturating` covers the usage product, the usage sum, the suggested per-byte product, and the paid-fee total, and shows `UInt64.max` usage at `minFee` 1000000 resolving to `MicroAlgos(UInt64.max)` exactly rather than overflowing.
+- `testValidRoundsOverflowIsAnError` and `testFeeErrorsDescribeThemselves` pass.
+- `Sources/Algorand/MicroAlgos.swift` and `Sources/Algorand/AlgorandError.swift` are unchanged from the base tree.
+
+### REQ-algorand-028
+
+`AlgorandConsensus.v42` SHALL name the certified protocol by its exact `consensus-version` identifier, `https://github.com/algorandfoundation/specs/tree/268b63433a907455d439995bf916f6b296018f4f`, and its `MinTxnFee` of 1000 microAlgos. A transaction whose fee is given explicitly SHALL encode byte-identically to the base tree, and a params-based transaction SHALL encode byte-identically to the header-field form carrying the same fields.
+
+Acceptance Criteria
+- `testHeaderFieldInitializersDefaultToTheCertifiedMinimum` checks the identifier and the 1000 microAlgo minimum, and `testParamsInitializerMatchesHeaderFieldInitializer` matches a payment and an application call byte-for-byte across the two initializer forms.
+- A harness built once against 4bea606 and once against this change prints identical output for 20 transactions bare and grouped, four signed envelopes standalone and grouped, and one group identifier (47 lines, `cmp` silent).
+- Live: `GET /v2/transactions/params` on TestNet reports exactly that identifier as `consensus-version`.
+
