@@ -1,6 +1,6 @@
 # Changelog
 
-## 0.4.0 — Unreleased
+## 0.4.0 — 2026-09-06
 
 swift-algorand 0.4.0 adds consensus v42 transaction encoding, post-quantum authorization envelopes, usage-based fees, and safer input and amount APIs. This pre-1.0 minor release includes source-breaking changes.
 
@@ -32,4 +32,4 @@ swift-algorand 0.4.0 adds consensus v42 transaction encoding, post-quantum autho
 
 DocC documentation, synchronized module contracts, and the Trust verification workflow accompany the SDK changes. Swift 6 and existing deployment minimums are unchanged.
 
-Full comparison: https://github.com/CorvidLabs/swift-algorand/compare/0.3.2...0.4.0 (available after tagging).
+Full comparison: https://github.com/CorvidLabs/swift-algorand/compare/0.3.2...0.4.0.

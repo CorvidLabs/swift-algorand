@@ -1,6 +1,6 @@
 ---
 id: prepare-0-4-0-release-documentation-and-migration-notes-for-the-merged-sdk-changes
-state: implementing
+state: verifying
 type: documentation
 base_commit: bd193ad4dcc66d0c9f938fa97f5c41298588649c
 ---
