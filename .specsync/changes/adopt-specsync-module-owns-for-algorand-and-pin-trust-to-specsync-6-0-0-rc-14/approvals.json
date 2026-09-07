@@ -1,0 +1,36 @@
+{
+  "approvals": [
+    {
+      "gate": "definition",
+      "actor": "corvid-agent",
+      "timestamp": 1788794935,
+      "digest": "977c8db19e00efc4ebd3f06976be5e5b53080cab6f2aad9965b8b62b8fdd7e1e",
+      "note": null,
+      "approved_scope": {
+        "schema_version": 1,
+        "change_id": "adopt-specsync-module-owns-for-algorand-and-pin-trust-to-specsync-6-0-0-rc-14",
+        "title": "Adopt SpecSync module owns for algorand and pin Trust to SpecSync 6.0.0-rc.14",
+        "description": "Adopt SpecSync module owns for algorand and pin Trust to SpecSync 6.0.0-rc.14",
+        "kind": "operations",
+        "affected_specs": [],
+        "affected_paths": [
+          ".github/workflows/trust.yml",
+          ".specsync/config.toml"
+        ],
+        "no_spec_change": true,
+        "no_spec_change_rationale": "Governance-only configuration: grant algorand module owns for Tests, Package.swift, and DocC, and pin Trust to SpecSync 6.0.0-rc.14. No SDK behavior or canonical requirements change.",
+        "acceptance_criteria": [
+          ".specsync/config.toml declares [modules.\"algorand\"] owns for Tests, Package.swift, and Sources/Algorand/Algorand.docc; Trust workflow pins SpecSync 6.0.0-rc.14; SpecSync parses owns; no SDK source behavior change"
+        ],
+        "dependencies": [],
+        "supersedes": [],
+        "answers": {
+          "architecture_risk": "no",
+          "public_contract": "no"
+        }
+      },
+      "approved_delta_digests": {}
+    }
+  ],
+  "reopenings": []
+}
