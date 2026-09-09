@@ -10,3 +10,10 @@ enforcement = "strict"
 
 [lifecycle]
 track_history = false
+
+# Grant the algorand module lifecycle ownership of paths that CHG-0001 signed as
+# @exact:test / @exact:delivery, so later changes can supersede them without
+# reopening the bootstrap (SpecSync #755 / v6.0.0-rc.14). Not a source mapping:
+# check still demands no coverage for these paths. Do not own .specsync/.
+[modules."algorand"]
+owns = ["Tests", "Package.swift", "Sources/Algorand/Algorand.docc"]

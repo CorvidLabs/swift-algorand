@@ -27,4 +27,7 @@ jobs:
         id: trust
         uses: CorvidLabs/trust@e0272543ad5c88ec75cea1e606cc2efa552af25b # v1.2.0-rc.4
         with:
+          # Trust defaults to SpecSync 6.0.0-rc.12, which predates module owns (#755).
+          # Pin rc.14 so Trust installs a binary that understands [modules.*.owns].
+          specsync-version: "6.0.0-rc.14"
           range: ${{ github.event_name == 'pull_request' && format('{0}..{1}', github.event.pull_request.base.sha, github.event.pull_request.head.sha) || format('{0}..{1}', github.event.before, github.sha) }}
