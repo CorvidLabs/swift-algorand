@@ -25,9 +25,9 @@ jobs:
         run: apt-get update && apt-get install -y ca-certificates curl python3
       - name: CorvidLabs Trust gate
         id: trust
-        uses: CorvidLabs/trust@e0272543ad5c88ec75cea1e606cc2efa552af25b # v1.2.0-rc.4
+        uses: CorvidLabs/trust@fcc889f54d8b4892a81af463c5a0250e2be66fc5 # v1.2.0
         with:
           # Trust defaults to SpecSync 6.0.0-rc.12, which predates module owns (#755).
           # Pin rc.14 so Trust installs a binary that understands [modules.*.owns].
-          specsync-version: "6.0.0-rc.14"
+          specsync-version: "6.0.0"
           range: ${{ github.event_name == 'pull_request' && format('{0}..{1}', github.event.pull_request.base.sha, github.event.pull_request.head.sha) || format('{0}..{1}', github.event.before, github.sha) }}
