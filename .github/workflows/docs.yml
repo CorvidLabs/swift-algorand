@@ -7,7 +7,10 @@ on:
       - Sources/**
       - Package.swift
       - Package.resolved
+      - docs/**
+      - scripts/render-hld.ts
       - .github/workflows/docs.yml
+  workflow_dispatch:
 
 permissions:
   contents: read
@@ -30,17 +33,26 @@ jobs:
 
     - name: Build Documentation
       run: |
-        swift package --allow-writing-to-directory ./docs \
+        swift package --allow-writing-to-directory ./.build/pages \
           generate-documentation --target Algorand \
           --disable-indexing \
           --transform-for-static-hosting \
           --hosting-base-path swift-algorand \
-          --output-path ./docs
+          --output-path ./.build/pages
+
+    # DocC does not render Mermaid, so docs/HLD.md is published as a sibling page at /architecture/.
+    - name: Set up Bun
+      uses: oven-sh/setup-bun@v2
+      with:
+        bun-version: 1.4.0
+
+    - name: Render architecture page
+      run: bun scripts/render-hld.ts docs/HLD.md ./.build/pages/architecture/index.html
 
     - name: Upload Pages artifact
       uses: actions/upload-pages-artifact@v3
       with:
-        path: ./docs
+        path: ./.build/pages
 
   deploy:
     needs: build
