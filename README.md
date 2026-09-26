@@ -55,6 +55,7 @@ The package vends a single library product, `Algorand`. It ships no executables.
 ## Documentation
 
 - **[Getting Started](documentation/GETTING_STARTED.md)** - Step-by-step guide for your first transaction
+- **[Architecture](docs/HLD.md)** - How the SDK works end to end, with diagrams ([also on the docs site](https://corvidlabs.github.io/swift-algorand/architecture/))
 - **[Quick Start](documentation/QUICKSTART.md)** - Get a working program in 5 minutes
 - **[Testing Guide](documentation/TESTING.md)** - How the test suite is gated and how to run it
 - **[Security Best Practices](documentation/SECURITY.md)** - Guidance for production use
@@ -377,6 +378,26 @@ The SDK is organized into several key components:
 `AlgodClient` and `IndexerClient` are `actor` types and expose only `async` methods. Each
 client owns a dedicated `URLSession` with a 30s per-request and 60s per-resource timeout,
 both configurable at init.
+
+```mermaid
+flowchart LR
+    accTitle: swift-algorand overview
+    accDescr: Your app builds transactions, signs them through a TransactionSigner into canonical SignedTransaction envelopes, and submits them with AlgodClient. It queries history with IndexerClient.
+
+    app["Your app"] --> build["Transactions and builders<br/>FeeStrategy pricing"]
+    build --> sign["TransactionSigner<br/>Account or PQSigner"]
+    sign --> env["SignedTransaction<br/>canonical MessagePack"]
+    env --> algod["AlgodClient (actor)"]
+    app --> algod
+    app --> indexer["IndexerClient (actor)"]
+    algod -->|"HTTPS"| node[("algod node")]
+    indexer -->|"HTTPS"| idx[("Indexer")]
+```
+
+The full high-level design is in [docs/HLD.md](docs/HLD.md). It covers components, wire formats,
+the fee model and trust boundaries, with sequence diagrams for building, signing, submitting and
+confirming a transaction, atomic groups, post-quantum signing and indexer queries. It is also
+published on the [documentation site](https://corvidlabs.github.io/swift-algorand/architecture/).
 
 ## Network Providers
 
